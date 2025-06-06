@@ -1,0 +1,154 @@
+Here's an updated implementation of the referral system:
+
+HTML Structure
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="                               
+                <li><a href="#" id="referral-link" style="display: none;">Referral</a></li>
+                <li><a href="                                 
+                <li><a href="#" id="register-link">Register</a></li>
+                <li><a href="                                                          
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="home-page">
+            <h1>Welcome to Referral System</h1>
+        </section>
+        <section id="referral-page" style="display: none;">
+            <h1>Your Referral Link and Code</h1>
+            <p id="referral-link-text"></p>
+            <p id="referral-code-text"></p>
+            <button id="copy-link-btn">Copy Link</button>
+            <button id="copy-code-btn">Copy Code</button>
+            <p id="invited-friends-count"></p>
+        </section>
+        <section id="login-page" style="display: none;">
+            <h1>Login</h1>
+            <form id="login-form">
+                <input type="text" id="login-username" placeholder="Username">
+                <input type="password" id="login-password" placeholder="Password">
+                <button id="login-btn">Login</button>
+            </form>
+        </section>
+        <section id="register-page" style="display: none;">
+            <h1>Register</h1>
+            <form id="register-form">
+                <input type="text" id="register-username" placeholder="Username">
+                <input type="password" id="register-password" placeholder="Password">
+                <input type="text" id="register-referral-code" placeholder="Referral Code (optional)">
+                <button id="register-btn">Register</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+CSS Styles
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1em;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2em;
+}
+
+section {
+    background-color: #f7f7f7;
+    padding: 2em;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+h1 {
+    margin-top: 0;
+}
+
+button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #444;
+}
+
+JavaScript Code
+// script.js
+
+let users = JSON.parse(localStorage.getItem('users')) || {};
+let loggedInUser = null;
+
+// Function to generate referral link and code
+function generateReferralLink(username) {
+    return `https://example.com/?ref=${username}`;
+}
+
+// Function to register user
+function registerUser(username, password, referralCode) {
+    if (users[username]) {
+        alert('Username already exists!');
+        return;
+    }
+    users[username] = {
+        password: password,
+        referrals: [],
+        referralCode: username
+    };
+    if (referralCode && users[referralCode]) {
+        users[referralCode].referrals.push(username);
+    }
+    localStorage.setItem('users', JSON.stringify(users));
+    alert('User registered successfully!');
+}
+
+// Function to login user
+function loginUser(username, password) {
+    if (!users[username] || users[username].password !== password
