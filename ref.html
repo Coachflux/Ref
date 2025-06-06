@@ -9,7 +9,7 @@ HTML Structure
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Referral System</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="Ref.css">
 </head>
 <body>
     <header>
@@ -54,101 +54,6 @@ HTML Structure
         </section>
     </main>
 
-    <script src="script.js"></script>
-</body>
+    <script src="ref.js"></script>
+</body>           
 </html>
-
-CSS Styles
-/* styles.css */
-
-body {
-    font-family: Arial, sans-serif;
-}
-
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1em;
-    text-align: center;
-}
-
-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-nav li {
-    display: inline-block;
-    margin-right: 20px;
-}
-
-nav a {
-    color: #fff;
-    text-decoration: none;
-}
-
-main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2em;
-}
-
-section {
-    background-color: #f7f7f7;
-    padding: 2em;
-    border: 1px solid #ddd;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-h1 {
-    margin-top: 0;
-}
-
-button {
-    background-color: #333;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #444;
-}
-
-JavaScript Code
-// script.js
-
-let users = JSON.parse(localStorage.getItem('users')) || {};
-let loggedInUser = null;
-
-// Function to generate referral link and code
-function generateReferralLink(username) {
-    return `https://example.com/?ref=${username}`;
-}
-
-// Function to register user
-function registerUser(username, password, referralCode) {
-    if (users[username]) {
-        alert('Username already exists!');
-        return;
-    }
-    users[username] = {
-        password: password,
-        referrals: [],
-        referralCode: username
-    };
-    if (referralCode && users[referralCode]) {
-        users[referralCode].referrals.push(username);
-    }
-    localStorage.setItem('users', JSON.stringify(users));
-    alert('User registered successfully!');
-}
-
-// Function to login user
-function loginUser(username, password) {
-    if (!users[username] || users[username].password !== password
