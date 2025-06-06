@@ -1,54 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referral System</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NHCoin - Referral System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #2c2f36;
+      color: white;
+    }
+    nav {
+      background-color: #1f2229;
+      padding: 10px;
+      display: flex;
+      justify-content: space-around;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+    }
+    .hidden {
+      display: none;
+    }
+    .card {
+      background: #3a3f47;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="                               
-                <li><a href="#" id="referral-link" style="display: none;">Referral</a></li>
-                <li><a href="                                 
-                <li><a href="#" id="register-link">Register</a></li>
-                <li><a href="                                                          
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id="home-page">
-            <h1>Welcome to Referral System</h1>
-        </section>
-        <section id="referral-page" style="display: none;">
-            <h1>Your Referral Link and Code</h1>
-            <p id="referral-link-text"></p>
-            <p id="referral-code-text"></p>
-            <button id="copy-link-btn">Copy Link</button>
-            <button id="copy-code-btn">Copy Code</button>
-            <p id="invited-friends-count"></p>
-        </section>
-        <section id="login-page" style="display: none;">
-            <h1>Login</h1>
-            <form id="login-form">
-                <input type="text" id="login-username" placeholder="Username">
-                <input type="password" id="login-password" placeholder="Password">
-                <button id="login-btn">Login</button>
-            </form>
-        </section>
-        <section id="register-page" style="display: none;">
-            <h1>Register</h1>
-            <form id="register-form">
-                <input type="text" id="register-username" placeholder="Username">
-                <input type="password" id="register-password" placeholder="Password">
-                <input type="text" id="register-referral-code" placeholder="Referral Code (optional)">
-                <button id="register-btn">Register</button>
-            </form>
-        </section>
-    </main>
+  <nav>
+    <a href="#" onclick="showPage('home')">Home</a>
+    <a href="#" onclick="showPage('referral')">Referral</a>
+    <a href="#" onclick="showPage('login')">Login</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
 
-    <script src="script.js"></script>
-</body>           
+  <div class="container">
+    <div id="home" class="page">
+      <h1>Welcome to NHCoin!</h1>
+      <p>This is a demo app with mining and a referral system.</p>
+    </div>
+
+    <div id="login" class="page hidden">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Enter your username">
+      <input type="password" id="loginPassword" placeholder="Enter your password">
+      <button onclick="loginUser()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="showPage('register')">Register here</a></p>
+    </div>
+
+    <div id="register" class="page hidden">
+      <h2>Register</h2>
+      <input type="text" id="username" placeholder="Enter your username">
+      <input type="password" id="password" placeholder="Enter your password">
+      <input type="text" id="inviterCode" placeholder="Referral code (optional)">
+      <button onclick="registerUser()">Register</button>
+    </div>
+
+    <div id="referral" class="page hidden">
+      <h2>Your Referral Details</h2>
+      <div class="card">
+        <p><strong>Username:</strong> <span id="displayUsername"></span></p>
+        <p><strong>Referral Code:</strong> <span id="referralCode"></span></p>
+        <p><strong>Referral Link:</strong> <span id="referralLink"></span></p>
+        <p><strong>Friends Invited:</strong> <span id="referralCount">0</span></p>
+        <button onclick="copyText('referralLink')">Copy Link</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(page).classList.remove('hidden');
+      if (page === 'referral') {
+        displayReferralInfo();
+      }
+    }
+
+    function generateReferralCode(username) {
+      return username + Math.floor(Math.random() * 10000);
+    }
+
+    function registerUser() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const inviterCode = document.getElementById('inviterCode').value.trim();
+
+      if (!username || !password) return alert("Please fill all required fields.");
+
+      if (!localStorage.getItem(`user_${username}`)) {
+        const user = {
+          username: username,
+          password: password,
+          referralCode: generateReferralCode(username),
+          invited: 0
+        };
+        localStorage.setItem(`user_${username}`, JSON.stringify(user));
+
+        if (inviterCode) {
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('user_')) {
+              const inviter = JSON.parse(localStorage.getItem(key));
+              if (inviter.referralCode === inviterCode) {
+                inviter.invited = (inviter.invited || 0) + 1;
+                localStorage.setItem(key, JSON.stringify(inviter));
+              }
+            }
+          });
+        }
+
+        localStorage.setItem('currentUser', username);
+        showPage('referral');
+      } else {
+        alert("Username already exists.");
+      }
+    }
+
+    function loginUser() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!username || !password) return alert("Please enter your credentials.");
+
+      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
+      if (!userData || userData.password !== password) {
+        return alert("Invalid username or password.");
+      }
+
+      localStorage.setItem('currentUser', username);
+      showPage('referral');
+    }
+
+    function displayReferralInfo() {
+      const username = localStorage.getItem('currentUser');
+      if (!username) return showPage('login');
+
+      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
+      document.getElementById('displayUsername').innerText = userData.username;
+      document.getElementById('referralCode').innerText = userData.referralCode;
+      document.getElementById('referralLink').innerText = `${location.origin}?ref=${userData.referralCode}`;
+      document.getElementById('referralCount').innerText = userData.invited || 0;
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      showPage('login');
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+    }
+
+    window.onload = () => {
+      const refCode = new URLSearchParams(window.location.search).get('ref');
+      if (refCode) {
+        localStorage.setItem('incomingRefCode', refCode);
+      }
+
+      const user = localStorage.getItem('currentUser');
+      if (user) {
+        showPage('referral');
+      } else {
+        showPage('login');
+      }
+    }
+  </script>
+</body>
 </html>
