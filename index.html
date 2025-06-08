@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NHCoin - Referral System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #2c2f36;
+      color: white;
+    }
+    nav {
+      background-color: #1f2229;
+      padding: 10px;
+      display: flex;
+      justify-content: space-around;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+    }
+    .hidden {
+      display: none;
+    }
+    .card {
+      background: #3a3f47;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .dashboard-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #3a3f47;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .dashboard-top .welcome {
+      font-weight: bold;
+    }
+    .dashboard-top .balance {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2e313a;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 5px 5px 10px #1e1f23, -5px -5px 10px #3e4149;
+      font-size: 1.5em;
+    }
+    .dashboard-top .settings {
+      font-size: 20px;
+    }
+    .graph-container {
+      background: #3a3f47;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .graph-inner {
+      background: #2c2f36;
+      border-radius: 5px;
+      padding: 20px;
+      height: 150px;
+    }
+    .middle-info {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .image-container img {
+      width: 20px;
+      height: 20px;
+    }
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1f2229;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+    }
+    .footer i {
+      font-size: 20px;
+    }
+    .footer .center-icon {
+      background: #2e313a;
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: 5px 5px 10px #1e1f23, -5px -5px 10px #3e4149;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <a href="#" onclick="showPage('home')">Home</a>
+    <a href="#" onclick="showPage('referral')">Referral</a>
+    <a href="#" onclick="showPage('dashboard')">Dashboard</a>
+    <a href="#" onclick="showPage('login')">Login</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+
+  <div class="container">
+    <div id="home" class="page">
+      <h1>Welcome to NHCoin!</h1>
+      <p>This is a demo app with mining and a referral system.</p>
+    </div>
+
+    <div id="login" class="page hidden">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Enter your username">
+      <input type="password" id="loginPassword" placeholder="Enter your password">
+      <button onclick="loginUser()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="showPage('register')">Register here</a></p>
+    </div>
+
+    <div id="register" class="page hidden">
+      <h2>Register</h2>
+      <input type="text" id="username" placeholder="Enter your username">
+      <input type="password" id="password" placeholder="Enter your password">
+      <input type="text" id="inviterCode" placeholder="Referral code (optional)">
+      <button onclick="registerUser()">Register</button>
+    </div>
+
+    <div id="referral" class="page hidden">
+      <h2>Your Referral Details</h2>
+      <div class="card">
+        <p><strong>Username:</strong> <span id="displayUsername"></span></p>
+        <p><strong>Referral Code:</strong> <span id="referralCode"></span></p>
+        <p><strong>Referral Link:</strong> <span id="referralLink"></span></p>
+        <p><strong>Friends Invited:</strong> <span id="referralCount">0</span></p>
+        <button onclick="copyText('referralLink')">Copy Link</button>
+      </div>
+    </div>
+
+    <div id="dashboard" class="page hidden">
+      <div class="dashboard-top">
+        <div class="welcome">Welcome! <span id="dashUsername"></span></div>
+        <div class="balance">$0.00</div>
+        <div class="settings"><i class="fas fa-cog"></i></div>
+      </div>
+
+      <div class="graph-container">
+        <div class="graph-inner">Graph Area</div>
+      </div>
+
+      <div class="middle-info">Some Info</div>
+
+      <div class="image-container">
+        <img src="https://via.placeholder.com/20" alt="icon">
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <i class="fas fa-home"></i>
+    <i class="fas fa-chart-line"></i>
+    <div class="center-icon"><i class="fas fa-plus"></i></div>
+    <i class="fas fa-bell"></i>
+    <i class="fas fa-user"></i>
+  </div>
+
+  <script>
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(page).classList.remove('hidden');
+      if (page === 'referral') {
+        displayReferralInfo();
+      } else if (page === 'dashboard') {
+        document.getElementById('dashUsername').innerText = localStorage.getItem('currentUser');
+      }
+    }
+
+    function generateReferralCode(username) {
+      return username + Math.floor(Math.random() * 10000);
+    }
+
+    function registerUser() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const inviterCode = document.getElementById('inviterCode').value.trim();
+
+      if (!username || !password) return alert("Please fill all fields.");
+
+      if (!localStorage.getItem(`user_${username}`)) {
+        const user = {
+          username,
+          password,
+          referralCode: generateReferralCode(username),
+          invited: 0
+        };
+        localStorage.setItem(`user_${username}`, JSON.stringify(user));
+
+        if (inviterCode) {
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('user_')) {
+              const inviter = JSON.parse(localStorage.getItem(key));
+              if (inviter.referralCode === inviterCode) {
+                inviter.invited = (inviter.invited || 0) + 1;
+                localStorage.setItem(key, JSON.stringify(inviter));
+              }
+            }
+          });
+        }
+      }
+
+      localStorage.setItem('currentUser', username);
+      showPage('referral');
+    }
+
+    function loginUser() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!username || !password) return alert("Please enter your username and password.");
+
+      const storedUser = JSON.parse(localStorage.getItem(`user_${username}`));
+
+      if (!storedUser || storedUser.password !== password) {
+        return alert("Invalid username or password.");
+      }
+
+      localStorage.setItem('currentUser', username);
+      showPage('referral');
+    }
+
+    function displayReferralInfo() {
+      const username = localStorage.getItem('currentUser');
+      if (!username) return showPage('login');
+
+      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
+      document.getElementById('displayUsername').innerText = userData.username;
+      document.getElementById('referralCode').innerText = userData.referralCode;
+      document.getElementById('referralLink').innerText = `${location.origin}?ref=${userData.referralCode}`;
+      document.getElementById('referralCount').innerText = userData.invited || 0;
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      showPage('login');
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+    }
+
+    window.onload = () => {
+      const refCode = new URLSearchParams(window.location.search).get('ref');
+      if (refCode) {
+        localStorage.setItem('incomingRefCode', refCode);
+      }
+
+      const user = localStorage.getItem('currentUser');
+      if (user) {
+        showPage('referral');
+      } else {
+        showPage('login');
+      }
+    }
+  </script>
+</body>
+</html>
