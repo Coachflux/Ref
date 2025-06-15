@@ -1,18 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miner</title>
-    <link rel="stylesheet" href="home.css">
+  <meta charset="UTF-8">
+  <title>Point Miner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #points {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #019270;
+    }
+    #status {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+  </style>
 </head>
 <body>
-    <h1>Miner</h1>
-    <button id="mine-btn">Mine Points</button>
-    <p id="points">Points: 0</p>
-    <p id="last-mine-time"></p>
-    <script src="home.js"></script>
+
+  <h1>Point Miner</h1>
+  <div id="points">Points: 0.0000</div>
+  <button id="startBtn">Click to Start Mining</button>
+  <div id="status"></div>
+
+  <script>
+    const POINTS_KEY = 'miner_points';
+    const LAST_MINED_KEY = 'last_mined';
+    const MINING_ACTIVE_KEY = 'mining_active';
+    const SIX_HOURS = 6 * 60 * 60 * 1000; // 6 hours in ms
+    const POINTS_PER_SECOND = 0.0002;
+
+    const pointsDisplay = document.getElementById('points');
+    const startBtn = document.getElementById('startBtn');
+    const status = document.getElementById('status');
+
+    let miningInterval = null;
+
+    function getPoints() {
+      return parseFloat(localStorage.getItem(POINTS_KEY)) || 0;
+    }
+
+    function setPoints(value) {
+      localStorage.setItem(POINTS_KEY, value.toFixed(4));
+      pointsDisplay.textContent = `Points: ${value.toFixed(4)}`;
+    }
+
+    function updatePointsFromLastTime() {
+      const lastMined = parseInt(localStorage.getItem(LAST_MINED_KEY), 10);
+      const now = Date.now();
+      if (!lastMined) return;
+
+      const elapsed = now - lastMined;
+
+      if (elapsed > SIX_HOURS) {
+        status.textContent = 'Mining session expired. Please start again.';
+        localStorage.removeItem(MINING_ACTIVE_KEY);
+        return;
+      }
+
+      const additionalPoints = (elapsed / 1000) * POINTS_PER_SECOND;
+      const newPoints = getPoints() + additionalPoints;
+      setPoints(newPoints);
+    }
+
+    function startMining() {
+      const now = Date.now();
+      localStorage.setItem(LAST_MINED_KEY, now.toString());
+      localStorage.setItem(MINING_ACTIVE_KEY, 'true');
+      status.textContent = 'Mining in progress...';
+
+      if (miningInterval) clearInterval(miningInterval);
+
+      miningInterval = setInterval(() => {
+        const currentPoints = getPoints();
+        const newPoints = currentPoints + POINTS_PER_SECOND;
+        setPoints(newPoints);
+        localStorage.setItem(LAST_MINED_KEY, Date.now().toString());
+      }, 1000);
+    }
+
+    function stopMining() {
+      clearInterval(miningInterval);
+      localStorage.removeItem(MINING_ACTIVE_KEY);
+      status.textContent = 'Mining stopped.';
+    }
+
+    // On load
+    window.addEventListener('load', () => {
+      setPoints(getPoints());
+      const lastMined = localStorage.getItem(LAST_MINED_KEY);
+      const isActive = localStorage.getItem(MINING_ACTIVE_KEY);
+
+      if (lastMined && isActive) {
+        updatePointsFromLastTime();
+        const elapsed = Date.now() - parseInt(lastMined, 10);
+        if (elapsed < SIX_HOURS) {
+          startMining();
+        }
+      }
+    });
+
+    startBtn.addEventListener('click', () => {
+      startMining();
+    });
+  </script>
+
 </body>
 </html>
+
 
 
