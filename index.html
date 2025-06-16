@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mining Savi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      background: #011c1c;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+
+    header {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      background-color: #052828;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .card {
+      background: #103636;
+      border-radius: 20px;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      margin: 1rem auto;
+      box-shadow: 0 0 10px #00000055;
+      text-align: center;
+    }
+
+    .card h2 {
+      margin: 0;
+    }
+
+    .balance {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    .rank {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      color: #c0c0c0;
+    }
+
+    .meter-container {
+      position: relative;
+      margin: 2rem 0;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #14ff8a 0% 25%,
+        #f1c40f 25% 50%,
+        #e67e22 50% 75%,
+        #e74c3c 75% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .meter-container .time {
+      position: absolute;
+      font-size: 2rem;
+      background-color: #041c1c;
+      padding: 1rem 2rem;
+      border-radius: 50%;
+      box-shadow: inset 0 0 10px #000;
+    }
+
+    .mine-button {
+      background: linear-gradient(90deg, #00c896, #00ffb3);
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      color: #041c1c;
+      font-size: 1.2rem;
+      font-weight: bold;
+      width: 90%;
+      max-width: 400px;
+      margin: 1rem auto;
+      cursor: pointer;
+    }
+
+    .nav-bar {
+      position: relative;
+      background: #031e1e;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      margin: 1rem auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 20px rgba(0, 255, 200, 0.1),
+                  inset -4px -4px 10px #000,
+                  inset 4px 4px 10px #0e2c2c;
+    }
+
+    .nav-icon {
+      position: relative;
+      color: #9debdc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      flex: 1;
+      padding: 10px 0;
+    }
+
+    .nav-icon i {
+      font-size: 1.5rem;
+      transition: 0.3s;
+    }
+
+    .nav-icon.active .label,
+    .nav-icon.show-label .label {
+      opacity: 1;
+      transform: translateY(-1.8rem);
+    }
+
+    .label {
+      font-size: 0.75rem;
+      color: #66fff2;
+      position: absolute;
+      top: -1.5rem;
+      background: #032928;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      box-shadow: 0 2px 5px rgba(0,255,255,0.1);
+      opacity: 0;
+      transition: 0.3s ease-in-out;
+    }
+
+    .center-btn {
+      background: radial-gradient(circle at center, #1bffd6, #00aa88);
+      padding: 1.1rem;
+      border-radius: 50%;
+      margin-top: -2rem;
+      color: #002221;
+      box-shadow: 0 0 0 5px #011f1f,
+                  0 6px 20px rgba(0,255,200,0.4),
+                  inset 0 4px 10px rgba(0,0,0,0.4),
+                  inset 0 -4px 10px rgba(0,255,255,0.4);
+      z-index: 1;
+      position: relative;
+    }
+
+    .center-btn i {
+      font-size: 1.7rem;
+    }
+  </style>
+</head>
+<body>
+  <header>Mining Savi</header>
+
+  <div class="card">
+    <div class="balance" id="balance">68.55</div>
+    <div class="rank">Your rank: PIONEER</div>
+  </div>
+
+  <div class="meter-container">
+    <div class="time" id="countdown">4:00:00</div>
+  </div>
+
+  <button class="mine-button" id="mineBtn">Mine now!</button>
+
+  <div class="nav-bar">
+    <div class="nav-icon" onclick="toggleLabel(this)">
+      <div class="label">Airdrop</div>
+      <i class="fa-solid fa-gift"></i>
+    </div>
+    <div class="nav-icon" onclick="toggleLabel(this)">
+      <div class="label">Referral</div>
+      <i class="fa-solid fa-user-group"></i>
+    </div>
+    <div class="nav-icon center-btn" onclick="toggleLabel(this)">
+      <div class="label">Mine Axe</div>
+      <i class="fa-solid fa-hammer"></i>
+    </div>
+    <div class="nav-icon" onclick="toggleLabel(this)">
+      <div class="label">News</div>
+      <i class="fa-solid fa-newspaper"></i>
+    </div>
+    <div class="nav-icon" onclick="toggleLabel(this)">
+      <div class="label">Settings</div>
+      <i class="fa-solid fa-gear"></i>
+    </div>
+  </div>
+
+  <script>
+    const balanceEl = document.getElementById('balance');
+    const countdownEl = document.getElementById('countdown');
+    const mineBtn = document.getElementById('mineBtn');
+
+    const SESSION_DURATION = 6 * 60 * 60 * 1000; // 6 hours in ms
+    const POINTS_PER_SECOND = 0.0002;
+
+    let mining = false;
+    let startTime = 0;
+    let interval;
+
+    function formatTime(msLeft) {
+      const totalSeconds = Math.floor(msLeft / 1000);
+      const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const s = String(totalSeconds % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function startMining() {
+      if (mining) return;
+
+      mining = true;
+      startTime = Date.now();
+
+      interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = SESSION_DURATION - elapsed;
+
+        if (remaining <= 0) {
+          clearInterval(interval);
+          countdownEl.textContent = '00:00:00';
+          mining = false;
+          return;
+        }
+
+        countdownEl.textContent = formatTime(remaining);
+        const earned = POINTS_PER_SECOND * (elapsed / 1000);
+        balanceEl.textContent = (68.55 + earned).toFixed(2);
+      }, 1000);
+    }
+
+    mineBtn.addEventListener('click', startMining);
+
+    function toggleLabel(el) {
+      document.querySelectorAll('.nav-icon').forEach(icon => {
+        if (icon !== el) icon.classList.remove('show-label');
+      });
+      el.classList.toggle('show-label');
+    }
+  </script>
+</body>
+</html>
