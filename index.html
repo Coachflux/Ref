@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Magic Nav</title>
+  <style>
+    body {
+      margin: 0;
+      background: #041c1c;
+      padding-bottom: 90px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 70px;
+      background: #052828;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+      z-index: 100;
+    }
+
+    .nav-icon {
+      position: relative;
+      text-align: center;
+      color: #aaa;
+      font-size: 20px;
+      flex: 1;
+      padding: 10px 0;
+      cursor: pointer;
+    }
+
+    .nav-icon i {
+      display: block;
+    }
+
+    /* Tooltip Label */
+    .nav-icon .label {
+      position: absolute;
+      bottom: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00b894;
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 255, 200, 0.4);
+    }
+
+    .nav-icon.show-label .label {
+      opacity: 1;
+    }
+
+    /* Neumorphism center icon */
+    .center-icon {
+      background: linear-gradient(145deg, #00ffc8, #00b894);
+      color: #041c1c;
+      border-radius: 50%;
+      padding: 18px;
+      font-size: 24px;
+      transform: translateY(-25%);
+      box-shadow:
+        inset -5px -5px 10px rgba(255, 255, 255, 0.1),
+        inset 5px 5px 10px rgba(0, 0, 0, 0.2),
+        0 0 15px #00ffc855;
+    }
+
+    .center-icon .label {
+      bottom: 60px;
+      background: #00ffc8;
+      color: #041c1c;
+      box-shadow: 0 4px 12px rgba(0, 255, 200, 0.5);
+    }
+  </style>
+
+  <!-- Font Awesome CDN -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Magic Nav Bar -->
+  <div class="nav-bar">
+    <div class="nav-icon" onclick="showLabel(this)">
+      <i class="fas fa-gift"></i>
+      <div class="label">Airdrop</div>
+    </div>
+    <div class="nav-icon" onclick="showLabel(this)">
+      <i class="fas fa-user-friends"></i>
+      <div class="label">Referral</div>
+    </div>
+    <div class="nav-icon center-icon" onclick="showLabel(this)">
+      <i class="fas fa-hammer"></i>
+      <div class="label">Mine</div>
+    </div>
+    <div class="nav-icon" onclick="showLabel(this)">
+      <i class="fas fa-newspaper"></i>
+      <div class="label">News</div>
+    </div>
+    <div class="nav-icon" onclick="showLabel(this)">
+      <i class="fas fa-cog"></i>
+      <div class="label">Settings</div>
+    </div>
+  </div>
+
+  <script>
+    function showLabel(icon) {
+      // Hide all labels first
+      document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('show-label'));
+
+      // Show only the tapped one
+      icon.classList.add('show-label');
+
+      // Auto-hide after 2 seconds
+      setTimeout(() => {
+        icon.classList.remove('show-label');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
