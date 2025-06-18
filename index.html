@@ -3,53 +3,309 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>USDT Water Drops</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <title>Mining Savi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(145deg, #ffffff, #f0f0f0);
+      background: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
+      padding-bottom: 6rem;
     }
 
-    .drop {
+    header {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      background-color: #052828;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .card {
+      background: #f0ffff;
+      border-radius: 2rem;
+      box-shadow: -10px -10px 30px #ffffff, 10px 10px 30px rgba(0, 255, 200, 0.3);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      margin: 1rem auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .balance-img {
       width: 40px;
       height: 40px;
-      margin: 10px;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      box-shadow: 
-        inset 2px 2px 5px rgba(0,0,0,0.1),
-        inset -2px -2px 5px rgba(255,255,255,0.8),
-        3px 3px 8px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(4px);
+      object-fit: cover;
     }
 
-    .drop i {
-      color: #2abdcf;
-      font-size: 14px;
+    .balance-details {
+      flex: 1;
+      text-align: left;
+    }
+
+    .balance {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00aa88;
+    }
+
+    .rank {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .drops-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .drops-row img {
+      width: 25px;
+      height: 25px;
+    }
+
+    .circle-meter {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background-image: url('https://i.ibb.co/YQ8s9Rx/water-meter.png'); /* Sample circular image */
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      margin: 1rem 0;
+    }
+
+    .countdown-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #041c1c;
+      font-size: 1rem;
+      font-weight: bold;
+      background: rgba(255,255,255,0.75);
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+    }
+
+    .mine-button {
+      background: linear-gradient(90deg, #00c896, #00ffb3);
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      color: #041c1c;
+      font-size: 1.2rem;
+      font-weight: bold;
+      width: 90%;
+      max-width: 400px;
+      margin: 1rem auto;
+      cursor: pointer;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #031e1e;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0, 255, 200, 0.1);
+      border-top-left-radius: 2rem;
+      border-top-right-radius: 2rem;
+    }
+
+    .nav-icon {
+      color: #9debdc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: transform 0.3s;
+    }
+
+    .nav-icon.active {
+      transform: scale(1.2);
+      color: #00ffc8;
+    }
+
+    .nav-icon .label {
+      font-size: 0.7rem;
+      color: #66fff2;
+      margin-top: 0.2rem;
+    }
+
+    .drops-below img {
+      width: 30px;
+      height: 30px;
+      margin: 0 5px;
+    }
+
+    @media screen and (max-width: 480px) {
+      .card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .balance-details {
+        text-align: center;
+        width: 100%;
+      }
+
+      .circle-meter {
+        width: 160px;
+        height: 160px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Generate multiple drops with USDT icon -->
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <div class="drop"><i class="fa-brands fa-usdt"></i></div>
-  <!-- Add more as needed -->
+  <header>Mining Savi</header>
+
+  <div class="card">
+    <img src="https://i.ibb.co/XDGfzCp/coin.png" alt="balance-icon" class="balance-img" />
+    <div class="balance-details">
+      <div class="balance" id="balance">68.55</div>
+      <div class="rank" id="rank">Rank: Starter</div>
+    </div>
+  </div>
+
+  <div class="drops-row">
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+  </div>
+
+  <div class="circle-meter">
+    <div class="countdown-overlay">
+      <div id="countdown">06:00:00</div>
+      <div>+ <span id="mined">0.00</span> USDT</div>
+    </div>
+  </div>
+
+  <div class="drops-below" style="text-align:center; margin-bottom:1rem;">
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+    <img src="https://i.ibb.co/9tmNF4M/wdrop.png" />
+  </div>
+
+  <button class="mine-button" id="mineBtn">Mine now!</button>
+
+  <div class="nav-bar">
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-gift"></i>
+      <div class="label">Airdrop</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-user-group"></i>
+      <div class="label">Referral</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-hammer"></i>
+      <div class="label">Mine Axe</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-newspaper"></i>
+      <div class="label">News</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-gear"></i>
+      <div class="label">Settings</div>
+    </div>
+  </div>
+
+  <script>
+    const balanceEl = document.getElementById('balance');
+    const countdownEl = document.getElementById('countdown');
+    const minedEl = document.getElementById('mined');
+    const mineBtn = document.getElementById('mineBtn');
+    const rankEl = document.getElementById('rank');
+
+    const SESSION_DURATION = 6 * 60 * 60 * 1000;
+    const POINTS_PER_SECOND = 0.00001157;
+
+    let mining = false;
+    let startTime = 0;
+    let interval;
+
+    const MINING_DAYS_KEY = "miningDays";
+    const LAST_MINED_KEY = "lastMined";
+
+    function getDaysMined() {
+      return parseInt(localStorage.getItem(MINING_DAYS_KEY) || "0");
+    }
+
+    function incrementMiningDay() {
+      let currentDays = getDaysMined();
+      localStorage.setItem(MINING_DAYS_KEY, currentDays + 1);
+    }
+
+    function updateRank() {
+      let days = getDaysMined();
+      if (days >= 90) rankEl.textContent = "Rank: Supreme";
+      else if (days >= 60) rankEl.textContent = "Rank: Elite";
+      else if (days >= 30) rankEl.textContent = "Rank: Pioneer";
+      else rankEl.textContent = "Rank: Starter";
+    }
+
+    function formatTime(ms) {
+      let sec = Math.floor(ms / 1000);
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function startMining() {
+      if (mining) return;
+
+      mining = true;
+      startTime = Date.now();
+
+      interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = SESSION_DURATION - elapsed;
+
+        if (remaining <= 0) {
+          clearInterval(interval);
+          countdownEl.textContent = '00:00:00';
+          mining = false;
+          incrementMiningDay();
+          updateRank();
+          return;
+        }
+
+        countdownEl.textContent = formatTime(remaining);
+        let earned = POINTS_PER_SECOND * (elapsed / 1000);
+        minedEl.textContent = earned.toFixed(2);
+        balanceEl.textContent = (68.55 + earned).toFixed(2);
+      }, 1000);
+    }
+
+    function toggleNav(el) {
+      document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // On page load
+    updateRank();
+  </script>
 </body>
 </html>
+
