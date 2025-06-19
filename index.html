@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mining Savi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #052820;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 6rem;
+    }
+    header {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      background-color: #052828;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .card {
+      background: #f0ffff;
+      border-radius: 2rem;
+      box-shadow: -10px -10px 30px #ffffff, 10px 10px 30px rgba(0, 255, 200, 0.3);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      margin: 1rem auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+    }
+    .calendar-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.3rem;
+      color: #00c896;
+      cursor: pointer;
+    }
+    .calendar-popup {
+      display: none;
+      position: fixed;
+      top: 80px;
+      left: 10%;
+      width: 80%;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 1rem;
+      z-index: 99;
+      box-shadow: 0 0 10px rgba(0,255,200,0.5);
+      text-align: center;
+    }
+    .balance-img {
+      width: 40px;
+      height: 40px;
+    }
+    .balance-details {
+      flex: 1;
+    }
+    .balance {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #00aa88;
+    }
+    .rank {
+      font-size: 1rem;
+      color: #555;
+    }
+    .rank-bar {
+      background: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 8px;
+      margin-top: 5px;
+    }
+    .rank-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, #00ffcc, #00aa88);
+    }
+    .circle-meter {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background-image: url('img/usdt.webp');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      margin: 1rem 0;
+    }
+    .countdown-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #041c1c;
+      font-size: 1rem;
+      font-weight: bold;
+      background: rgba(255,255,255,0.75);
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+    }
+    .mine-button {
+      background: linear-gradient(90deg, #00c896, #00ffb3);
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      color: #041c1c;
+      font-size: 1.2rem;
+      font-weight: bold;
+      width: 90%;
+      max-width: 400px;
+      margin: 1rem auto;
+      cursor: pointer;
+    }
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #031e1e;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0, 255, 200, 0.1);
+      border-top-left-radius: 2rem;
+      border-top-right-radius: 2rem;
+    }
+    .nav-icon {
+      color: #9debdc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+    .nav-icon.active {
+      transform: scale(1.2);
+      color: #00ffc8;
+    }
+    .nav-icon .label {
+      font-size: 0.7rem;
+      color: #66fff2;
+      margin-top: 0.2rem;
+    }
+    @media screen and (max-width: 480px) {
+      .card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .balance-details {
+        text-align: center;
+        width: 100%;
+      }
+      .circle-meter {
+        width: 160px;
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Mining Savi</header>
+
+  <div class="card">
+    <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
+    <img src="img/usdtminer.webp" class="balance-img" />
+    <div class="balance-details">
+      <div class="balance" id="balance">$0.00</div>
+      <div class="rank" id="rank">Rank: Starter</div>
+      <div class="rank-bar"><div class="rank-bar-fill" id="rankProgress" style="width: 0%"></div></div>
+    </div>
+  </div>
+
+  <div class="calendar-popup" id="calendarPopup">Mined Days:<br><div id="minedDates"></div></div>
+
+  <div class="circle-meter">
+    <div class="countdown-overlay">
+      <div id="countdown">06:00:00</div>
+      <div><span id="mined">+0.00</span></div>
+    </div>
+  </div>
+
+  <button class="mine-button" id="mineBtn">Mine now!</button>
+
+  <div class="nav-bar">
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-gift"></i><div class="label">Airdrop</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-user-group"></i><div class="label">Referral</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-hammer"></i><div class="label">Mine Axe</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-newspaper"></i><div class="label">News</div>
+    </div>
+    <div class="nav-icon" onclick="toggleNav(this)">
+      <i class="fa-solid fa-gear"></i><div class="label">Settings</div>
+    </div>
+  </div>
+
+  <audio id="miningSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+
+  <script>
+    const SESSION_DURATION = 6 * 60 * 60 * 1000;
+    const POINTS_PER_SECOND = 0.00002;
+    const BONUS_2_DAYS = 0.05;
+    const BONUS_5_DAYS = 0.5;
+
+    const balanceEl = document.getElementById('balance');
+    const countdownEl = document.getElementById('countdown');
+    const minedEl = document.getElementById('mined');
+    const rankEl = document.getElementById('rank');
+    const rankBar = document.getElementById('rankProgress');
+    const calendarPopup = document.getElementById('calendarPopup');
+    const minedDatesDiv = document.getElementById('minedDates');
+    const miningSound = document.getElementById('miningSound');
+
+    let mining = false;
+    let startTime = 0;
+    let interval;
+
+    const getMinedDays = () => JSON.parse(localStorage.getItem('minedDays') || '[]');
+    const saveMinedDay = () => {
+      const date = new Date().toISOString().split('T')[0];
+      let days = getMinedDays();
+      if (!days.includes(date)) days.push(date);
+      localStorage.setItem('minedDays', JSON.stringify(days));
+    };
+
+    function toggleCalendar() {
+      const popup = document.getElementById('calendarPopup');
+      const days = getMinedDays();
+      minedDatesDiv.innerHTML = days.join('<br>');
+      popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function getBalance() {
+      return parseFloat(localStorage.getItem('balance') || '0');
+    }
+
+    function setBalance(val) {
+      localStorage.setItem('balance', val.toFixed(2));
+      balanceEl.textContent = `$${val.toFixed(2)}`;
+    }
+
+    function checkStreakBonus() {
+      let days = getMinedDays().sort();
+      let streak = 0, bonus = 0;
+      let today = new Date();
+      for (let i = 0; i < 7; i++) {
+        let d = new Date(today);
+        d.setDate(d.getDate() - i);
+        if (days.includes(d.toISOString().split('T')[0])) {
+          streak++;
+          if (streak === 2) bonus += BONUS_2_DAYS;
+          if (streak % 5 === 0) bonus += BONUS_5_DAYS;
+        } else streak = 0;
+      }
+      if (bonus > 0) {
+        alert("🎉 Congratulations! Your hard work is paying off.");
+        setBalance(getBalance() + bonus);
+      }
+    }
+
+    function updateRank() {
+      let days = getMinedDays().length;
+      let rank = "Starter", progress = 0;
+      if (days >= 90) { rank = "Supreme"; progress = 100; }
+      else if (days >= 60) { rank = "Elite"; progress = (days - 60) / 30 * 100; }
+      else if (days >= 30) { rank = "Pioneer"; progress = (days - 30) / 30 * 100; }
+      else { progress = (days / 30) * 100; }
+      rankEl.textContent = "Rank: " + rank;
+      rankBar.style.width = progress.toFixed(1) + "%";
+    }
+
+    function startMining() {
+      if (mining) return;
+      mining = true;
+      startTime = Date.now();
+      miningSound.play();
+
+      interval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = SESSION_DURATION - elapsed;
+
+        if (remaining <= 0) {
+          clearInterval(interval);
+          mining = false;
+          saveMinedDay();
+          checkStreakBonus();
+          updateRank();
+          return;
+        }
+
+        countdownEl.textContent = new Date(remaining).toISOString().substr(11, 8);
+        const earned = POINTS_PER_SECOND * (elapsed / 1000);
+        minedEl.textContent = "+" + earned.toFixed(2);
+        setBalance(getBalance() + earned);
+      }, 1000);
+    }
+
+    function toggleNav(el) {
+      document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    window.onload = () => {
+      setBalance(getBalance());
+      updateRank();
+    };
+
+    document.getElementById('mineBtn').addEventListener('click', startMining);
+  </script>
+</body>
+</html>
