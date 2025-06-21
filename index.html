@@ -7,76 +7,91 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
   * { box-sizing: border-box }
-  body { margin:0; background:#052820; font-family:'Segoe UI'; color:#fff; padding-bottom:6rem }
-  header { width:100%; padding:1rem; text-align:center; background:#052828; font-size:1.5rem }
-  .card { background:#f0ffff; color:#041c1c; border-radius:2rem;
+  body {
+    margin:0; background:#052820; font-family:'Segoe UI'; color:#fff; padding-bottom:6rem;
+  }
+  header {
+    width:100%; padding:1rem; text-align:center; background:#052828; font-size:1.5rem;
+  }
+  .card {
+    background:#f0ffff; color:#041c1c; border-radius:2rem;
     box-shadow:-10px -10px 30px #fff,10px 10px 30px rgba(0,255,200,0.3);
-    padding:1.5rem; width:90%; max-width:400px; margin:1rem auto; position:relative; }
-  .calendar-icon { position:absolute; top:10px; right:15px; font-size:1.4rem; color:#00c896; cursor:pointer }
+    padding:1.5rem; width:90%; max-width:400px; margin:1rem auto; position:relative;
+  }
+  .calendar-icon {
+    position:absolute; top:10px; right:15px; font-size:1.4rem; color:#00c896; cursor:pointer;
+  }
   .calendar-popup {
-    display:none; position:fixed; top:80px; left:10%; width:80%; background:#fff; color:#000;
-    padding:1rem; border-radius:1rem; z-index:999; box-shadow:0 0 10px rgba(0,255,200,0.5);
-    max-height:60vh; overflow-y:auto;
+    display:none; position:fixed; top:80px; left:10%; width:80%;
+    background:#fff; color:#000; padding:1rem; border-radius:1rem; z-index:999;
+    box-shadow:0 0 10px rgba(0,255,200,0.5); max-height:60vh; overflow-y:auto;
+  }
+  .calendar-popup .close-btn {
+    position:absolute; top:8px; right:8px; cursor:pointer; font-size:1.2rem;
   }
   .balance { font-size:2rem; font-weight:bold; color:#00aa88; }
   .rank-section { margin-top:0.5rem }
-  .rank { font-weight:bold; display:flex; align-items:center; gap:0.5rem; }
-  .rank.animate { animation: rank-up 1s ease-in-out }
-  @keyframes rank-up { 0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)} }
-  .dropdown { font-size:0.9rem; margin-top:0.3rem; cursor:pointer; color:#00695c }
-  .dropdown-content {
-    display:none; background:#e0f7f4; color:#000;
-    padding:0.5rem; margin-top:0.5rem; border-radius:10px; font-size:0.9rem
+  .rank { font-weight:bold }
+  .rank-bar {
+    background:#ccc; border-radius:10px; overflow:hidden; height:10px; margin-top:0.5rem;
   }
-  .rank-bar { background:#ccc; border-radius:10px; overflow:hidden; height:10px; margin-top:0.5rem }
-  .rank-bar-fill { height:100%; background:linear-gradient(to right,#00ffcc,#00aa88); width:0% }
+  .rank-bar-fill {
+    height:100%; background:linear-gradient(to right,#00ffcc,#00aa88); width:0%;
+  }
   .circle-meter {
     width:200px; height:200px; border-radius:50%;
     background:url('https://upload.wikimedia.org/wikipedia/commons/3/3f/Tether_Logo.svg') center/cover no-repeat;
     margin:1rem auto; position:relative;
   }
   .countdown-overlay {
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    background:rgba(255,255,255,0.85);padding:0.5rem 1rem;border-radius:10px;
-    color:#041c1c;text-align:center
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:rgba(255,255,255,0.85); padding:0.5rem 1rem; border-radius:10px;
+    color:#041c1c; text-align:center;
   }
   .mine-button {
-    background:linear-gradient(90deg,#00c896,#00ffb3);border:none;
-    padding:1rem;border-radius:10px;color:#041c1c;font-size:1.2rem;
-    width:90%;max-width:400px;display:block;margin:1rem auto;cursor:pointer
+    background:linear-gradient(90deg,#00c896,#00ffb3); border:none;
+    padding:1rem; border-radius:10px; color:#041c1c; font-size:1.2rem;
+    width:90%; max-width:400px; display:block; margin:1rem auto; cursor:pointer;
   }
   .nav-bar {
     position:fixed; bottom:0; left:0; right:0; background:#031e1e;
-    padding:0.5rem 1rem;display:flex;justify-content:space-around;
-    box-shadow:0 -2px 10px rgba(0,255,200,0.1);border-top-left-radius:2rem;border-top-right-radius:2rem
+    padding:0.5rem 1rem; display:flex; justify-content:space-around;
+    border-top-left-radius:2rem; border-top-right-radius:2rem;
   }
-  .nav-icon { color:#9debdc; display:flex;flex-direction:column;align-items:center }
+  .nav-icon {
+    color:#9debdc; display:flex; flex-direction:column; align-items:center;
+  }
   .nav-icon.active { color:#00ffc8 }
   .missed { color:#f44336; font-weight:bold }
-  @media (max-width:480px){ .circle-meter{width:160px;height:160px} }
+  @media (max-width:480px){
+    .circle-meter{ width:160px; height:160px; }
+  }
 </style>
 </head>
 <body>
 <header>Mining Savi</header>
 
 <div class="card">
-  <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
+  <div class="calendar-icon" onclick="toggleCalendar()">
+    <i class="fa-solid fa-calendar-days"></i>
+  </div>
   <div class="balance" id="balance">$0.00</div>
   <div class="rank-section">
-    <div class="rank" id="rank"><i id="rankIcon" class="fa-solid fa-user"></i> Starter</div>
-    <div class="dropdown" onclick="toggleDropdown()">View Rank Progress</div>
-    <div class="dropdown-content" id="rankDetails"></div>
+    <div class="rank" id="rank">Rank: Starter</div>
     <div class="rank-bar"><div class="rank-bar-fill" id="rankProgress"></div></div>
   </div>
 </div>
 
 <div class="calendar-popup" id="calendarPopup">
-  <strong>Mined Days</strong><br><div id="minedDates"></div>
+  <i class="fa-solid fa-times close-btn" onclick="toggleCalendar()"></i>
+  <strong>Mined Days</strong><br>
+  <div id="minedDates"></div>
 </div>
 
 <div class="circle-meter">
   <div class="countdown-overlay">
     <div id="countdown">24:00:00</div>
+    <div id="mined">+0.00</div>
   </div>
 </div>
 
@@ -94,147 +109,138 @@
 
 <script>
 (function(){
-  const DURATION = 24*3600*1000; // 24h
-  const balanceEl = document.getElementById('balance');
-  const countdownEl = document.getElementById('countdown');
-  const rankEl = document.getElementById('rank');
-  const rankIcon = document.getElementById('rankIcon');
-  const rankBar = document.getElementById('rankProgress');
-  const rankDetails = document.getElementById('rankDetails');
-  const minedDatesDiv = document.getElementById('minedDates');
-  const calendarPopup = document.getElementById('calendarPopup');
-  const miningSound = document.getElementById('miningSound');
-
+  const DURATION = 24*3600*1000;
+  const POINTS_PER_SEC = 0.00002;
   let interval;
 
-  if ('Notification' in window && Notification.permission==='default') {
-    Notification.requestPermission();
-  }
+  const balanceEl = document.getElementById('balance');
+  const countdown = document.getElementById('countdown');
+  const minedEl = document.getElementById('mined');
+  const rankEl = document.getElementById('rank');
+  const rankBar = document.getElementById('rankProgress');
+  const minedDates = document.getElementById('minedDates');
+  const calendar = document.getElementById('calendarPopup');
+  const miningSound = document.getElementById('miningSound');
 
-  function notify(msg){
-    if (Notification.permission==='granted') new Notification(msg);
-    else alert(msg);
-  }
-
-  function getBalance(){
+  function getBalance() {
     return parseFloat(localStorage.getItem('balance')||'0');
   }
-  function setBalance(val){
-    localStorage.setItem('balance', val.toFixed(2));
-    balanceEl.textContent = `$${val.toFixed(2)}`;
+  function setBalance(v) {
+    localStorage.setItem('balance', v.toFixed(6));
+    balanceEl.textContent = `$${v.toFixed(2)}`;
   }
 
-  function getSession(){
-    return JSON.parse(localStorage.getItem('session')||'{}');
+  function getStart() {
+    return parseInt(localStorage.getItem('startTime')||'0');
   }
-  function saveSession(s){
-    localStorage.setItem('session', JSON.stringify(s));
+  function setStart(t) {
+    localStorage.setItem('startTime', t);
   }
-  function clearSession(){
-    localStorage.removeItem('session');
+  function clearStart() {
+    localStorage.removeItem('startTime');
   }
 
-  function getMinedDays(){
-    return JSON.parse(localStorage.getItem('minedDays')||'[]');
+  function getMinedDays() {
+    return JSON.parse(localStorage.getItem('minedArray')||'[]');
   }
-  function saveMinedDay(){
-    const d=new Date().toISOString().split('T')[0];
-    let arr=getMinedDays();
-    if (!arr.includes(d)){
-      arr.push(d);
-      localStorage.setItem('minedDays', JSON.stringify(arr));
+  function saveMinedDay() {
+    let arr = getMinedDays();
+    const today = new Date().toISOString().split('T')[0];
+    if (!arr.includes(today)) {
+      arr.push(today);
+      localStorage.setItem('minedArray', JSON.stringify(arr));
     }
   }
 
-  function updateRank(){
-    const days = getMinedDays().length;
-    let icon='fa-user', next='Pioneer', rem, prog;
-    if (days>=90){ icon='fa-crown'; rem=0; prog=100; next=null;}
-    else if (days>=60){ icon='fa-gem'; rem=90-days; prog=(days-60)/30*100;}
-    else if (days>=30){ icon='fa-shield'; rem=60-days; prog=(days-30)/30*100;}
-    else { icon='fa-user'; rem=30-days; prog=days/30*100; }
-    rankEl.classList.add('animate');
-    setTimeout(()=>rankEl.classList.remove('animate'),1000);
-    rankEl.innerHTML = `<i class="fa-solid ${icon}"></i> ${days>=90?'Supreme':days>=60?'Elite':days>=30?'Pioneer':'Starter'}`;
-    rankIcon.className=`fa-solid ${icon}`;
-    rankBar.style.width = `${Math.min(100, prog)}%`;
-    rankDetails.innerHTML = next ? `${days} days → Next: ${next} in ${rem} days` : `${days} days (Top Rank!)`;
+  function formatTime(ms) {
+    const total = Math.floor(ms/1000);
+    const h = String(Math.floor(total/3600)).padStart(2,'0');
+    const m = String(Math.floor((total%3600)/60)).padStart(2,'0');
+    const s = String(total%60).padStart(2,'0');
+    return `${h}:${m}:${s}`;
   }
 
-  function checkStreak(){
-    const days = getMinedDays().sort();
+  function updateRank() {
+    const arr = getMinedDays();
+    const count = arr.length;
+    let rank='Starter', percent=(count/30)*100;
+    if (count>=90){ rank='Supreme'; percent=100; }
+    else if (count>=60){ rank='Elite'; percent=((count-60)/30)*100; }
+    else if (count>=30){ rank='Pioneer'; percent=((count-30)/30)*100; }
+    rankEl.textContent = `Rank: ${rank}`;
+    rankBar.style.width = `${Math.min(100, percent)}%`;
+  }
+
+  function checkStreak() {
+    const arr = getMinedDays();
     let streak=0, bonus=0;
     const today = new Date();
-    for(let i=0;i<7;i++){
-      const d=new Date(today);
+    for (let i=0;i<7;i++){
+      const d = new Date(today);
       d.setDate(today.getDate()-i);
-      const s=d.toISOString().split('T')[0];
-      if (days.includes(s)){ streak++;
-        if (streak===2) bonus+=0.05;
-        if (streak%5===0) bonus+=0.5;
+      const ds = d.toISOString().split('T')[0];
+      if (arr.includes(ds)) {
+        streak++;
+        if (streak === 2) bonus += 0.05;
+        if (streak % 5 === 0) bonus += 0.5;
       } else streak=0;
     }
     if (bonus){
-      notify('🎉 Congratulations your hard work is paying off!');
-      setBalance(getBalance()+bonus);
+      alert('🎉 Congratulations your hard work is paying off!');
+      setBalance(getBalance() + bonus);
     }
   }
 
-  function formatTime(ms){
-    const h = Math.floor(ms/3600000),
-          m = Math.floor(ms%3600000/60000),
-          s = Math.floor(ms%60000/1000);
-    return [h,m,s].map(x=>String(x).padStart(2,'0')).join(':');
-  }
-
-  function tick(){
-    const s = getSession();
-    const now = Date.now();
-    if (!s.start) return clearInterval(interval);
-    const elapsed = now - s.start;
-    if (elapsed >= DURATION){
-      countdownEl.textContent = formatTime(0);
+  function tick() {
+    const start = getStart();
+    if (!start) return clearInterval(interval);
+    const elapsed = Date.now() - start;
+    const remain = DURATION - elapsed;
+    if (remain <= 0) {
+      countdown.textContent = formatTime(0);
+      minedEl.textContent = '+1.72800';
       clearInterval(interval);
-      clearSession();
+      clearStart();
       saveMinedDay();
       checkStreak();
       updateRank();
-    } else {
-      countdownEl.textContent = formatTime(DURATION - elapsed);
+      return;
     }
+    countdown.textContent = formatTime(remain);
+    const earned = elapsed/1000 * POINTS_PER_SEC;
+    minedEl.textContent = `+${earned.toFixed(5)}`;
+    setBalance(getBalance() + POINTS_PER_SEC);
   }
 
-  function startMining(){
-    let s = getSession();
-    if (!s.start){
-      s.start = Date.now();
-      saveSession(s);
+  function resume() {
+    const start = getStart();
+    if (start) {
       miningSound.play();
-      if (!interval) interval = setInterval(tick,1000);
+      interval = setInterval(tick, 1000);
     }
   }
 
-  function toggleCalendar(){
-    const days = getMinedDays().sort(),
-          today = new Date().toISOString().split('T')[0];
-    minedDatesDiv.innerHTML = days.map(d=>`${d}${d===today?' ✅':' <span class="missed">(missed)</span>'}`).join('<br>');
-    calendarPopup.style.display = calendarPopup.style.display === 'block'?'none':'block';
-  }
-
-  function toggleDropdown(){
-    rankDetails.style.display = rankDetails.style.display==='block'?'none':'block';
-  }
-
-  window.onload = () => {
-    setBalance(getBalance());
-    updateRank();
-    tick();
+  window.startMining = function(){
+    if (getStart()) return;
+    miningSound.play();
+    setStart(Date.now());
     interval = setInterval(tick,1000);
   };
 
-  window.startMining = startMining;
-  window.toggleCalendar = toggleCalendar;
-  window.toggleDropdown = toggleDropdown;
+  window.toggleCalendar = function(){
+    const arr = getMinedDays();
+    const today = new Date().toISOString().split('T')[0];
+    minedDates.innerHTML = arr
+      .map(d => `${d} ${d===today ? '✅' : ''}`)
+      .join('<br>');
+    calendar.style.display = calendar.style.display==='block' ? 'none' : 'block';
+  };
+
+  window.onload = function(){
+    setBalance(getBalance());
+    updateRank();
+    resume();
+  };
 })();
 </script>
 </body>
