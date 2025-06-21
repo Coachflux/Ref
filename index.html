@@ -1,200 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mining Savi</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <style>
-    * { box-sizing: border-box }
-    body { margin:0; background:#052820; font-family:'Segoe UI'; color:#fff; padding-bottom:6rem }
-    header { width:100%; padding:1rem; text-align:center; background:#052828; font-size:1.5rem }
-    .card {
-      background:#f0ffff; color:#041c1c; border-radius:2rem;
-      box-shadow:-10px -10px 30px #fff,10px 10px 30px rgba(0,255,200,0.3);
-      padding:1.5rem; width:90%; max-width:400px; margin:1rem auto; position:relative;
-    }
-    .calendar-icon { position:absolute; top:10px; right:15px; font-size:1.4rem; color:#00c896; cursor:pointer }
-    .calendar-popup {
-      display:none; position:fixed; top:80px; left:10%; width:80%; background:#fff; color:#000;
-      padding:1rem; border-radius:1rem; z-index:999;
-      box-shadow:0 0 10px rgba(0,255,200,0.5);
-      max-height:60vh; overflow-y:auto;
-    }
-    .balance { font-size:2rem; font-weight:bold; color:#00aa88 }
-    .rank-section { margin-top:0.5rem }
-    .rank { font-weight:bold; display:flex; align-items:center; gap:0.5rem; }
-    .rank.animate { animation: rank-up 1s ease-in-out }
-    @keyframes rank-up { 0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)} }
-    .dropdown { font-size:0.9rem; margin-top:0.3rem; cursor:pointer; color:#00695c }
-    .dropdown-content {
-      display:none; background:#e0f7f4; color:#000;
-      padding:0.5rem; margin-top:0.5rem; border-radius:10px; font-size:0.9rem
-    }
-    .rank-bar { background:#ccc; border-radius:10px; overflow:hidden; height:10px; margin-top:0.5rem }
-    .rank-bar-fill { height:100%; background:linear-gradient(to right,#00ffcc,#00aa88); width:0% }
-    .circle-meter {
-      width:200px; height:200px; border-radius:50%;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/3/3f/Tether_Logo.svg') center/cover no-repeat;
-      margin:1rem auto; position:relative
-    }
-    .countdown-overlay {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%); background:rgba(255,255,255,0.85);
-      padding:0.5rem 1rem; border-radius:10px; color:#041c1c; text-align:center
-    }
-    .mine-button {
-      background:linear-gradient(90deg,#00c896,#00ffb3); border:none;
-      padding:1rem; border-radius:10px; color:#041c1c; font-size:1.2rem;
-      width:90%; max-width:400px; display:block; margin:1rem auto; cursor:pointer
-    }
-    .nav-bar {
-      position:fixed; bottom:0; left:0; right:0; background:#031e1e;
-      padding:0.5rem 1rem; display:flex; justify-content:space-around;
-      box-shadow:0 -2px 10px rgba(0,255,200,0.1); border-top-left-radius:2rem; border-top-right-radius:2rem
-    }
-    .nav-icon { color:#9debdc; display:flex; flex-direction:column; align-items:center }
-    .nav-icon.active { color:#00ffc8 }
-    .missed { color:#f44336 }
-    @media (max-width:480px){ .circle-meter{width:160px;height:160px} }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mining Savi</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+  * { box-sizing: border-box }
+  body { margin:0; background:#052820; font-family:'Segoe UI'; color:#fff; padding-bottom:6rem }
+  header { width:100%; padding:1rem; text-align:center; background:#052828; font-size:1.5rem }
+  .card { background:#f0ffff; color:#041c1c; border-radius:2rem;
+    box-shadow:-10px -10px 30px #fff,10px 10px 30px rgba(0,255,200,0.3);
+    padding:1.5rem; width:90%; max-width:400px; margin:1rem auto; position:relative; }
+  .calendar-icon { position:absolute; top:10px; right:15px; font-size:1.4rem; color:#00c896; cursor:pointer }
+  .calendar-popup {
+    display:none; position:fixed; top:80px; left:10%; width:80%; background:#fff; color:#000;
+    padding:1rem; border-radius:1rem; z-index:999; box-shadow:0 0 10px rgba(0,255,200,0.5);
+    max-height:60vh; overflow-y:auto;
+  }
+  .balance { font-size:2rem; font-weight:bold; color:#00aa88; }
+  .rank-section { margin-top:0.5rem }
+  .rank { font-weight:bold; display:flex; align-items:center; gap:0.5rem; }
+  .rank.animate { animation: rank-up 1s ease-in-out }
+  @keyframes rank-up { 0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)} }
+  .dropdown { font-size:0.9rem; margin-top:0.3rem; cursor:pointer; color:#00695c }
+  .dropdown-content {
+    display:none; background:#e0f7f4; color:#000;
+    padding:0.5rem; margin-top:0.5rem; border-radius:10px; font-size:0.9rem
+  }
+  .rank-bar { background:#ccc; border-radius:10px; overflow:hidden; height:10px; margin-top:0.5rem }
+  .rank-bar-fill { height:100%; background:linear-gradient(to right,#00ffcc,#00aa88); width:0% }
+  .circle-meter {
+    width:200px; height:200px; border-radius:50%;
+    background:url('https://upload.wikimedia.org/wikipedia/commons/3/3f/Tether_Logo.svg') center/cover no-repeat;
+    margin:1rem auto; position:relative;
+  }
+  .countdown-overlay {
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:rgba(255,255,255,0.85);padding:0.5rem 1rem;border-radius:10px;
+    color:#041c1c;text-align:center
+  }
+  .mine-button {
+    background:linear-gradient(90deg,#00c896,#00ffb3);border:none;
+    padding:1rem;border-radius:10px;color:#041c1c;font-size:1.2rem;
+    width:90%;max-width:400px;display:block;margin:1rem auto;cursor:pointer
+  }
+  .nav-bar {
+    position:fixed; bottom:0; left:0; right:0; background:#031e1e;
+    padding:0.5rem 1rem;display:flex;justify-content:space-around;
+    box-shadow:0 -2px 10px rgba(0,255,200,0.1);border-top-left-radius:2rem;border-top-right-radius:2rem
+  }
+  .nav-icon { color:#9debdc; display:flex;flex-direction:column;align-items:center }
+  .nav-icon.active { color:#00ffc8 }
+  .missed { color:#f44336; font-weight:bold }
+  @media (max-width:480px){ .circle-meter{width:160px;height:160px} }
+</style>
 </head>
 <body>
-  <header>Mining Savi</header>
+<header>Mining Savi</header>
 
-  <div class="card">
-    <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
-    <div class="balance" id="balance">$0.00</div>
-    <div class="rank-section">
-      <div class="rank" id="rank"><i id="rankIcon" class="fa-solid fa-user"></i> Rank: Starter</div>
-      <div class="dropdown" onclick="toggleDropdown()">View Rank Progress</div>
-      <div class="dropdown-content" id="rankDetails"></div>
-      <div class="rank-bar"><div class="rank-bar-fill" id="rankProgress"></div></div>
-    </div>
+<div class="card">
+  <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
+  <div class="balance" id="balance">$0.00</div>
+  <div class="rank-section">
+    <div class="rank" id="rank"><i id="rankIcon" class="fa-solid fa-user"></i> Starter</div>
+    <div class="dropdown" onclick="toggleDropdown()">View Rank Progress</div>
+    <div class="dropdown-content" id="rankDetails"></div>
+    <div class="rank-bar"><div class="rank-bar-fill" id="rankProgress"></div></div>
   </div>
+</div>
 
-  <div class="calendar-popup" id="calendarPopup">
-    <strong>Mined Days</strong><br><div id="minedDates"></div>
+<div class="calendar-popup" id="calendarPopup">
+  <strong>Mined Days</strong><br><div id="minedDates"></div>
+</div>
+
+<div class="circle-meter">
+  <div class="countdown-overlay">
+    <div id="countdown">24:00:00</div>
   </div>
+</div>
 
-  <div class="circle-meter">
-    <div class="countdown-overlay">
-      <div id="countdown">06:00:00</div>
-      <div id="mined">+0.00</div>
-    </div>
-  </div>
+<button class="mine-button" onclick="startMining()">Mine now!</button>
 
-  <button class="mine-button" onclick="startMining()">Mine now!</button>
+<div class="nav-bar">
+  <div class="nav-icon"><i class="fa-solid fa-gift"></i><div>Airdrop</div></div>
+  <div class="nav-icon"><i class="fa-solid fa-user-group"></i><div>Referral</div></div>
+  <div class="nav-icon active"><i class="fa-solid fa-hammer"></i><div>Mine</div></div>
+  <div class="nav-icon"><i class="fa-solid fa-newspaper"></i><div>News</div></div>
+  <div class="nav-icon"><i class="fa-solid fa-gear"></i><div>Settings</div></div>
+</div>
 
-  <div class="nav-bar">
-    <div class="nav-icon"><i class="fa-solid fa-gift"></i><div>Airdrop</div></div>
-    <div class="nav-icon"><i class="fa-solid fa-user-group"></i><div>Referral</div></div>
-    <div class="nav-icon active"><i class="fa-solid fa-hammer"></i><div>Mine</div></div>
-    <div class="nav-icon"><i class="fa-solid fa-newspaper"></i><div>News</div></div>
-    <div class="nav-icon"><i class="fa-solid fa-gear"></i><div>Settings</div></div>
-  </div>
+<audio id="miningSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
 
-  <audio id="miningSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+<script>
+(function(){
+  const DURATION = 24*3600*1000; // 24h
+  const balanceEl = document.getElementById('balance');
+  const countdownEl = document.getElementById('countdown');
+  const rankEl = document.getElementById('rank');
+  const rankIcon = document.getElementById('rankIcon');
+  const rankBar = document.getElementById('rankProgress');
+  const rankDetails = document.getElementById('rankDetails');
+  const minedDatesDiv = document.getElementById('minedDates');
+  const calendarPopup = document.getElementById('calendarPopup');
+  const miningSound = document.getElementById('miningSound');
 
-  <script>
-    const SESSION_DURATION = 6*3600*1000, POINTS_PER_SEC=0.00002;
-    const balanceEl=document.getElementById('balance'),
-          countdownEl=document.getElementById('countdown'),
-          minedEl=document.getElementById('mined'),
-          rankEl=document.getElementById('rank'),
-          rankIcon=document.getElementById('rankIcon'),
-          rankBar=document.getElementById('rankProgress'),
-          rankDetails=document.getElementById('rankDetails'),
-          miningSound=document.getElementById('miningSound'),
-          minedDatesDiv=document.getElementById('minedDates'),
-          calendarPopup=document.getElementById('calendarPopup');
-    let mining=false, interval;
+  let interval;
 
-    // Notifications
-    if ('Notification' in window && Notification.permission==='default') {
-      Notification.requestPermission();
+  if ('Notification' in window && Notification.permission==='default') {
+    Notification.requestPermission();
+  }
+
+  function notify(msg){
+    if (Notification.permission==='granted') new Notification(msg);
+    else alert(msg);
+  }
+
+  function getBalance(){
+    return parseFloat(localStorage.getItem('balance')||'0');
+  }
+  function setBalance(val){
+    localStorage.setItem('balance', val.toFixed(2));
+    balanceEl.textContent = `$${val.toFixed(2)}`;
+  }
+
+  function getSession(){
+    return JSON.parse(localStorage.getItem('session')||'{}');
+  }
+  function saveSession(s){
+    localStorage.setItem('session', JSON.stringify(s));
+  }
+  function clearSession(){
+    localStorage.removeItem('session');
+  }
+
+  function getMinedDays(){
+    return JSON.parse(localStorage.getItem('minedDays')||'[]');
+  }
+  function saveMinedDay(){
+    const d=new Date().toISOString().split('T')[0];
+    let arr=getMinedDays();
+    if (!arr.includes(d)){
+      arr.push(d);
+      localStorage.setItem('minedDays', JSON.stringify(arr));
     }
+  }
 
-    function notify(msg) {
-      if (Notification.permission==='granted') new Notification(msg);
-      else alert(msg);
+  function updateRank(){
+    const days = getMinedDays().length;
+    let icon='fa-user', next='Pioneer', rem, prog;
+    if (days>=90){ icon='fa-crown'; rem=0; prog=100; next=null;}
+    else if (days>=60){ icon='fa-gem'; rem=90-days; prog=(days-60)/30*100;}
+    else if (days>=30){ icon='fa-shield'; rem=60-days; prog=(days-30)/30*100;}
+    else { icon='fa-user'; rem=30-days; prog=days/30*100; }
+    rankEl.classList.add('animate');
+    setTimeout(()=>rankEl.classList.remove('animate'),1000);
+    rankEl.innerHTML = `<i class="fa-solid ${icon}"></i> ${days>=90?'Supreme':days>=60?'Elite':days>=30?'Pioneer':'Starter'}`;
+    rankIcon.className=`fa-solid ${icon}`;
+    rankBar.style.width = `${Math.min(100, prog)}%`;
+    rankDetails.innerHTML = next ? `${days} days → Next: ${next} in ${rem} days` : `${days} days (Top Rank!)`;
+  }
+
+  function checkStreak(){
+    const days = getMinedDays().sort();
+    let streak=0, bonus=0;
+    const today = new Date();
+    for(let i=0;i<7;i++){
+      const d=new Date(today);
+      d.setDate(today.getDate()-i);
+      const s=d.toISOString().split('T')[0];
+      if (days.includes(s)){ streak++;
+        if (streak===2) bonus+=0.05;
+        if (streak%5===0) bonus+=0.5;
+      } else streak=0;
     }
-
-    function getBalance(){return parseFloat(localStorage.getItem('balance')||'0');}
-    function setBalance(v){localStorage.setItem('balance',v.toFixed(2));balanceEl.textContent=`$${v.toFixed(2)}`;}
-
-    function getMinedDays(){return JSON.parse(localStorage.getItem('minedDays')||'[]');}
-    function saveMinedDay(){
-      const d=new Date().toISOString().split('T')[0];
-      let days=getMinedDays();
-      if(!days.includes(d)){days.push(d); localStorage.setItem('minedDays',JSON.stringify(days));}
+    if (bonus){
+      notify('🎉 Congratulations your hard work is paying off!');
+      setBalance(getBalance()+bonus);
     }
+  }
 
-    function updateRank(){
-      const daysArr=getMinedDays(), total=daysArr.length;
-      let rName='Starter', icon='fa-user', prog=total/30*100, next='Pioneer', rem=30-total;
-      if(total>=90){rName='Supreme'; icon='fa-crown'; prog=100; next=null;}
-      else if(total>=60){rName='Elite'; icon='fa-gem'; prog=(total-60)/30*100; rem=90-total;}
-      else if(total>=30){rName='Pioneer'; icon='fa-shield'; prog=(total-30)/30*100; rem=60-total;}
-      rankEl.classList.add('animate');
-      setTimeout(()=>rankEl.classList.remove('animate'),1000);
-      rankEl.innerHTML=`<i class="fa-solid ${icon}"></i> Rank: ${rName}`;
-      rankIcon.className=`fa-solid ${icon}`;
-      rankBar.style.width=`${Math.min(100, prog)}%`;
-      rankDetails.innerHTML=next?`${rName} (${total} days)<br>→ Next: ${next} in ${rem} days`:`${rName} (${total} days)<br>🎉 Top Rank!`;
-    }
+  function formatTime(ms){
+    const h = Math.floor(ms/3600000),
+          m = Math.floor(ms%3600000/60000),
+          s = Math.floor(ms%60000/1000);
+    return [h,m,s].map(x=>String(x).padStart(2,'0')).join(':');
+  }
 
-    function checkStreakBonus(){
-      const daysArr=getMinedDays().sort(), today=new Date();
-      let streak=0, bonus=0;
-      for(let i=0;i<7;i++){
-        const d=new Date(today);d.setDate(today.getDate()-i);
-        const ds=d.toISOString().split('T')[0];
-        if(daysArr.includes(ds)){
-          streak++;
-          if(streak===2) bonus+=0.05;
-          if(streak%5===0) bonus+=0.5;
-        } else streak=0;
-      }
-      if(bonus>0){notify('🎉 Congratulations your hard work is paying off!');setBalance(getBalance()+bonus);}
+  function tick(){
+    const s = getSession();
+    const now = Date.now();
+    if (!s.start) return clearInterval(interval);
+    const elapsed = now - s.start;
+    if (elapsed >= DURATION){
+      countdownEl.textContent = formatTime(0);
+      clearInterval(interval);
+      clearSession();
+      saveMinedDay();
+      checkStreak();
+      updateRank();
+    } else {
+      countdownEl.textContent = formatTime(DURATION - elapsed);
     }
+  }
 
-    function formatRemaining(ms){
-      const h=Math.floor(ms/3600000), m=Math.floor(ms%3600000/60000), s=Math.floor(ms%60000/1000);
-      return [h,m,s].map(x=>String(x).padStart(2,'0')).join(':');
+  function startMining(){
+    let s = getSession();
+    if (!s.start){
+      s.start = Date.now();
+      saveSession(s);
+      miningSound.play();
+      if (!interval) interval = setInterval(tick,1000);
     }
+  }
 
-    function startMining(){
-      if(mining) return;
-      mining=true; miningSound.play();
-      const start=Date.now(), orig=getBalance();
-      interval=setInterval(()=>{
-        const now=Date.now(), elapsed=now-start, rem=SESSION_DURATION-elapsed;
-        if(rem<=0){
-          clearInterval(interval); mining=false;
-          countdownEl.textContent='00:00:00'; minedEl.textContent='+0.00';
-          saveMinedDay(); checkStreakBonus(); updateRank(); return;
-        }
-        countdownEl.textContent=formatRemaining(rem);
-        const earned=POINTS_PER_SEC*(elapsed/1000);
-        minedEl.textContent='+'+earned.toFixed(2);
-        setBalance(orig+POINTS_PER_SEC*(elapsed/1000));
-      },1000);
-    }
+  function toggleCalendar(){
+    const days = getMinedDays().sort(),
+          today = new Date().toISOString().split('T')[0];
+    minedDatesDiv.innerHTML = days.map(d=>`${d}${d===today?' ✅':' <span class="missed">(missed)</span>'}`).join('<br>');
+    calendarPopup.style.display = calendarPopup.style.display === 'block'?'none':'block';
+  }
 
-    function toggleCalendar(){
-      const days=getMinedDays().sort(), today=new Date().toISOString().split('T')[0];
-      minedDatesDiv.innerHTML=days.map(d=>`${d}${d===today?' ✅':' <span class="missed">(missed)</span>'}`).join('<br>');
-      calendarPopup.style.display=calendarPopup.style.display==='block'?'none':'block';
-    }
+  function toggleDropdown(){
+    rankDetails.style.display = rankDetails.style.display==='block'?'none':'block';
+  }
 
-    function toggleDropdown(){
-      rankDetails.style.display=rankDetails.style.display==='block'?'none':'block';
-    }
+  window.onload = () => {
+    setBalance(getBalance());
+    updateRank();
+    tick();
+    interval = setInterval(tick,1000);
+  };
 
-    window.onload=()=>{
-      setBalance(getBalance()); updateRank();
-    }
-  </script>
+  window.startMining = startMining;
+  window.toggleCalendar = toggleCalendar;
+  window.toggleDropdown = toggleDropdown;
+})();
+</script>
 </body>
 </html>
