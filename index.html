@@ -145,4 +145,30 @@
   window.toggleCalendar = function(){
     const arr = getMinedDays(), today = new Date().toISOString().split('T')[0];
     let html = '';
-    for(let i=0;i<30;i+
+    for(let i=0;i<30;i++){
+      const d = new Date(); d.setDate(d.getDate()-i); const ds = d.toISOString().split('T')[0];
+      html += `<div>${ds} ${arr.includes(ds) ? '✅' : '<span class="missed">(missed)</span>'}</div>`;
+    }
+    minedDates.innerHTML = html;
+    calendar.style.display = calendar.style.display==='block'? 'none':'block';
+  };
+
+  window.toggleRankDetails = function(){
+    rankDetails.style.display = rankDetails.style.display==='block' ? 'none' : 'block';
+  };
+
+  window.onload = function(){
+    setBalance(getBalance());
+    updateRank();
+    const start = getStart();
+    if(start){
+      sound.play();
+      sessionStart = start;
+      initialBalance = getBalance() - ((Date.now() - start)/1000)*RATE;
+      interval = setInterval(tick, 1000);
+    }
+  };
+})();
+</script>
+</body>
+</html>
