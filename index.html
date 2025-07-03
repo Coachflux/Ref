@@ -1,54 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Passcode Setup</title>
+  <title>Secure PIN Setup</title>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #052820, #041c1c);
+      background: linear-gradient(to bottom, #021e2c, #000);
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden;
       color: #fff;
     }
     .container {
       width: 100%;
       max-width: 400px;
-      text-align: center;
       padding: 1rem;
+      text-align: center;
     }
-    .drop {
-      width: 120px;
-      height: 120px;
-      background: radial-gradient(circle, #00fff7 40%, #009688 100%);
-      border-radius: 50% 50% 60% 40% / 60% 40% 60% 40%;
-      margin: 0 auto;
+    .image {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 20px #00e5ff;
       cursor: pointer;
       transition: transform 0.3s;
-      box-shadow: 0 0 20px #00ffc3;
-      animation: float 3s infinite ease-in-out;
+      animation: float 2s ease-in-out infinite;
+    }
+    .image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     @keyframes float {
       0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      50% { transform: translateY(-8px); }
       100% { transform: translateY(0); }
     }
     .heartbeat {
       animation: heartbeat 5s ease-in-out forwards;
     }
     @keyframes heartbeat {
-      0% { transform: scale(1); }
-      20% { transform: scale(1.2); }
-      40% { transform: scale(1); }
-      60% { transform: scale(1.2); }
-      80% { transform: scale(1); }
-      100% { transform: scale(1); }
+      0%, 100% { transform: scale(1); }
+      25%, 75% { transform: scale(1.2); }
+      50% { transform: scale(1); }
     }
     .screen {
       display: none;
@@ -59,15 +60,15 @@
       display: flex;
       justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
     .digit-box {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
-      background: #e0ffff;
-      box-shadow: inset -4px -4px 10px #ffffff,
-                  inset 4px 4px 10px rgba(0,255,200,0.3);
+      border-radius: 10px;
+      background: #e0f7fa;
+      box-shadow: inset -3px -3px 6px #fff,
+                  inset 3px 3px 6px #00838f;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -89,7 +90,6 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
-      width: 100%;
       max-width: 300px;
       margin: 0 auto;
     }
@@ -97,10 +97,10 @@
       padding: 1rem;
       font-size: 1.2rem;
       border-radius: 50%;
-      background: #e0ffff;
+      background: #e0f7fa;
       border: none;
-      box-shadow: -4px -4px 10px #ffffff,
-                   4px 4px 10px rgba(0,255,200,0.3);
+      box-shadow: -4px -4px 8px #fff,
+                   4px 4px 8px #006064;
       color: #041c1c;
       cursor: pointer;
     }
@@ -108,18 +108,20 @@
 </head>
 <body>
 <div class="container" id="startScreen">
-  <div class="drop" id="drop"></div>
-  <p>Tap the drop to begin</p>
+  <div class="image" id="imageBtn">
+    <img src="https://cdn-icons-png.flaticon.com/512/727/727790.png" alt="Tap to start" />
+  </div>
+  <p>Tap the drop image to begin</p>
 </div>
 
 <div class="container screen" id="setupScreen">
-  <h2 id="stageTitle">Create a 6-digit Passcode</h2>
+  <h2 id="stageTitle">Create a 6-digit PIN</h2>
   <div class="digits" id="digitBoxes"></div>
   <div class="buttons" id="keypad"></div>
 </div>
 
 <script>
-  const drop = document.getElementById('drop');
+  const imageBtn = document.getElementById('imageBtn');
   const startScreen = document.getElementById('startScreen');
   const setupScreen = document.getElementById('setupScreen');
   const digitBoxes = document.getElementById('digitBoxes');
@@ -130,72 +132,88 @@
   let passcode = '';
   let confirmPass = '';
   let entered = '';
+  let stored = localStorage.getItem('passcode');
 
-  drop.addEventListener('click', () => {
-    drop.classList.add('heartbeat');
+  imageBtn.addEventListener('click', () => {
+    imageBtn.classList.add('heartbeat');
     setTimeout(() => {
       startScreen.style.display = 'none';
       setupScreen.style.display = 'flex';
-      initSetup();
+      if (stored) {
+        stage = 'verify';
+        stageTitle.textContent = 'Enter your PIN';
+      }
+      initBoxes();
+      buildKeypad();
     }, 5000);
   });
 
-  function initSetup() {
+  function initBoxes() {
     digitBoxes.innerHTML = '';
     for (let i = 0; i < 6; i++) {
       const box = document.createElement('div');
       box.className = 'digit-box';
       digitBoxes.appendChild(box);
     }
-
-    keypad.innerHTML = '';
-    for (let i = 1; i <= 9; i++) {
-      keypad.appendChild(makeButton(i));
-    }
-    keypad.appendChild(makeButton(0));
   }
 
-  function makeButton(n) {
-    const btn = document.createElement('button');
-    btn.className = 'btn';
-    btn.textContent = n;
-    btn.onclick = () => handleDigit(n);
-    return btn;
+  function buildKeypad() {
+    keypad.innerHTML = '';
+    const keys = [1,2,3,4,5,6,7,8,9];
+    keys.forEach(n => {
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.textContent = n;
+      btn.onclick = () => handleDigit(n);
+      keypad.appendChild(btn);
+    });
   }
 
   function handleDigit(n) {
     if (entered.length < 6) {
       entered += n;
       updateBoxes();
-
-      if (entered.length === 6) {
-        setTimeout(() => {
-          if (stage === 'create') {
-            passcode = entered;
-            entered = '';
-            stage = 'confirm';
-            stageTitle.textContent = 'Confirm your Passcode';
-            resetBoxes();
-          } else if (stage === 'confirm') {
-            confirmPass = entered;
-            if (confirmPass === passcode) {
-              highlightBoxes(true);
-              localStorage.setItem('passcode', passcode);
-              setTimeout(() => {
-                window.location.href = 'home.html'; // Redirect to next page
-              }, 1000);
-            } else {
-              highlightBoxes(false);
-              setTimeout(() => {
-                entered = '';
-                stage = 'create';
-                stageTitle.textContent = 'Create a 6-digit Passcode';
-                resetBoxes();
-              }, 1500);
-            }
+    }
+    if (entered.length === 6) {
+      setTimeout(() => {
+        if (stage === 'create') {
+          passcode = entered;
+          entered = '';
+          stage = 'confirm';
+          stageTitle.textContent = 'Confirm your PIN';
+          initBoxes();
+        } else if (stage === 'confirm') {
+          confirmPass = entered;
+          if (confirmPass === passcode) {
+            localStorage.setItem('passcode', passcode);
+            animateBoxes(true);
+            setTimeout(() => {
+              window.location.href = 'home.html';
+            }, 800);
+          } else {
+            animateBoxes(false);
+            setTimeout(() => {
+              entered = '';
+              stage = 'create';
+              stageTitle.textContent = 'Create a 6-digit PIN';
+              initBoxes();
+            }, 1500);
           }
-        }, 300);
-      }
+        } else if (stage === 'verify') {
+          if (entered === stored) {
+            animateBoxes(true);
+            setTimeout(() => {
+              window.location.href = 'home.html';
+            }, 800);
+          } else {
+            animateBoxes(false);
+            setTimeout(() => {
+              entered = '';
+              initBoxes();
+            }, 1500);
+          }
+        }
+      }, 300);
     }
   }
 
@@ -206,15 +224,9 @@
     });
   }
 
-  function resetBoxes() {
-    digitBoxes.querySelectorAll('.digit-box').forEach(box => {
-      box.textContent = '';
-      box.classList.remove('correct', 'incorrect');
-    });
-  }
-
-  function highlightBoxes(success) {
-    digitBoxes.querySelectorAll('.digit-box').forEach(box => {
+  function animateBoxes(success) {
+    const boxes = digitBoxes.querySelectorAll('.digit-box');
+    boxes.forEach(box => {
       box.classList.add(success ? 'correct' : 'incorrect');
     });
   }
