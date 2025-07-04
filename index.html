@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mining Savi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* ... [FULL CSS BLOCK WILL BE PASTED HERE] ... */
+  </style>
+</head>
+<body>
+  <!-- Wallet Pin Creation/Login Section -->
+  <div id="pinContainer" class="screen">
+    <div class="popup">
+      <p><strong>Note:</strong> Your wallet PIN can only be created once. Please remember it to avoid wasted effort.</p>
+    </div>
+    <div class="center-content">
+      <img id="dropImage" src="waterdrop.png" class="heartbeat" />
+      <div id="pinScreen" class="hidden">
+        <h2 id="pinTitle">Create Your 6-Digit Wallet PIN</h2>
+        <div class="pin-boxes" id="pinBoxes"></div>
+        <div class="pin-pad">
+          <!-- Buttons 1-9 -->
+          <div class="row">
+            <button>1</button><button>2</button><button>3</button>
+          </div>
+          <div class="row">
+            <button>4</button><button>5</button><button>6</button>
+          </div>
+          <div class="row">
+            <button>7</button><button>8</button><button>9</button>
+          </div>
+          <div class="row">
+            <button id="clear">Clear</button><button>0</button><button id="del">Del</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Mining Page -->
+  <div id="mainApp" class="hidden">
+    <header>
+      <div class="card">
+        <img src="rank-icon.png" class="rank-icon" />
+        <div class="balance" id="balanceDisplay">$0.00000</div>
+        <img src="calendar.png" id="calendarIcon" />
+      </div>
+    </header>
+
+    <!-- Token Container -->
+    <section class="token-container">
+      <div class="token-item">
+        <img src="usdt.png" />
+        <div class="token-info">
+          <span class="token-name">USDT-TRX</span>
+          <span class="token-balance" id="usdtBalance">0.00000</span>
+        </div>
+        <button class="withdraw-btn">Withdraw</button>
+      </div>
+    </section>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="hidden">
+      <h3>Withdraw USDT</h3>
+      <input type="text" id="withdrawAddress" placeholder="Wallet address">
+      <input type="number" id="withdrawAmount" placeholder="Amount">
+      <button id="processWithdraw">Process</button>
+      <div class="loader hidden" id="loaderCircle"></div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div id="calendarModal" class="hidden">
+      <div class="calendar-header">
+        <h4>Mining History</h4>
+        <button id="closeCalendar">X</button>
+      </div>
+      <div id="calendarContent"></div>
+    </div>
+
+    <!-- Footer Nav -->
+    <footer>
+      <div class="nav-item"><img src="airdrop.png" /></div>
+      <div class="nav-item"><img src="referral.png" /></div>
+      <div class="nav-item active"><img src="mineaxe.png" /></div>
+      <div class="nav-item"><img src="news.png" /></div>
+    </footer>
+  </div>
+
+  <audio id="mineSound" src="mining-sound.mp3" preload="auto"></audio>
+
+  <script>
+    /* JavaScript for mining, PIN, balance, animations, streaks, calendar, sound, withdraw, and localStorage persistence will go here */
+  </script>
+</body>
+</html>
