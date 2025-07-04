@@ -2,95 +2,252 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mining Savi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mining Savi</title>
   <style>
-    /* ... [FULL CSS BLOCK WILL BE PASTED HERE] ... */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f0f3;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    .hidden {
+      display: none;
+    }
+    .heartbeat {
+      width: 120px;
+      transition: transform 0.3s ease;
+      animation: none;
+    }
+    .heartbeat.animate {
+      animation: beat 1s infinite;
+    }
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    .pin-container {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .pin-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .pin-boxes {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .pin-boxes div {
+      width: 20px;
+      height: 20px;
+      border-radius: 10px;
+      background: #d0d0d5;
+      box-shadow: inset 2px 2px 5px #fff, inset -2px -2px 5px #aaa;
+    }
+    .pin-boxes .filled {
+      background: #00c08b;
+    }
+    .pin-pad {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 210px;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .pin-pad button {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      font-size: 20px;
+      border: none;
+      border-radius: 50%;
+      background: #f0f0f3;
+      box-shadow: 5px 5px 10px #ccc, -5px -5px 10px #fff;
+      cursor: pointer;
+    }
+    .popup {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+      text-align: center;
+    }
+    .app-container {
+      text-align: center;
+      padding: 20px;
+    }
+    .balance {
+      font-size: 1.5rem;
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <!-- Wallet Pin Creation/Login Section -->
-  <div id="pinContainer" class="screen">
-    <div class="popup">
-      <p><strong>Note:</strong> Your wallet PIN can only be created once. Please remember it to avoid wasted effort.</p>
-    </div>
-    <div class="center-content">
-      <img id="dropImage" src="waterdrop.png" class="heartbeat" />
-      <div id="pinScreen" class="hidden">
-        <h2 id="pinTitle">Create Your 6-Digit Wallet PIN</h2>
-        <div class="pin-boxes" id="pinBoxes"></div>
-        <div class="pin-pad">
-          <!-- Buttons 1-9 -->
-          <div class="row">
-            <button>1</button><button>2</button><button>3</button>
-          </div>
-          <div class="row">
-            <button>4</button><button>5</button><button>6</button>
-          </div>
-          <div class="row">
-            <button>7</button><button>8</button><button>9</button>
-          </div>
-          <div class="row">
-            <button id="clear">Clear</button><button>0</button><button id="del">Del</button>
-          </div>
-        </div>
+
+  <!-- Water Drop Image (Home Screen) -->
+  <div id="homeScreen">
+    <img id="dropImage" src="https://i.ibb.co/NszMBFF/waterdrop.png" class="heartbeat" alt="Water Drop" />
+  </div>
+
+  <!-- PIN Setup/Confirmation/Login Screen -->
+  <div id="pinScreen" class="hidden">
+    <div class="popup" id="pinWarning">⚠️ Your wallet PIN can only be created once. Please remember it to avoid losing access!</div>
+    <div class="pin-container">
+      <div class="pin-title" id="pinTitle">Create Your 6-Digit Wallet PIN</div>
+      <div class="pin-boxes" id="pinBoxes"></div>
+      <div class="pin-pad">
+        <!-- Buttons 1-9 -->
+        <button>1</button><button>2</button><button>3</button>
+        <button>4</button><button>5</button><button>6</button>
+        <button>7</button><button>8</button><button>9</button>
+        <!-- Clear / 0 / Del -->
+        <button id="clear">C</button>
+        <button>0</button>
+        <button id="del">←</button>
       </div>
     </div>
   </div>
 
-  <!-- Main Mining Page -->
-  <div id="mainApp" class="hidden">
-    <header>
-      <div class="card">
-        <img src="rank-icon.png" class="rank-icon" />
-        <div class="balance" id="balanceDisplay">$0.00000</div>
-        <img src="calendar.png" id="calendarIcon" />
-      </div>
-    </header>
-
-    <!-- Token Container -->
-    <section class="token-container">
-      <div class="token-item">
-        <img src="usdt.png" />
-        <div class="token-info">
-          <span class="token-name">USDT-TRX</span>
-          <span class="token-balance" id="usdtBalance">0.00000</span>
-        </div>
-        <button class="withdraw-btn">Withdraw</button>
-      </div>
-    </section>
-
-    <!-- Withdraw Modal -->
-    <div id="withdrawModal" class="hidden">
-      <h3>Withdraw USDT</h3>
-      <input type="text" id="withdrawAddress" placeholder="Wallet address">
-      <input type="number" id="withdrawAmount" placeholder="Amount">
-      <button id="processWithdraw">Process</button>
-      <div class="loader hidden" id="loaderCircle"></div>
-    </div>
-
-    <!-- Calendar Modal -->
-    <div id="calendarModal" class="hidden">
-      <div class="calendar-header">
-        <h4>Mining History</h4>
-        <button id="closeCalendar">X</button>
-      </div>
-      <div id="calendarContent"></div>
-    </div>
-
-    <!-- Footer Nav -->
-    <footer>
-      <div class="nav-item"><img src="airdrop.png" /></div>
-      <div class="nav-item"><img src="referral.png" /></div>
-      <div class="nav-item active"><img src="mineaxe.png" /></div>
-      <div class="nav-item"><img src="news.png" /></div>
-    </footer>
+  <!-- Main App Screen -->
+  <div id="mainApp" class="app-container hidden">
+    <h2>⛏️ Welcome to Mining Savi</h2>
+    <div class="balance">Balance: <span id="balanceDisplay">$0.00000</span></div>
+    <p>Mining active... leave this running or come back later!</p>
   </div>
 
-  <audio id="mineSound" src="mining-sound.mp3" preload="auto"></audio>
-
+  <!-- JavaScript -->
   <script>
-    /* JavaScript for mining, PIN, balance, animations, streaks, calendar, sound, withdraw, and localStorage persistence will go here */
+    const dropImage = document.getElementById('dropImage');
+    const homeScreen = document.getElementById('homeScreen');
+    const pinScreen = document.getElementById('pinScreen');
+    const pinTitle = document.getElementById('pinTitle');
+    const pinBoxes = document.getElementById('pinBoxes');
+    const mainApp = document.getElementById('mainApp');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+
+    let enteredPin = '';
+    let storedPin = localStorage.getItem('walletPin');
+    let isConfirming = false;
+
+    function renderPinBoxes(length) {
+      pinBoxes.innerHTML = '';
+      for (let i = 0; i < 6; i++) {
+        const box = document.createElement('div');
+        if (i < length) box.classList.add('filled');
+        pinBoxes.appendChild(box);
+      }
+    }
+
+    dropImage.addEventListener('click', () => {
+      dropImage.classList.add('animate');
+      setTimeout(() => {
+        homeScreen.classList.add('hidden');
+        pinScreen.classList.remove('hidden');
+      }, 5000);
+    });
+
+    document.querySelectorAll('.pin-pad button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.textContent;
+        if (btn.id === 'clear') {
+          enteredPin = '';
+        } else if (btn.id === 'del') {
+          enteredPin = enteredPin.slice(0, -1);
+        } else if (enteredPin.length < 6) {
+          enteredPin += val;
+        }
+        renderPinBoxes(enteredPin.length);
+
+        if (enteredPin.length === 6) {
+          setTimeout(() => {
+            if (!storedPin) {
+              if (!isConfirming) {
+                localStorage.setItem('tempPin', enteredPin);
+                enteredPin = '';
+                isConfirming = true;
+                pinTitle.textContent = 'Confirm PIN';
+                renderPinBoxes(0);
+              } else {
+                if (enteredPin === localStorage.getItem('tempPin')) {
+                  localStorage.setItem('walletPin', enteredPin);
+                  pinScreen.classList.add('hidden');
+                  mainApp.classList.remove('hidden');
+                  startMiningSession();
+                } else {
+                  alert("❌ PINs don't match. Try again.");
+                  enteredPin = '';
+                  isConfirming = false;
+                  pinTitle.textContent = 'Create Your 6-Digit Wallet PIN';
+                  renderPinBoxes(0);
+                }
+              }
+            } else {
+              if (enteredPin === storedPin) {
+                pinScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                startMiningSession();
+              } else {
+                alert("Incorrect PIN. Try again.");
+                enteredPin = '';
+                renderPinBoxes(0);
+              }
+            }
+          }, 300);
+        }
+      });
+    });
+
+    // Mining Logic
+    let balance = parseFloat(localStorage.getItem('balance')) || 0;
+    let lastMine = parseInt(localStorage.getItem('lastMine')) || 0;
+    const miningDuration = 24 * 60 * 60 * 1000; // 24 hours
+    const rate = 0.00002;
+
+    function updateBalanceUI() {
+      balanceDisplay.textContent = `$${balance.toFixed(5)}`;
+      localStorage.setItem('balance', balance.toFixed(5));
+    }
+
+    function startMiningSession() {
+      const now = Date.now();
+      if (!lastMine || now - lastMine >= miningDuration) {
+        localStorage.setItem('lastMine', now);
+        lastMine = now;
+      }
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - lastMine;
+        if (elapsed >= miningDuration) {
+          clearInterval(interval);
+          alert("🎉 Mining session complete. Come back to start a new one.");
+          return;
+        }
+        balance += rate;
+        updateBalanceUI();
+      }, 1000);
+    }
+
+    // Resume mining if within 24 hrs
+    if (storedPin && Date.now() - lastMine < miningDuration) {
+      homeScreen.classList.add('hidden');
+      mainApp.classList.remove('hidden');
+      startMiningSession();
+    }
+
+    updateBalanceUI();
   </script>
 </body>
 </html>
