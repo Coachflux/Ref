@@ -234,10 +234,10 @@
   </style>
 </head>
 <body>
-<header>Mining Savi</header>
+<header>Mining USDT</header>
 
 <div class="card">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Tether_Logo.svg" />
+  <img src="img/usdtminer.webp" />
   <div class="card-content">
     <div class="balance" id="balance">$0.00</div>
     <div class="rank-section">
@@ -249,6 +249,21 @@
   <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
 </div>
 
+<div class="calendar-popup" id="calendarPopup">
+  <i class="fa-solid fa-times close-btn" onclick="toggleCalendar()"></i>
+  <strong>Mined Days</strong>
+  <div id="minedDates"></div>
+</div>
+  
+
+  <div class="drops-row">
+    <img src="img/usdttake.png"/>
+    <img src="img/usdttake.png"/>
+    <img src="img/usdttake.png"/>
+    <img src="img/usdttake.png"/>
+    <img src="img/usdttake.png"/>
+  </div>
+
 <div class="token">
   <div class="usdttrx" onclick="toggleWithdraw()">
     <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" />
@@ -259,7 +274,7 @@
     </div>
   </div>
   <div class="withdrawal" id="withdrawal">
-    <input id="wallet" placeholder="Enter USDT-TRX Wallet" />
+    <input id="wallet" placeholder="Enter USDT-TRX Wallet Address" />
     <input id="amount" placeholder="Amount $" />
     <button class="withdraw-btn" onclick="submitWithdraw()">
       Withdraw
