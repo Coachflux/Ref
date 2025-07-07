@@ -361,7 +361,7 @@
 
 <div class="token">
   <div class="usdttrx" onclick="toggleWithdraw()">
-    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" />
+    <img src="img/usdt-tron.png" />
     <div class="usdt-info">
       <div>Amount</div>
       <div>$0.00</div>
@@ -370,7 +370,83 @@
   </div>
   <div class="withdrawal" id="withdrawal">
     <input id="wallet" placeholder="Enter USDT-TRX Wallet Address" />
-    <input id="amount" placeholder="Amount $" />
+    <input id="amount" type="number" placeholder="Amount $" />
+    <button class="withdraw-btn" onclick="submitWithdraw()">
+      Withdraw
+      <div id="loader" style="display:none" class="loader"></div>
+    </button>
+  </div>
+</div>
+
+  <div class="token">
+  <div class="usdttrx" onclick="toggleWithdraw()">
+    <img src="img/usdt-bnb.png" />
+    <div class="usdt-info">
+      <div>Amount</div>
+      <div>$0.00</div>
+      <div>Sent</div>
+    </div>
+  </div>
+  <div class="withdrawal" id="withdrawal">
+    <input id="wallet" placeholder="Enter USDT-TRX Wallet Address" />
+    <input id="amount" type="number" placeholder="Amount $" />
+    <button class="withdraw-btn" onclick="submitWithdraw()">
+      Withdraw
+      <div id="loader" style="display:none" class="loader"></div>
+    </button>
+  </div>
+</div>
+
+  <div class="token">
+  <div class="usdttrx" onclick="toggleWithdraw()">
+    <img src="img/usdt-eth.png" />
+    <div class="usdt-info">
+      <div>Amount</div>
+      <div>$0.00</div>
+      <div>Sent</div>
+    </div>
+  </div>
+  <div class="withdrawal" id="withdrawal">
+    <input id="wallet" placeholder="Enter USDT-TRX Wallet Address" />
+    <input id="amount" type="number" placeholder="Amount $" />
+    <button class="withdraw-btn" onclick="submitWithdraw()">
+      Withdraw
+      <div id="loader" style="display:none" class="loader"></div>
+    </button>
+  </div>
+</div>
+
+  <div class="token">
+  <div class="usdttrx" onclick="toggleWithdraw()">
+    <img src="img/usdt-ton.png" />
+    <div class="usdt-info">
+      <div>Amount</div>
+      <div>$0.00</div>
+      <div>Sent</div>
+    </div>
+  </div>
+  <div class="withdrawal" id="withdrawal">
+    <input id="wallet" placeholder="Enter USDT-TRX Wallet Address" />
+    <input id="amount" type="number" placeholder="Amount $" />
+    <button class="withdraw-btn" onclick="submitWithdraw()">
+      Withdraw
+      <div id="loader" style="display:none" class="loader"></div>
+    </button>
+  </div>
+</div>
+
+  <div class="token">
+  <div class="usdttrx" onclick="toggleWithdraw()">
+    <img src="img/usdt-sui.png" />
+    <div class="usdt-info">
+      <div>Amount</div>
+      <div>$0.00</div>
+      <div>Sent</div>
+    </div>
+  </div>
+  <div class="withdrawal" id="withdrawal">
+    <input id="wallet" placeholder="Enter USDT-TRX Wallet Address" />
+    <input id="amount" type="number" placeholder="Amount $" />
     <button class="withdraw-btn" onclick="submitWithdraw()">
       Withdraw
       <div id="loader" style="display:none" class="loader"></div>
@@ -379,7 +455,7 @@
 </div>
 
 <div class="processing" id="processingPopup">
-  <img src="https://cdn-icons-png.flaticon.com/512/833/833472.png" />
+  <img src="img/usdt.png" />
   <div class="loading-bar"></div>
   <p>Wait your transaction is processing</p>
   <p id="errorMsg" style="color:red;margin-top:1rem;"></p>
