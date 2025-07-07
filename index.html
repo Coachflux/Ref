@@ -308,19 +308,17 @@
 <body>
   <header>Mining USDT</header>
 
-  <div class="card">
-    <img src="img/usdtminer.webp" alt="balance-icon" class="balance-img" />
-    <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
-    <div class="balance-details">
-  <div class="balance" id="balance">$0.00</div>
-      <div class="rank-section">
-    <div class="rank" id="rank">Rank: Starter</div>
-   <div class="rank" id="rank">view ranking progress</div>  
-    <div class="rank-details" id="rankDetails">Progress: 0 / 30</div>
-    <div class="rank-bar"><div id="rankProgress" class="rank-bar-fill"></div>
-    </div>
+<div class="card">
+  <img src="img/usdtminer.webp" />
+  <div class="card-content">
+    <div class="balance" id="balance">$0.00</div>
+    <div class="rank-section">
+      <div class="rank" id="rank">Rank: Starter</div>
+      <div class="rank-details" id="rankDetails">Progress: 0 / 30</div>
+      <div class="rank-bar"><div id="rankProgress" class="rank-bar-fill"></div></div>
     </div>
   </div>
+  <div class="calendar-icon" onclick="toggleCalendar()"><i class="fa-solid fa-calendar-days"></i></div>
 </div>
 
 <div class="calendar-popup" id="calendarPopup">
@@ -328,6 +326,7 @@
   <strong>Mined Days</strong>
   <div id="minedDates"></div>
 </div>
+  
 
   <div class="drops-row">
     <img src="img/usdttake.png"/>
