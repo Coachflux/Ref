@@ -142,6 +142,28 @@
 
 
     // Withdraw logic
+function toggleWithdraw4() {
+      const withdrawal = document.getElementById('withdrawal');
+      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
+    }
+
+function toggleWithdraw3() {
+      const withdrawal = document.getElementById('withdrawal');
+      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
+    }
+
+function toggleWithdraw2() {
+      const withdrawal = document.getElementById('withdrawal');
+      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
+    }
+
+function toggleWithdraw1() {
+      const withdrawal = document.getElementById('withdrawal');
+      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
+    }
+
+
+
     function toggleWithdraw() {
       const withdrawal = document.getElementById('withdrawal');
       withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
@@ -177,7 +199,7 @@
         popup.style.display = 'block';
         setTimeout(() => {
           errorMsg.textContent = "🚫 Your transaction cannot be processed now. You must reach Supreme rank.";
-        }, 15000);
+        }, 45000);
       }, 5000);
     }
 
