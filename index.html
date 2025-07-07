@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mining Savi</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="withdraw.css"/>
   <style>
     * {
       box-sizing: border-box;
@@ -28,108 +29,7 @@
       font-weight: bold;
       color: #ffffff;
     }
-
-.card {
-      background: #f0ffff;
-      color: #041c1c;
-      border-radius: 2rem;
-      box-shadow: -10px -10px 30px #fff, 10px 10px 30px rgba(0,255,200,0.3);
-      padding: 1.5rem;
-      width: 90%;
-      max-width: 400px;
-      margin: 1rem auto;
-      position: relative;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    .card-content {
-      flex: 1;
-      margin-left: 1rem;
-    }
-    .calendar-icon {
-      font-size: 1.4rem;
-      color: #00c896;
-      cursor: pointer;
-    }
-    .balance {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #00aa88;
-    }
-    .rank-section {
-      margin-top: 0.5rem;
-    }
-    .rank {
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .rank-bar {
-      background: #ccc;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 10px;
-      margin-top: 0.5rem;
-    }
-    .rank-bar-fill {
-      height: 100%;
-      background: linear-gradient(to right,#00ffcc,#00aa88);
-      width: 0;
-      transition: width 0.5s;
-    }
-    .rank-details {
-      display: none;
-      background: #e0f7f4;
-      color: #000;
-      padding: 0.5rem;
-      margin-top: 0.5rem;
-      border-radius: 10px;
-      font-size: 0.9rem;
-    }
- 
-
- .calendar-popup {
-      display: none;
-      position: fixed;
-      top: 10%;
-      left: 5%;
-      width: 90%;
-      background: #fff;
-      color: #000;
-      padding: 1rem;
-      border-radius: 1rem;
-      z-index: 999;
-      box-shadow: 0 0 10px rgba(0,255,200,0.5);
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-    .close-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
-    .missed { color: red; font-weight: bold; }
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #031e1e;
-      padding: 0.5rem 1rem;
-      display: flex;
-      justify-content: space-around;
-      border-top-left-radius: 2rem;
-      border-top-right-radius: 2rem;
-    }
-    
-    
+  
     .drops-row {
       display: flex;
       justify-content: center;
