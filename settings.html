@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mining Savi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Chart.js for daily history chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    /* --- Base and Dark Mode styles --- */
+    :root {
+      --bg-light: #e0f7f7; --bg-dark: #031e1e;
+      --fg-light: #000;   --fg-dark: #fff;
+      --primary: #00c896; --error: #ff4b5c;
+    }
+    body { font-family: sans-serif; margin: 0; background: var(--bg-light); color: var(--fg-light); transition: .3s; }
+    body.dark { background: var(--bg-dark); color: var(--fg-dark); }
+    .hidden { display: none !important; }
+    .center { text-align: center; }
+
+    /* --- Container & Neumorphism Cards --- */
+    .container { max-width: 480px; margin: auto; padding: 20px; }
+    .card { margin: 20px 0; padding: 20px; border-radius: 20px;
+          background: inherit; box-shadow: 8px 8px 16px #c8e2e2, -8px -8px 16px #fff;
+    }
+    body.dark .card { box-shadow: 8px 8px 16px #020e0e, -8px -8px 16px #042a2a; }
+
+    h2, h3 { margin-bottom: 10px; }
+    .btn { padding: 10px 20px; margin: 10px 0; background: var(--primary); border: none;
+           color: white; border-radius: 30px; cursor: pointer; width: 100%;
+           box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+    .btn:hover { opacity: 0.9; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 10px;
+            border: 1px solid #ccc; }
+    input.invalid { border: 2px solid var(--error); }
+
+    footer { position: fixed; bottom: 0; width: 100%; background: #031e1e;
+             display: flex; justify-content: space-around; padding: 10px 0;
+             border-top-left-radius: 20px; border-top-right-radius: 20px; }
+    footer div { color: white; text-align: center; cursor: pointer; }
+    footer .active { color: var(--primary); }
+    footer i { font-size: 24px; display: block; }
+    footer .label { font-size: 10px; }
+
+    #darkToggle { position: fixed; top: 10px; right: 10px; padding: 8px;
+                  background: var(--primary); color: white; border-radius: 8px; cursor: pointer; }
+
+    .popup { position: fixed; top: 0; left: 0; right:0; bottom:0;
+             background: rgba(0,0,0,0.8); color:#fff; display: flex;
+             justify-content: center; align-items: center; visibility: hidden;
+    }
+    .popup.show { visibility: visible; }
+    .popup .card { max-width: 90%; }
+
+    canvas { background: var(--bg-light); border-radius: 10px; }
+    body.dark canvas { background: var(--bg-dark); }
+  </style>
+</head>
+<body>
+  <div id="darkToggle">🌓</div>
+
+  <div class="container">
+    <!-- AUTH SECTION -->
+    <div id="authSection">
+      <h2>Welcome to Mining Savi</h2>
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button class="btn" onclick="signup()">Sign Up</button>
+      <button class="btn" onclick="login()">Log In</button>
+    </div>
+
+    <!-- APP UI -->
+    <div id="appUI" class="hidden">
+      <div class="card center">
+        <h3>Balance</h3>
+        <h2 id="balance">$0.00</h2>
+        <div id="countdown">00:00:00</div>
+        <div id="mined">+0.00000</div>
+        <button class="btn" onclick="startMining()">Mine</button>
+      </div>
+
+      <div class="card">
+        <h3 id="rank">Rank: Starter</h3>
+        <div id="rankDetails">Progress: 0/30</div>
+        <div id="rankProgressBar"><div id="rankProgress" style="height:8px; background:var(--primary); width:0%;"></div></div>
+        <button class="btn" onclick="toggleWithdraw()">💧 Withdraw</button>
+      </div>
+
+      <div id="withdrawal" class="card hidden">
+        <input id="wallet" placeholder="USDT Wallet Address">
+        <input id="amount" placeholder="$0.00">
+        <button class="btn" onclick="submitWithdraw()">Submit Withdrawal</button>
+        <div id="loader" class="center hidden">⏳ Processing ...</div>
+      </div>
+
+      <div class="card center">
+        <h3>Daily Mining History</h3>
+        <canvas id="historyChart"></canvas>
+      </div>
+
+      <button class="btn" onclick="logout()">Log Out</button>
+    </div>
+  </div>
+
+  <!-- PROCESSING POPUP -->
+  <div id="popupProc" class="popup">
+    <div class="card center">
+      <p>⏳ Processing your withdrawal...</p>
+      <p id="errorMsg" style="color: var(--error);"></p>
+      <button class="btn" onclick="closePopup()">Got it</button>
+    </div>
+  </div>
+
+  <!-- FIREBASE & APP LOGIC -->
+  <script>
+  // --- Firebase Setup (Replace with your config) ---
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_APP.firebaseapp.com",
+    projectId: "YOUR_APP",
+    storageBucket: "YOUR_APP.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // --- UI Refs ---
+  const authSection = document.getElementById('authSection');
+  const appUI = document.getElementById('appUI');
+  const balanceEl = document.getElementById('balance');
+  const countdownEl = document.getElementById('countdown');
+  const minedEl = document.getElementById('mined');
+  const rankEl = document.getElementById('rank');
+  const rankDetails = document.getElementById('rankDetails');
+  const rankProgress = document.getElementById('rankProgress');
+  const withdrawalDiv = document.getElementById('withdrawal');
+  const popupProc = document.getElementById('popupProc');
+  const errorMsg = document.getElementById('errorMsg');
+
+  // --- Day/Night toggle ---
+  document.getElementById('darkToggle').onclick = () => document.body.classList.toggle('dark');
+
+  // --- Signup / Login ---
+  function signup(){
+    const email = document.getElementById('email').value;
+    const pwd   = document.getElementById('password').value;
+    auth.createUserWithEmailAndPassword(email, pwd).catch(err => alert(err.message));
+  }
+
+  function login(){
+    const email = document.getElementById('email').value;
+    const pwd   = document.getElementById('password').value;
+    auth.signInWithEmailAndPassword(email, pwd).catch(err => alert(err.message));
+  }
+
+  function logout(){
+    auth.signOut();
+  }
+
+  // --- Monitor Auth State ---
+  let currentUser = null, timer = null;
+  auth.onAuthStateChanged(async user => {
+    if (!user){
+      clearInterval(timer);
+      appUI.classList.add('hidden');
+      authSection.classList.remove('hidden');
+      return;
+    }
+    currentUser = user;
+    authSection.classList.add('hidden');
+    appUI.classList.remove('hidden');
+    await initUserData();
+    loadHistoryChart();
+    resumeMining();
+  });
+
+  // --- Initialize Firestore User Data ---
+  async function initUserData(){
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (!doc.exists){
+      await db.collection('users').doc(currentUser.uid).set({
+        balance: 0,
+        startTime: null,
+        baseBalance: 0,
+        days: [],
+        transactions: []
+      });
+    }
+  }
+
+  // --- Firestore Helpers ---
+  function getUserDoc() {
+    return db.collection('users').doc(currentUser.uid);
+  }
+
+  async function getUserData(){
+    const doc = await getUserDoc().get();
+    return doc.data();
+  }
+
+  async function updateUser(data){
+    return getUserDoc().update(data);
+  }
+
+  // --- Mining Logic ---
+  const DURATION = 86400000, RATE = 0.00002;
+  function updateUI(data){
+    balanceEl.textContent = '$' + data.balance.toFixed(2);
+    // countdown & mined calculations
+    if (data.startTime){
+      const now = Date.now();
+      const elapsed = Math.min(DURATION, now - data.startTime);
+      const remain = Math.max(0, DURATION - elapsed);
+      countdownEl.textContent = new Date(remain).toISOString().substr(11,8);
+      const earned = elapsed/1000*RATE;
+      minedEl.textContent = '+'+earned.toFixed(5);
+    } else {
+      countdownEl.textContent = '24:00:00';
+      minedEl.textContent = '+0.00000';
+    }
+    // rank UI
+    const days = data.days.length;
+    let name='Starter', pct=days/30*100, next='Pioneer', rem=30-days;
+    if(days>=90)      {name='Supreme';pct=100; next=null;}
+    else if(days>=60) {name='Elite';   pct=(days-60)/30*100; rem=90-days;}
+    else if(days>=30) {name='Pioneer'; pct=(days-30)/30*100; rem=60-days;}
+    rankEl.textContent = 'Rank: ' + name;
+    rankDetails.innerHTML = next ?
+      `Progress: ${days} days<br>Next: ${next} in ${rem} days` :
+      `🎉 Top rank! (${days} days)`;
+    rankProgress.style.width = pct + '%';
+  }
+
+  async function tickFirestore(){
+    const data = await getUserData();
+    const now = Date.now();
+    if (!data.startTime) return clearInterval(timer);
+    const elapsed = now - data.startTime;
+    if (elapsed >= DURATION){
+      let newBalance = data.baseBalance + (DURATION/1000)*RATE;
+      const newDays = [...data.days, new Date(data.startTime).toISOString().split('T')[0]];
+      await updateUser({
+        balance: newBalance,
+        baseBalance: newBalance,
+        startTime: null,
+        days: newDays
+      });
+      clearInterval(timer);
+      // BONUS
+      let streak=0, bonus=0;
+      for(let i=0;i<7;i++){
+        const d=new Date(); d.setDate(d.getDate()-i);
+        if(newDays.includes(d.toISOString().split('T')[0])){
+          streak++;
+          if(streak===2) bonus+=0.05;
+          if(streak===5) bonus+=0.5;
+        }
+      }
+      if (bonus) {
+        alert('🎉 Bonus awarded!');
+        await updateUser({ balance: newBalance + bonus, baseBalance: newBalance + bonus });
+      }
+      return updateUI(await getUserData());
+    }
+    updateUI(data);
+  }
+
+  async function startMining(){
+    const data = await getUserData();
+    if (data.startTime) return;
+    const now = Date.now();
+    await updateUser({ startTime: now, baseBalance: data.balance });
+    timer = setInterval(tickFirestore, 1000);
+    tickFirestore(); // immediate update
+  }
+
+  async function resumeMining(){
+    const data = await getUserData();
+    updateUI(data);
+    if (data.startTime) {
+      timer = setInterval(tickFirestore, 1000);
+    }
+  }
+
+  // --- Withdrawal Logic ---
+  function toggleWithdraw(){
+    withdrawalDiv.classList.toggle('hidden');
+  }
+
+  async function submitWithdraw(){
+    const wallet = document.getElementById('wallet');
+    const amount = document.getElementById('amount');
+    const loader = document.getElementById('loader');
+
+    loader.classList.remove('hidden');
+    const val = parseFloat(amount.value);
+    const data = await getUserData();
+
+    if (!wallet.value || isNaN(val)){
+      alert('Fill in details correctly');
+      loader.classList.add('hidden');
+      return;
+    }
+    if (val > data.balance){
+      amount.classList.add('invalid');
+      loader.classList.add('hidden');
+      return;
+    }
+    const tx = {
+      timestamp: Date.now(),
+      wallet,
+      amount: val
+    };
+    await updateUser({
+      balance: data.balance - val,
+      transactions: firebase.firestore.FieldValue.arrayUnion(tx)
+    });
+    loader.classList.add('hidden');
+    popupProc.classList.add('show');
+    setTimeout(() => {
+      errorMsg.textContent = '🚫 Withdrawals require Supreme rank.';
+    }, 15000);
+    updateUI(await getUserData());
+  }
+
+  function closePopup(){
+    popupProc.classList.remove('show');
+    errorMsg.textContent = '';
+  }
+
+  // --- Chart.js for daily mining chart ---
+  let historyChart = null;
+  async function loadHistoryChart(){
+    const data = await getUserData();
+    const labels = data.days;
+    const values = Array(labels.length).fill(1.728);
+    const ctx = document.getElementById('historyChart').getContext('2d');
+    if (historyChart) historyChart.destroy();
+    historyChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label:'USDT/day', data: values, backgroundColor: '#00c896' }] },
+      options: { scales: { y:{ beginAtZero:true } } }
+    });
+  }
+  </script>
+</body>
+</html>
