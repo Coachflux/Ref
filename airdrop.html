@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contest Page with Countdown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #052820;
+      --shadow-light: #ffffff;
+      --shadow-dark: #a3b1c6;
+      --text: #333;
+      --green: #34c759;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .top-container {
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: -6px -6px 12px var(--shadow-light),
+                  6px 6px 12px var(--shadow-dark);
+      flex-wrap: wrap;
+    }
+
+    .top-container img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      box-shadow: inset -4px -4px 8px var(--shadow-light),
+                  inset 4px 4px 8px var(--shadow-dark);
+    }
+
+    .top-container .info {
+      flex: 1;
+      text-align: center;
+    }
+
+    .top-container .info h4 {
+      font-size: 0.9em;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .top-container .info h1 {
+      font-size: 2em;
+      color: var(--text);
+    }
+
+    .ongoing-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--green);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      box-shadow: -2px -2px 4px var(--shadow-light),
+                  2px 2px 4px var(--shadow-dark);
+    }
+
+    .countdown-box {
+      background: var(--bg);
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 15px;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: inset -4px -4px 8px var(--shadow-light),
+                  inset 4px 4px 8px var(--shadow-dark);
+    }
+
+    .countdown-box span {
+      font-size: 1em;
+      margin: 0 3px;
+      color: #222;
+    }
+
+    .box {
+      background: var(--bg);
+      border-radius: 20px;
+      box-shadow: -6px -6px 12px var(--shadow-light),
+                  6px 6px 12px var(--shadow-dark);
+      padding: 20px;
+      text-align: center;
+      margin: 10px auto;
+    }
+
+    .box img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 10px;
+      box-shadow: inset -4px -4px 8px var(--shadow-light),
+                  inset 4px 4px 8px var(--shadow-dark);
+    }
+
+    .box h3 {
+      margin: 5px 0;
+      font-size: 1.2em;
+      color: var(--text);
+    }
+
+    .box small {
+      font-size: 0.9em;
+      color: gray;
+    }
+
+    .top-winner {
+      margin-bottom: 20px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .half-box {
+      flex: 1;
+    }
+
+    .btn {
+      display: block;
+      margin: 20px auto 10px;
+      padding: 12px 25px;
+      background: var(--bg);
+      border-radius: 50px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: -4px -4px 8px var(--shadow-light),
+                  4px 4px 8px var(--shadow-dark);
+      transition: 0.3s ease;
+    }
+
+    .btn:active {
+      box-shadow: inset -4px -4px 8px var(--shadow-light),
+                  inset 4px 4px 8px var(--shadow-dark);
+    }
+
+    .small-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      background: var(--bg);
+      border-radius: 15px;
+      padding: 10px 15px;
+      box-shadow: -4px -4px 8px var(--shadow-light),
+                  4px 4px 8px var(--shadow-dark);
+    }
+
+    .small-box img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .middle-tag {
+      background: var(--bg);
+      padding: 6px 15px;
+      border-radius: 15px;
+      box-shadow: inset -2px -2px 4px var(--shadow-light),
+                  inset 2px 2px 4px var(--shadow-dark);
+      font-size: 0.8em;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .small-box span {
+      font-weight: bold;
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Top Info Container -->
+  <div class="top-container">
+    <img src="https://via.placeholder.com/60" alt="Prize Icon">
+    <div class="info">
+      <h4>Amount</h4>
+      <h1>$100,000</h1>
+      <div class="countdown-box" id="countdown">Loading...</div>
+    </div>
+    <div class="ongoing-badge">Ongoing</div>
+  </div>
+
+  <!-- Top Winner -->
+  <div class="box top-winner">
+    <img src="https://via.placeholder.com/80" alt="1st Winner">
+    <h3>1st Position</h3>
+    <small>$2000</small>
+  </div>
+
+  <!-- Second and Third Winners -->
+  <div class="row">
+    <div class="box half-box">
+      <img src="https://via.placeholder.com/80" alt="2nd Winner">
+      <h3>2nd Position</h3>
+      <small>$1000</small>
+    </div>
+    <div class="box half-box">
+      <img src="https://via.placeholder.com/80" alt="3rd Winner">
+      <h3>3rd Position</h3>
+      <small>$500</small>
+    </div>
+  </div>
+
+  <!-- Enter Button -->
+  <button class="btn" onclick="enterContest()">Enter</button>
+
+  <!-- 4th-5th Prize -->
+  <div class="small-box">
+    <img src="https://via.placeholder.com/40" alt="Icon">
+    <div class="middle-tag">4th - 5th Position</div>
+    <span>$200</span>
+  </div>
+
+</div>
+
+<script>
+  // Countdown Timer
+  const countdownEl = document.getElementById("countdown");
+  // Set your target end date here (YYYY-MM-DD format)
+  const targetDate = new Date("2025-08-01T00:00:00").getTime();
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const gap = targetDate - now;
+
+    const second = 1000;
+    const minute = second * 60;
+    const hour   = minute * 60;
+    const day    = hour * 24;
+
+    const d = Math.floor(gap / day);
+    const h = Math.floor((gap % day) / hour);
+    const m = Math.floor((gap % hour) / minute);
+    const s = Math.floor((gap % minute) / second);
+
+    countdownEl.innerHTML = `
+      <span>${d}d</span> :
+      <span>${h}h</span> :
+      <span>${m}m</span> :
+      <span>${s}s</span>
+    `;
+  }
+
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  function enterContest() {
+    alert("✅ You’ve successfully entered the contest!");
+  }
+</script>
+
+</body>
+</html>
