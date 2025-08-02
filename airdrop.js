@@ -141,29 +141,7 @@
     })();
 
 
-    // Withdraw logic
-function toggleWithdraw4() {
-      const withdrawal = document.getElementById('withdrawal');
-      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
-    }
-
-function toggleWithdraw3() {
-      const withdrawal = document.getElementById('withdrawal');
-      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
-    }
-
-function toggleWithdraw2() {
-      const withdrawal = document.getElementById('withdrawal');
-      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
-    }
-
-function toggleWithdraw1() {
-      const withdrawal = document.getElementById('withdrawal');
-      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
-    }
-
-
-
+    // Withdraw logic //
     function toggleWithdraw() {
       const withdrawal = document.getElementById('withdrawal');
       withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
@@ -182,7 +160,7 @@ function toggleWithdraw1() {
       }
 
     function toggleWithdraw1() {
-      const withdrawal = document.getElementById('withdrawal1');
+      const withdrawal1 = document.getElementById('withdrawal1');
       withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
     }
 
@@ -199,7 +177,7 @@ function toggleWithdraw1() {
       }
 
      function toggleWithdraw2() {
-      const withdrawal = document.getElementById('withdrawal2');
+      const withdrawal2 = document.getElementById('withdrawal2');
       withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
     }
 
@@ -216,7 +194,7 @@ function toggleWithdraw1() {
       }
 
 function toggleWithdraw3() {
-      const withdrawal = document.getElementById('withdrawal3');
+      const withdrawal3 = document.getElementById('withdrawal3');
       withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
     }
 
@@ -233,7 +211,7 @@ function toggleWithdraw3() {
       }
 
 function toggleWithdraw4() {
-      const withdrawal = document.getElementById('withdrawal4');
+      const withdrawal4 = document.getElementById('withdrawal4');
       withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
     }
 
