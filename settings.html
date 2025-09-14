@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #e0e0e0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background: #e0e0e0;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 10px 10px 20px #bebebe,
+                       -10px -10px 20px #ffffff;
+            width: 350px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .setting {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            box-shadow: inset 5px 5px 10px #bebebe,
+                       inset -5px -5px 10px #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .setting:hover {
+            box-shadow: 5px 5px 10px #bebebe,
+                       -5px -5px 10px #ffffff;
+        }
+        .setting.active {
+            background: #d0d0d0;
+            box-shadow: inset 5px 5px 10px #bebebe,
+                       inset -5px -5px 10px #ffffff;
+        }
+        .toggle {
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset 3px 3px 6px #bebebe,
+                       inset -3px -3px 6px #ffffff;
+        }
+        .toggle.active {
+            background: #4CAF50;
+            box-shadow: inset 3px 3px 6px #388E3C,
+                       inset -3px -3px 6px #66BB6A;
+        }
+        .toggle .slider {
+            width: 21px;
+            height: 21px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+            box-shadow: 2px 2px 4px #bebebe,
+                       -2px -2px 4px #ffffff;
+        }
+        .toggle.active .slider {
+            left: 27px;
+        }
+        .logout {
+            background: #f44336;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .logout:hover {
+            background: #da190b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Settings</div>
+        <div class="setting" onclick="toggleSetting(this, 'notifications')">
+            Notifications
+            <div class="toggle" id="notificationToggle">
+                <div class="slider"></div>
+            </div>
+        </div>
+        <div class="setting" onclick="changePassword()">Password</div>
+        <div class="setting" onclick="showPrivacy()">Privacy</div>
+        <div class="setting" onclick="showTerms()">Terms and Conditions</div>
+        <div class="setting" onclick="showRefer()">Refer and Earn</div>
+        <div class="logout" onclick="logout()">Log Out</div>
+    </div>
+
+    <script>
+        function toggleSetting(element, setting) {
+            const toggle = element.querySelector('.toggle');
+            toggle.classList.toggle('active');
+            let status = toggle.classList.contains('active') ? 'ON' : 'OFF';
+            alert(`${setting} is now ${status}`);
+        }
+
+        function changePassword() {
+            alert('Redirecting to change password page...');
+        }
+
+        function showPrivacy() {
+            alert('Redirecting to privacy policy...');
+        }
+
+        function showTerms() {
+            alert('Redirecting to terms and conditions...');
+        }
+
+        function showRefer() {
+            alert('Redirecting to refer and earn page...');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                alert('Logged out successfully!');
+            }
+        }
+    </script>
+</body>
+</html>
