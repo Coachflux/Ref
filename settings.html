@@ -106,11 +106,11 @@
                 <div class="slider"></div>
             </div>
         </div>
-        <div class="setting" onclick="changePassword()">Password</div>
-        <div class="setting" onclick="showPrivacy()">Privacy</div>
-        <div class="setting" onclick="showTerms()">Terms and Conditions</div>
-        <div class="setting" onclick="showRefer()">Refer and Earn</div>
-        <div class="logout" onclick="logout()">Log Out</div>
+        <div class="setting" onclick="window.location.href='password.html'">Password</div>
+        <div class="setting" onclick="window.location.href='privacy.html'">Privacy</div>
+        <div class="setting" onclick="window.location.href='Terms.html'">Terms and Conditions</div>
+        <div class="setting" onclick="window.location.href='referandearn.html'">Refer and Earn</div>
+        <div class="logout" onclick="window.location.href='login.html'">Log Out</div>
     </div>
 
     <script>
@@ -120,23 +120,6 @@
             let status = toggle.classList.contains('active') ? 'ON' : 'OFF';
             alert(`${setting} is now ${status}`);
         }
-
-        function changePassword() {
-            alert('Redirecting to change password page...');
-        }
-
-        function showPrivacy() {
-            alert('Redirecting to privacy policy...');
-        }
-
-        function showTerms() {
-            alert('Redirecting to terms and conditions...');
-        }
-
-        function showRefer() {
-            alert('Redirecting to refer and earn page...');
-        }
-
         function logout() {
             if (confirm('Are you sure you want to log out?')) {
                 alert('Logged out successfully!');
