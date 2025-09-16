@@ -190,3 +190,17 @@
     document.getElementById('darkModeToggle').onclick = function() {
       document.body.classList.toggle('dark-mode');
     };
+
+
+
+// Dynamically update Open Graph meta tags
+      const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+      const ogImageMeta = document.querySelector('meta[property="og:image"]');
+      if (ogUrlMeta) {
+        ogUrlMeta.setAttribute('content', referralLink);
+      }
+      if (ogImageMeta) {
+        // Replace with your actual hosted image URL
+        ogImageMeta.setAttribute('content', 'https://yourdomain.com/img/usdt.webp');
+      }
+    }
