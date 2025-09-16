@@ -93,6 +93,13 @@
       localStorage.setItem(balanceKey, currentBalance.toFixed(6));
     }
 
+    // Dynamically set the OG URL for the referral link
+      const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+      if (ogUrlMeta) {
+        ogUrlMeta.setAttribute('content', referralLink);
+      }
+    }
+
     function logout() {
       localStorage.removeItem('currentUser');
       showPage('login');
