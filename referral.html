@@ -9,7 +9,7 @@
     <!-- Open Graph Meta Tags for Referral Link Sharing -->
   <meta property="og:title" content="Join USDT Mining!">
   <meta property="og:description" content="Earn USDT by mining and inviting friends! Get $0.3 bonus for every successful referral. Start now!">
-  <meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=NHCoin+Referral">
+  <meta property="og:image" content="usdt.webp">
   <meta property="og:url" content="">
   <meta property="og:type" content="website">
 
@@ -354,7 +354,14 @@
       currentBalance += earnings; // Add referral earnings to balance
       localStorage.setItem(balanceKey, currentBalance.toFixed(6));
     }
-
+    
+      // Dynamically set the OG URL for the referral link
+      const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+      if (ogUrlMeta) {
+        ogUrlMeta.setAttribute('content', referralLink);
+      }
+    }
+    
     function logout() {
       localStorage.removeItem('currentUser');
       showPage('login');
