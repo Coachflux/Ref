@@ -6,12 +6,14 @@
   <title>Mining USDT</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   
-  <!-- Open Graph Meta Tags for Referral Link Sharing -->
+  <!-- Open Graph Meta Tags (Dynamically Updated) -->
   <meta property="og:title" content="Join NHCoin Mining!">
   <meta property="og:description" content="Earn USDT by mining and inviting friends! Get $0.3 bonus for every successful referral. Start now!">
-  <meta property="og:image" content="./img/usdt.webp?text=NHCoin+Referral">
+  <meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=NHCoin+Referral">
   <meta property="og:url" content="">
   <meta property="og:type" content="website">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
 
   <style>
       * {
@@ -353,10 +355,15 @@
       currentBalance += earnings; // Add referral earnings to balance
       localStorage.setItem(balanceKey, currentBalance.toFixed(6));
 
-      // Dynamically set the OG URL for the referral link
+      // Dynamically update Open Graph meta tags
       const ogUrlMeta = document.querySelector('meta[property="og:url"]');
+      const ogImageMeta = document.querySelector('meta[property="og:image"]');
       if (ogUrlMeta) {
         ogUrlMeta.setAttribute('content', referralLink);
+      }
+      if (ogImageMeta) {
+        // Replace with your actual hosted image URL
+        ogImageMeta.setAttribute('content', 'https://yourdomain.com/img/usdt.webp');
       }
     }
 
