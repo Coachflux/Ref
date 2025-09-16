@@ -355,17 +355,6 @@
       currentBalance += earnings; // Add referral earnings to balance
       localStorage.setItem(balanceKey, currentBalance.toFixed(6));
 
-      // Dynamically update Open Graph meta tags
-      const ogUrlMeta = document.querySelector('meta[property="og:url"]');
-      const ogImageMeta = document.querySelector('meta[property="og:image"]');
-      if (ogUrlMeta) {
-        ogUrlMeta.setAttribute('content', referralLink);
-      }
-      if (ogImageMeta) {
-        // Replace with your actual hosted image URL
-        ogImageMeta.setAttribute('content', 'https://yourdomain.com/img/usdt.webp');
-      }
-    }
 
     function logout() {
       localStorage.removeItem('currentUser');
