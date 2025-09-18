@@ -1,4 +1,4 @@
-<script>
+
     function getUserKey(key) {
       const username = localStorage.getItem('currentUser');
       return username ? `${username}_${key}` : key;
@@ -261,4 +261,4 @@
       };
     })();
 
-  </sssscrpp
+
