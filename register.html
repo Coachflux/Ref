@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>USDT Login & Registration</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:500,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #26a17b;
+      --secondary: #ffffff;
+      --bg: #f5f7fa;
+      --input-bg: #e6fff2;
+      --input-border: #9be3c8;
+      --card-shadow: 0 6px 24px 0 rgba(0,0,0,.12);
+    }
+    body {
+      background: #052820;
+      font-family: 'Montserrat', sans-serif;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .usdt-card {
+      background: #f0ffff;
+      box-shadow: var(--card-shadow);
+      border-radius: 18px;
+      padding: 40px 32px;
+      width: 360px;
+      transition: box-shadow 0.2s;
+      position: relative;
+    }
+    .usdt-card .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+    .usdt-card .logo-wrap img {
+      height: 55px;
+    }
+    .usdt-card h2 {
+      font-weight: 700;
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 18px;
+      margin-top: 0;
+      letter-spacing: 0.5px;
+    }
+    .usdt-card .toggle-link {
+      color: var(--primary);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 14px;
+      text-align: center;
+      display: block;
+      margin-top: 12px;
+      font-weight: 500;
+    }
+    .usdt-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .usdt-card input[type="email"],
+    .usdt-card input[type="text"],
+    .usdt-card input[type="password"] {
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 15px;
+      transition: border-color 0.2s;
+      color: #222;
+      outline: none;
+    }
+    .usdt-card input:focus {
+      border-color: var(--primary);
+    }
+    .usdt-card .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+    }
+    .usdt-card .checkbox-wrap input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 16px; height: 16px;
+    }
+    .usdt-card button {
+      background: var(--primary);
+      color: var(--secondary);
+      border: none;
+      border-radius: 8px;
+      font-size: 16.5px;
+      padding: 12px 0;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.15s;
+      box-shadow: 0 4px 12px 0 rgba(38,161,123,.08);
+    }
+    .usdt-card button:hover {
+      background: #21996d;
+    }
+    .usdt-card .error, .usdt-card .success {
+      font-size: 14px;
+      margin-bottom: 6px;
+      padding: 7px 11px;
+      border-radius: 5px;
+    }
+    .usdt-card .error { background: #ffe6e6; color: #e94c4c; }
+    .usdt-card .success { background: #e6ffee; color: #259e6b; }
+    @media (max-width: 430px){
+      .usdt-card { padding: 32px 8vw; width: 98vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="usdt-card" id="form-card">
+    <div class="logo-wrap">
+      <img src="./img/usdt.webp" alt="Tether USDT Logo" draggable="false"/>
+    </div>
+    <!-- Login Form -->
+    <form id="login-form" autocomplete="on">
+      <h2>USDT Login</h2>
+      <div id="login-message"></div>
+      <input type="text" id="login-identifier" placeholder="Email or Username" autocomplete="username" required>
+      <input type="password" id="login-password" placeholder="Password" required minlength="6" autocomplete="current-password">
+      <button type="submit">Login</button>
+      <span class="toggle-link" onclick="toggleForms('register')">Don't have an account? Register</span>
+    </form>
+    <!-- Register Form (hidden by default) -->
+    <form id="register-form" autocomplete="on" style="display:none;">
+      <h2>USDT Registration</h2>
+      <div id="register-message"></div>
+      <input type="email" id="reg-email" placeholder="Email address" required autocomplete="email">
+      <input type="text" id="reg-username" placeholder="Username" required minlength="3" maxlength="16" pattern="^[a-zA-Z0-9_]+$" autocomplete="username">
+      <input type="password" id="reg-password" placeholder="Password" required minlength="6" autocomplete="new-password">
+      <input type="password" id="reg-password2" placeholder="Confirm Password" required minlength="6" autocomplete="new-password">
+      <div class="checkbox-wrap">
+        <input type="checkbox" id="reg-terms" required>
+        <label for="reg-terms">I accept the <a href="#" target="_blank">terms & conditions</a></label>
+      </div>
+      <button type="submit">Register</button>
+      <span class="toggle-link" onclick="toggleForms('login')">Already registered? Login</span>
+    </form>
+  </div>
+  <!-- Firebase SDK scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    // CHANGE THIS to your Firebase project's config (get from Firebase Console > Project settings > Web app)
+    var firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+      // measurementId: "G-XXXXXXXX", // Optional
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Toggle between forms
+    function toggleForms(form) {
+      document.getElementById('register-form').style.display = (form==='register') ? '' : 'none';
+      document.getElementById('login-form').style.display = (form==='login') ? '' : 'none';
+      document.getElementById('register-message').innerHTML = '';
+      document.getElementById('login-message').innerHTML = '';
+    }
+
+    // Registration with Firebase and username save
+    document.getElementById('register-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value.trim();
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const password2 = document.getElementById('reg-password2').value;
+      const terms = document.getElementById('reg-terms').checked;
+      const msg = document.getElementById('register-message');
+      let errors = [];
+      if(!email.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/)) errors.push("Enter a valid email.");
+      if(!username.match(/^[a-zA-Z0-9_]{3,16}$/)) errors.push("Username must be 3-16 characters (letters, numbers, underscores).");
+      if(password.length < 6) errors.push("Password must be at least 6 characters.");
+      if(password !== password2) errors.push("Passwords do not match.");
+      if(!terms) errors.push("You must accept the terms and conditions.");
+      if(errors.length){ msg.innerHTML = '<div class="error">'+errors.join('<br>')+'</div>'; return; }
+      // Check if username already exists
+      db.collection("usernames").doc(username.toLowerCase()).get().then((docSnap) => {
+        if(docSnap.exists){
+          msg.innerHTML = '<div class="error">Username already taken.</div>';
+          return;
+        }
+        // Create user
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            // Set display name
+            userCredential.user.updateProfile({ displayName: username });
+            // Store username->email mapping in Firestore
+            db.collection("usernames").doc(username.toLowerCase()).set({
+              uid: userCredential.user.uid,
+              email: email
+            });
+            msg.innerHTML = '<div class="success">Registration successful! You can now log in.</div>';
+            setTimeout(()=>{ toggleForms('login'); }, 1400);
+          })
+          .catch((error) => {
+            msg.innerHTML = '<div class="error">'+error.message+'</div>';
+          });
+      }).catch((error) => {
+        msg.innerHTML = '<div class="error">'+error.message+'</div>';
+      });
+    });
+
+    // Login with Firebase (by email OR username)
+    document.getElementById('login-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const id = document.getElementById('login-identifier').value.trim();
+      const pw = document.getElementById('login-password').value;
+      const msg = document.getElementById('login-message');
+      if(!id || !pw){
+        msg.innerHTML = '<div class="error">All fields are required.</div>';
+        return;
+      }
+      // If @ in id, treat as email; else lookup username
+      if(id.includes('@')){
+        auth.signInWithEmailAndPassword(id, pw)
+          .then(() => {
+            msg.innerHTML = '<div class="success">Login successful. Welcome back!</div>';
+            // Redirect to mine.html after successful login
+            setTimeout(() => {
+              window.location.href = 'mine.html';
+            }, 1000); // Delay to show success message
+          })
+          .catch((error) => {
+            msg.innerHTML = '<div class="error">'+error.message+'</div>';
+          });
+      } else {
+        // Username: lookup email in Firestore
+        db.collection("usernames").doc(id.toLowerCase()).get().then((docSnap)=>{
+          if(!docSnap.exists){
+            msg.innerHTML = '<div class="error">Username or email not found.</div>';
+            return;
+          }
+          const email = docSnap.data().email;
+          auth.signInWithEmailAndPassword(email, pw)
+            .then(() => {
+              msg.innerHTML = '<div class="success">Login successful. Welcome back!</div>';
+              // Redirect to mine.html after successful login
+              setTimeout(() => {
+                window.location.href = 'mine.html';
+              }, 1000); // Delay to show success message
+            })
+            .catch((error) => {
+              msg.innerHTML = '<div class="error">'+error.message+'</div>';
+            });
+        }).catch((error)=>{
+          msg.innerHTML = '<div class="error">'+error.message+'</div>';
+        });
+      }
+    });
+
+    // Optionally: Check Firebase Auth state here for dashboard/redirects
+    // auth.onAuthStateChanged(user => { ... });
+  </script>
+</body>
+</html>
