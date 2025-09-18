@@ -1,54 +1,49 @@
-
-  const balanceEl = document.getElementById('balance');
-  const rankEl = document.getElementById('rank');
-  const rankDetails = document.getElementById('rankDetails');
-  const rankBar = document.getElementById('rankProgress');
-  const withdrawal = document.getElementById('withdrawal');
-  const loader = document.getElementById('loader');
-  const popup = document.getElementById('processingPopup');
-  const errorMsg = document.getElementById('errorMsg');
-
-  function toggleCalendar() {
-    const cal = document.getElementById('calendarPopup');
-    cal.style.display = cal.style.display === 'block' ? 'none' : 'block';
-  }
-
-  function toggleWithdraw() {
-    withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
-  }
-
-  rankEl.addEventListener('click', () => {
-    rankDetails.style.display = rankDetails.style.display === 'block' ? 'none' : 'block';
-  });
-
-  function submitWithdraw() {
-    const wallet = document.getElementById('wallet');
-    const amount = document.getElementById('amount');
-
-    if (!wallet.value || !amount.value) {
-      alert('Fill in details');
-      return;
+// Withdraw logic //
+    function toggleWithdraw() {
+      const withdrawal = document.getElementById('withdrawal');
+      withdrawal.style.display = withdrawal.style.display === 'block' ? 'none' : 'block';
     }
 
-    const numAmount = parseFloat(amount.value.replace('$', ''));
-    const currentBal = 0; // You may replace this with actual logic later
-    if (numAmount > currentBal) {
-      amount.classList.add('invalid');
-      amount.value = 'Invalid Amount';
-      return;
-    }
+    function submitWithdraw() {
+      const wallet = document.getElementById('wallet');
+      const amount = document.getElementById('amount');
+      const popup = document.getElementById('processingPopup');
+      const loader = document.getElementById('loader');
+      const errorMsg = document.getElementById('errorMsg');
 
-    loader.style.display = 'block';
-    setTimeout(() => {
-      loader.style.display = 'none';
-      popup.style.display = 'block';
+      if (!wallet.value || !amount.value) {
+        alert('Fill in details');
+        return;
+      }
+
+      const val = parseFloat(amount.value.replace('$',''));
+      const bal = parseFloat(localStorage.getItem('balance') || '0');
+
+      if (val > bal) {
+        amount.classList.add('invalid');
+        amount.value = 'Invalid Amount';
+        setTimeout(() => {
+          amount.value = '';
+        }, 2000);
+        return;
+      }
+
+      loader.style.display = 'block';
       setTimeout(() => {
-        errorMsg.textContent = "Your transaction cannot be processed now, you have to reach supreme rank for your transactions to be processed.";
-      }, 15000);
-    }, 5000);
-  }
+        loader.style.display = 'none';
+        popup.style.display = 'block';
+        setTimeout(() => {
+          errorMsg.textContent = "🚫 Your transaction cannot be processed now. You must reach Supreme rank.";
+        }, 45000);
+      }, 5000);
+    }
 
-  function closePopup() {
-    popup.style.display = 'none';
-    errorMsg.textContent = '';
-  }
+    function closePopup() {
+      document.getElementById('processingPopup').style.display = 'none';
+      document.getElementById('errorMsg').textContent = '';
+    }
+
+    // Dark Mode Toggle
+    document.getElementById('darkModeToggle').onclick = function() {
+      document.body.classList.toggle('dark-mode');
+    };
