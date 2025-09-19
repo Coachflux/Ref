@@ -2,114 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mining & Referral App</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta property="og:title" content="Earn by Mining and Referring!">
-  <meta property="og:description" content="Earn daily by mining and referring friends. Get bonuses instantly!">
-  <meta property="og:image" content="https://yourdomain.com/referral.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Referral Mining App</title>
   <style>
-    body { background: #f9fafb; font-family: 'Segoe UI', Arial, sans-serif; color: #222; margin: 0;}
-    .container { max-width: 430px; margin: 40px auto; background: #fff; border-radius: 14px; box-shadow: 0 2px 16px #0001; padding: 32px 26px 16px;}
-    h1, h2 { text-align: center; color: #1366d6; }
-    .page { display: none;}
-    .show { display: block !important;}
-    .input-group { margin-bottom: 18px; }
-    input[type="text"], input[type="password"] {
-      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f3;
+      margin: 0;
+      padding: 0;
     }
-    button { padding: 9px 18px; font-size: 16px; border: none; border-radius: 6px; background: #1366d6; color: #fff; margin-top: 8px;}
-    #rank, #rankProgress { cursor: pointer; }
-    #rankProgress { display: block; background: #e4e7ec; border-radius: 4px; height: 14px; margin: 8px 0;}
-    #rankBar { background: #1366d6; height: 100%; border-radius: 4px 0 0 4px;}
-    #rankDetails { background: #eef6ff; color: #1366d6; padding: 7px 10px; border-radius: 5px; margin: 5px 0; display: none;}
-    .center { text-align: center;}
-    .ref-wrap { background: #f5fbff; border-radius: 8px; padding: 12px; margin-top: 12px;}
-    .stats-row { display: flex; justify-content: space-between; margin-bottom: 7px;}
-    .flex-buttons { display: flex; gap: 8px; justify-content: flex-start;}
-    .missed { color: #d32f2f;}
-    #calendarPopup { background: #fff; border: 1px solid #ccc; padding: 8px 10px; border-radius: 8px; position: absolute; left: 50%; transform: translateX(-50%); z-index: 10; width: 250px; top: 200px; display: none; max-height: 180px; overflow-y: auto;}
-    #miningSound { display: none; }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+    }
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      box-shadow: inset 2px 2px 5px #ccc, inset -2px -2px 5px #fff;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 15px;
+      box-shadow: 4px 4px 10px #ccc, -4px -4px 10px #fff;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Mine & Earn with Referrals</h1>
-
-    <!-- Login Page -->
-    <div class="page" id="login">
-      <h2>Login</h2>
-      <div class="input-group"><input type="text" id="loginUsername" placeholder="Username" autocomplete="username"></div>
-      <div class="input-group"><input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"></div>
-      <button onclick="loginUser()">Log In</button>
-      <p style="text-align:right; font-size:15px;">Or <a href="#" onclick="showPage('register')">Register</a></p>
+    <!-- Signup -->
+    <div id="signupPage" class="card">
+      <h2>Sign Up</h2>
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <input type="text" id="inviterCode" placeholder="Referral Code (Optional)">
+      <button onclick="registerUser()">Sign Up</button>
     </div>
 
-    <!-- Register Page -->
-    <div class="page" id="register">
-      <h2>Register</h2>
-      <div class="input-group"><input type="text" id="username" placeholder="Username"></div>
-      <div class="input-group"><input type="password" id="password" placeholder="Password"></div>
-      <div class="input-group"><input type="text" id="inviterCode" placeholder="Referral Code (optional)"></div>
-      <button onclick="registerUser()">Register</button>
-      <p style="text-align:right; font-size:15px;">Have an account? <a href="#" onclick="showPage('login')">Log in</a></p>
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="card" style="display:none;">
+      <h2>Welcome, <span id="displayUsername"></span></h2>
+      <p>Balance: $<span id="balance">0.00000</span></p>
+      <p>Referral Code: <span id="referralCode"></span></p>
+      <p>Referrals: <span id="referralCount">0</span></p>
+      <p>Referral Profit: $<span id="referralProfit">0</span></p>
+      <button id="mineBtn" onclick="toggleMining()">Start Mining</button>
     </div>
-
-    <!-- Referral Page -->
-    <div class="page" id="referral">
-      <div class="center" style="margin-bottom:7px;">
-        <b id="displayUsername"></b>
-        <button onclick="logout()" style="float:right;background:#f44336;margin:-6px 0 0 0;">Logout</button>
-      </div>
-      <div style="font-size:19px; font-weight:600;">Balance: <span id="balance">$0.00</span></div>
-      <div class="stats-row">
-        <span>Today Mined: <span id="mined">+0.00000</span></span>
-        <span id="countdown">00:00:00</span>
-      </div>
-      <div class="flex-buttons">
-        <button onclick="startMining()">Start Mining</button>
-        <button onclick="toggleCalendar()">Calendar</button>
-      </div>
-      <div id="calendarPopup"></div>
-      <div id="rank" style="margin:14px 0 0 0; font-weight: 600;">Rank: -</div>
-      <div id="rankProgress"><div id="rankBar" style="width:0%"></div></div>
-      <div id="rankDetails"></div>
-
-      <div class="ref-wrap">
-        <div>Your Referral Code:<br><b id="referralCode"></b></div>
-        <div>Your Referral Link:<br>
-          <span id="referralLink"></span>
-          <button onclick="copyText('referralLink')">Copy</button>
-          <button onclick="shareReferral()">Share</button>
-        </div>
-        <div>People referred: <span id="referralCount">0</span></div>
-        <div>Profit from referrals: $<span id="referralProfit">0.00</span></div>
-        <div style="margin-top:7px;">
-          <small>Share your link &amp; earn <b>$0.3 both ways</b> when a friend signs up!</small>
-        </div>
-      </div>
-    </div>
-
-    <audio id="miningSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9d4f5b.mp3"></audio>
   </div>
 
   <script>
-    function showPage(page) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
-      document.getElementById(page).classList.add('show');
-      if (page === 'referral') displayReferralInfo();
-    }
+    let miningInterval = null;
+    const miningRate = 0.00002; // per second
 
+    // Generate referral code
     function generateReferralCode(username) {
-      return username + Math.floor(Math.random() * 10000);
+      return btoa(username).substring(0, 6).toUpperCase();
     }
 
-    // ✅ Fixed Register User
+    // Register User
     function registerUser() {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
       const inviterCode = document.getElementById('inviterCode').value.trim();
 
-      if (!username || !password) return alert("Please fill all required fields.");
+      if (!username || !password) return alert("Fill all fields.");
       if (localStorage.getItem(`user_${username}`)) return alert("Username already exists.");
 
       const user = {
@@ -118,192 +89,141 @@
         referralCode: generateReferralCode(username),
         invited: 0,
         referralProfit: 0,
-        balance: 0,
-        referralClaimed: false // prevent abuse
+        balance: 0
       };
 
-      // Referral check
+      // Referral bonus
       if (inviterCode) {
         Object.keys(localStorage).forEach(key => {
           if (key.startsWith('user_')) {
-            const inviter = JSON.parse(localStorage.getItem(key));
-            if (inviter.referralCode === inviterCode && !user.referralClaimed) {
+            let inviter = JSON.parse(localStorage.getItem(key));
+            if (inviter.referralCode === inviterCode && inviter.username !== username) {
               // Update inviter
-              inviter.invited = (inviter.invited || 0) + 1;
-              inviter.referralProfit = (inviter.referralProfit || 0) + 0.3;
-              inviter.balance = (parseFloat(inviter.balance) || 0) + 0.3;
+              inviter.invited += 1;
+              inviter.referralProfit += 0.3;
+              inviter.balance += 0.3;
               localStorage.setItem(key, JSON.stringify(inviter));
               localStorage.setItem('baseBalance_' + inviter.username, inviter.balance);
 
-              // Give invitee bonus
+              // Update invitee
               user.balance = 0.3;
-              localStorage.setItem('baseBalance_' + username, user.balance);
-              user.referralClaimed = true;
             }
           }
         });
       }
 
-      // Save new user
+      // Save user
       localStorage.setItem(`user_${username}`, JSON.stringify(user));
       localStorage.setItem('currentUser', username);
       localStorage.setItem('balance', user.balance);
       localStorage.setItem('baseBalance_' + username, user.balance);
 
-      showPage('referral');
+      showDashboard();
     }
 
-    function loginUser() {
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
-      if (!username || !password) return alert("Please enter your credentials.");
-      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-      if (!userData || userData.password !== password) return alert("Invalid username or password.");
-      localStorage.setItem('currentUser', username);
-      localStorage.setItem('balance', userData.balance || 0);
-      showPage('referral');
-    }
-
-    function displayReferralInfo() {
+    // Show dashboard
+    function showDashboard() {
       const username = localStorage.getItem('currentUser');
-      if (!username) return showPage('login');
-      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-      document.getElementById('displayUsername').innerText = userData.username;
-      document.getElementById('referralCode').innerText = userData.referralCode;
-      document.getElementById('referralLink').innerText = `${location.origin}${location.pathname}?ref=${userData.referralCode}`;
-      document.getElementById('referralCount').innerText = userData.invited || 0;
-      document.getElementById('referralProfit').innerText = (userData.referralProfit || 0).toFixed(2);
-      document.getElementById('balance').textContent = '$' + (parseFloat(userData.balance) || 0).toFixed(2);
+      if (!username) return;
+
+      const user = JSON.parse(localStorage.getItem(`user_${username}`));
+      document.getElementById('displayUsername').innerText = user.username;
+      document.getElementById('balance').innerText = parseFloat(user.balance).toFixed(5);
+      document.getElementById('referralCode').innerText = user.referralCode;
+      document.getElementById('referralCount').innerText = user.invited;
+      document.getElementById('referralProfit').innerText = user.referralProfit.toFixed(2);
+
+      document.getElementById('signupPage').style.display = "none";
+      document.getElementById('dashboardPage').style.display = "block";
+
+      // Auto-resume mining if active
+      resumeMining();
     }
 
-    function logout() {
-      localStorage.removeItem('currentUser');
-      showPage('login');
-    }
-
-    function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => { alert("Copied!"); });
-    }
-
-    function shareReferral() {
+    // Start mining
+    function startMining() {
       const username = localStorage.getItem('currentUser');
-      const userData = JSON.parse(localStorage.getItem('user_' + username));
-      const url = `${location.origin}${location.pathname}?ref=${userData.referralCode}`;
-      const shareData = {
-        title: `${userData.username}'s Referral`,
-        text: `${userData.username} invites you! Earn $0.3 for joining with their link!`,
-        url: url
-      };
-      if (navigator.share) {
-        navigator.share(shareData).catch(()=>{alert('Share canceled or not supported.')});
+      if (!username) return;
+
+      let baseBalance = parseFloat(localStorage.getItem('baseBalance_' + username)) || 0;
+      let startTime = Date.now();
+
+      localStorage.setItem('miningActive_' + username, true);
+      localStorage.setItem('miningStart_' + username, startTime);
+      localStorage.setItem('baseBalance_' + username, baseBalance);
+
+      document.getElementById('mineBtn').innerText = "Stop Mining";
+
+      miningInterval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        let newBalance = baseBalance + (elapsed * miningRate);
+        updateBalance(username, newBalance);
+      }, 1000);
+    }
+
+    // Stop mining
+    function stopMining() {
+      const username = localStorage.getItem('currentUser');
+      if (!username) return;
+
+      clearInterval(miningInterval);
+      miningInterval = null;
+
+      let finalBalance = parseFloat(document.getElementById('balance').innerText);
+      localStorage.setItem('baseBalance_' + username, finalBalance);
+      localStorage.setItem('miningActive_' + username, false);
+
+      document.getElementById('mineBtn').innerText = "Start Mining";
+    }
+
+    // Toggle mining
+    function toggleMining() {
+      const username = localStorage.getItem('currentUser');
+      if (!username) return;
+      const isMining = localStorage.getItem('miningActive_' + username) === "true";
+
+      if (isMining) {
+        stopMining();
       } else {
-        copyText('referralLink');
+        startMining();
       }
     }
 
-    // ✅ Mining System (unchanged except using baseBalance)
-    (function(){
-      const DURATION = 86400000, RATE = 0.00002;
-      let timer = null;
-      const balanceEl = document.getElementById('balance'),
-            countdownEl = document.getElementById('countdown'),
-            minedEl = document.getElementById('mined'),
-            rankEl = document.getElementById('rank'),
-            rankBar = document.getElementById('rankBar'),
-            rankDetails = document.getElementById('rankDetails'),
-            calendar = document.getElementById('calendarPopup'),
-            sound = document.getElementById('miningSound');
+    // Resume mining after reload
+    function resumeMining() {
+      const username = localStorage.getItem('currentUser');
+      if (!username) return;
 
-      function get(key){ return localStorage.getItem(key); }
-      function set(key, val){ localStorage.setItem(key, val); }
-      function today(){ return new Date().toISOString().split('T')[0]; }
-      function getUser() {
-        const un = localStorage.getItem('currentUser');
-        return JSON.parse(localStorage.getItem('user_' + un));
+      const isMining = localStorage.getItem('miningActive_' + username) === "true";
+      if (!isMining) return;
+
+      let baseBalance = parseFloat(localStorage.getItem('baseBalance_' + username)) || 0;
+      let startTime = parseInt(localStorage.getItem('miningStart_' + username)) || Date.now();
+
+      document.getElementById('mineBtn').innerText = "Stop Mining";
+
+      miningInterval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        let newBalance = baseBalance + (elapsed * miningRate);
+        updateBalance(username, newBalance);
+      }, 1000);
+    }
+
+    // Update balance
+    function updateBalance(username, newBalance) {
+      const user = JSON.parse(localStorage.getItem(`user_${username}`));
+      user.balance = newBalance;
+      localStorage.setItem(`user_${username}`, JSON.stringify(user));
+      localStorage.setItem('balance', newBalance);
+      document.getElementById('balance').innerText = newBalance.toFixed(5);
+    }
+
+    // Auto login if user already exists
+    window.onload = function() {
+      if (localStorage.getItem('currentUser')) {
+        showDashboard();
       }
-      function saveUser(u) {
-        if (u && u.username) localStorage.setItem('user_' + u.username, JSON.stringify(u));
-      }
-      function getBalance(){
-        const user = getUser() || {};
-        return parseFloat(user.balance || 0);
-      }
-      function setBalance(val){
-        const user = getUser();
-        if (user) {
-          user.balance = parseFloat(val.toFixed(6));
-          saveUser(user);
-        }
-        localStorage.setItem('balance', val.toFixed(6));
-        balanceEl.textContent = '$' + val.toFixed(2);
-      }
-
-      function tick(){
-        const currentUser = localStorage.getItem('currentUser');
-        const start = parseInt(get('startTime_' + currentUser));
-        const base = parseFloat(get('baseBalance_' + currentUser) || '0');
-        const now = Date.now();
-        const elapsed = now - start;
-        const remain = Math.max(0, DURATION - elapsed);
-
-        if (remain <= 0) {
-          clearInterval(timer);
-          countdownEl.textContent = '00:00:00';
-          minedEl.textContent = '+1.72800';
-          const finalBalance = base + 1.728;
-          setBalance(finalBalance);
-          set('baseBalance_' + currentUser, finalBalance);
-          localStorage.removeItem('startTime_' + currentUser);
-          return;
-        }
-
-        const earned = (elapsed / 1000) * RATE;
-        const currentBalance = base + earned;
-        minedEl.textContent = '+' + earned.toFixed(5);
-        setBalance(currentBalance);
-
-        const hours = String(Math.floor(remain / (3600 * 1000))).padStart(2, '0');
-        const mins = String(Math.floor((remain % (3600 * 1000)) / 60000)).padStart(2, '0');
-        const secs = String(Math.floor((remain % 60000) / 1000)).padStart(2, '0');
-        countdownEl.textContent = `${hours}:${mins}:${secs}`;
-      }
-
-      window.startMining = function(){
-        const currentUser = localStorage.getItem('currentUser');
-        if(get('startTime_' + currentUser)) return;
-        sound.play();
-        const now = Date.now();
-        const currentBalance = getBalance();
-        set('startTime_' + currentUser, now);
-        set('baseBalance_' + currentUser, currentBalance);
-        timer = setInterval(tick,1000);
-      };
-
-      window.toggleCalendar = function(){
-        calendar.style.display = calendar.style.display==='block'? 'none':'block';
-      };
-
-      window.onload = () => {
-        const refCode = new URLSearchParams(window.location.search).get('ref');
-        if (refCode) {
-          localStorage.setItem('incomingRefCode', refCode);
-          document.getElementById('inviterCode') && (document.getElementById('inviterCode').value = refCode);
-        }
-        const user = localStorage.getItem('currentUser');
-        if (user) {
-          showPage('referral');
-        } else {
-          showPage('login');
-        }
-        const bal = getBalance();
-        setBalance(bal);
-        if(get('startTime_' + (localStorage.getItem('currentUser') || ''))){
-          timer = setInterval(tick, 1000);
-          sound.play();
-        }
-      };
-    })();
+    }
   </script>
 </body>
 </html>
