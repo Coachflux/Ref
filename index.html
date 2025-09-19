@@ -99,42 +99,43 @@
       const password = document.getElementById('password').value.trim();
       const inviterCode = document.getElementById('inviterCode').value.trim();
       if (!username || !password) return alert("Please fill all required fields.");
-      if (!localStorage.getItem(`user_${username}`)) {
-        const user = {
-          username,
-          password,
-          referralCode: generateReferralCode(username),
-          invited: 0,
-          referralProfit: 0,
-          balance: 0
-        };
-        let inviterFound = false;
-        if (inviterCode) {
-          Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('user_')) {
-              const inviter = JSON.parse(localStorage.getItem(key));
-              if (inviter.referralCode === inviterCode) {
-                inviter.invited = (inviter.invited || 0) + 1;
-                inviter.referralProfit = (inviter.referralProfit || 0) + 0.3;
-                inviter.balance = (parseFloat(inviter.balance) || 0) + 0.3;
-                localStorage.setItem(key, JSON.stringify(inviter));
-                user.balance = 0.3;
-                user.referralProfit = 0.3;
-                inviterFound = true;
-              }
+      if (localStorage.getItem(`user_${username}`)) return alert("Username already exists.");
+      
+      const newUser = {
+        username,
+        password,
+        referralCode: generateReferralCode(username),
+        invited: 0,
+        referralProfit: 0,
+        balance: 0
+      };
+
+      // Credit invitee with $0.3 if valid inviter code is provided
+      let inviterFound = false;
+      if (inviterCode) {
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('user_')) {
+            const inviter = JSON.parse(localStorage.getItem(key));
+            if (inviter.referralCode === inviterCode) {
+              inviter.invited = (inviter.invited || 0) + 1;
+              inviter.referralProfit = (inviter.referralProfit || 0) + 0.3;
+              inviter.balance = (parseFloat(inviter.balance) || 0) + 0.3;
+              localStorage.setItem(key, JSON.stringify(inviter));
+              newUser.balance = 0.3; // Credit invitee
+              newUser.referralProfit = 0.3; // Track invitee's referral profit
+              inviterFound = true;
             }
-          });
-          if (!inviterFound) {
-            alert("Invalid referral code. No bonus applied.");
           }
+        });
+        if (!inviterFound) {
+          alert("Invalid referral code. No bonus applied.");
         }
-        localStorage.setItem(`user_${username}`, JSON.stringify(user));
-        localStorage.setItem('currentUser', username);
-        localStorage.setItem(`${username}_balance`, user.balance.toFixed(6));
-        showPage('referral');
-      } else {
-        alert("Username already exists.");
       }
+
+      localStorage.setItem(`user_${username}`, JSON.stringify(newUser));
+      localStorage.setItem('currentUser', username);
+      localStorage.setItem(`${username}_balance`, newUser.balance.toFixed(6));
+      showPage('referral');
     }
     function loginUser() {
       const username = document.getElementById('loginUsername').value.trim();
@@ -150,18 +151,16 @@
     function displayReferralInfo() {
       const username = localStorage.getItem('currentUser');
       if (!username) return showPage('login');
-      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-      document.getElementById('displayUsername').innerText = userData.username;
-      document.getElementById('referralCode').innerText = userData.referralCode;
-      document.getElementById('referralLink').innerText = `${location.origin}${location.pathname}?ref=${userData.referralCode}`;
+      const userData = JSON.parse(localStorage.getItem(`user_${username}`)) || {};
+      document.getElementById('displayUsername').innerText = userData.username || '';
+      document.getElementById('referralCode').innerText = userData.referralCode || '';
+      document.getElementById('referralLink').innerText = `${location.origin}${location.pathname}?ref=${userData.referralCode || ''}`;
       document.getElementById('referralCount').innerText = userData.invited || 0;
       document.getElementById('referralProfit').innerText = (userData.referralProfit || 0).toFixed(2);
       const balance = parseFloat(userData.balance) || 0;
       document.getElementById('balance').textContent = '$' + balance.toFixed(2);
+      localStorage.setItem(`${username}_balance`, balance.toFixed(6));
       localStorage.setItem('balance', balance.toFixed(6));
-      // Sync with mining balance
-      const miningBalanceKey = `${username}_balance`;
-      localStorage.setItem(miningBalanceKey, balance.toFixed(6));
     }
     function logout() {
       localStorage.removeItem('currentUser');
@@ -173,7 +172,7 @@
     }
     function shareReferral() {
       const username = localStorage.getItem('currentUser');
-      const userData = JSON.parse(localStorage.getItem('user_' + username));
+      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
       const url = `${location.origin}${location.pathname}?ref=${userData.referralCode}`;
       const shareData = {
         title: `${userData.username}'s Referral`,
@@ -181,13 +180,12 @@
         url: url
       };
       if (navigator.share) {
-        navigator.share(shareData)
-        .catch(()=>{alert('Share canceled or not supported.')});
+        navigator.share(shareData).catch(() => { alert('Share canceled or not supported.'); });
       } else {
         copyText('referralLink');
       }
     }
-    // Storage event listener for immediate updates across tabs
+    // Storage event listener for real-time updates
     window.addEventListener('storage', (e) => {
       if (e.key && e.key.startsWith('user_') && localStorage.getItem('currentUser')) {
         displayReferralInfo();
@@ -204,28 +202,27 @@
             rankDetails = document.getElementById('rankDetails'),
             calendar = document.getElementById('calendarPopup'),
             sound = document.getElementById('miningSound');
-      function get(key){ 
+      function get(key) { 
         const currentUser = localStorage.getItem('currentUser') || '';
         return localStorage.getItem(currentUser ? key.replace('{user}', currentUser) : key); 
       }
-      function set(key, val){ 
+      function set(key, val) { 
         const currentUser = localStorage.getItem('currentUser') || '';
         localStorage.setItem(currentUser ? key.replace('{user}', currentUser) : key, val); 
       }
-      function today(){ return new Date().toISOString().split('T')[0]; }
+      function today() { return new Date().toISOString().split('T')[0]; }
       function getUser() {
         const un = localStorage.getItem('currentUser');
-        const userStr = localStorage.getItem('user_' + un);
-        return userStr ? JSON.parse(userStr) : null;
+        return un ? JSON.parse(localStorage.getItem(`user_${un}`)) : null;
       }
       function saveUser(u) {
-        if (u && u.username) localStorage.setItem('user_' + u.username, JSON.stringify(u));
+        if (u && u.username) localStorage.setItem(`user_${u.username}`, JSON.stringify(u));
       }
-      function getBalance(){
-        const user = getUser();
-        return parseFloat(user ? user.balance : 0) || 0;
+      function getBalance() {
+        const user = getUser() || { balance: 0 };
+        return parseFloat(user.balance) || 0;
       }
-      function setBalance(val){
+      function setBalance(val) {
         const user = getUser();
         if (user) {
           user.balance = parseFloat(val.toFixed(6));
@@ -234,61 +231,59 @@
         const currentUser = localStorage.getItem('currentUser') || '';
         localStorage.setItem(`${currentUser}_balance`, val.toFixed(6));
         localStorage.setItem('balance', val.toFixed(6));
-        const balEl = document.getElementById('balance');
-        if (balEl) balEl.textContent = '$' + val.toFixed(2);
+        if (balanceEl) balanceEl.textContent = '$' + val.toFixed(2);
       }
-      function getDays(){ 
+      function getDays() { 
         const currentUser = localStorage.getItem('currentUser') || '';
-        const daysStr = localStorage.getItem('days_' + currentUser) || '[]';
-        return JSON.parse(daysStr); 
+        return JSON.parse(localStorage.getItem(`days_${currentUser}`) || '[]'); 
       }
-      function saveDay(){
+      function saveDay() {
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser) return;
-        const key = 'days_' + currentUser;
+        const key = `days_${currentUser}`;
         const d = getDays(), t = today();
-        if (!d.includes(t)){ 
+        if (!d.includes(t)) { 
           d.push(t); 
           localStorage.setItem(key, JSON.stringify(d)); 
         }
       }
-      function updateRankUI(){
+      function updateRankUI() {
         const days = getDays().length;
-        let name='Starter', pct=days/30*100, next='Pioneer', rem=30-days;
-        if(days>=90){name='Supreme';pct=100;next=null;}
-        else if(days>=60){name='Elite';pct=(days-60)/30*100;rem=90-days;next='Supreme';}
-        else if(days>=30){name='Pioneer';pct=(days-30)/30*100;rem=60-days;next='Elite';}
-        rankEl.textContent='Rank: '+name;
-        rankBar.style.width=pct+'%';
+        let name = 'Starter', pct = days / 30 * 100, next = 'Pioneer', rem = 30 - days;
+        if (days >= 90) { name = 'Supreme'; pct = 100; next = null; }
+        else if (days >= 60) { name = 'Elite'; pct = (days - 60) / 30 * 100; rem = 90 - days; next = 'Supreme'; }
+        else if (days >= 30) { name = 'Pioneer'; pct = (days - 30) / 30 * 100; rem = 60 - days; next = 'Elite'; }
+        rankEl.textContent = 'Rank: ' + name;
+        rankBar.style.width = pct + '%';
         rankDetails.innerHTML = next
           ? `Progress: ${days} days<br>Next: ${next} in ${rem} days`
           : `🎉 Top rank! (${days} days)`;
       }
-      function applyBonus(){
-        const arr=getDays(), dates=[];
-        let bonus=0, streak=0;
-        for(let i=0;i<7;i++){
-          const d=new Date();d.setDate(d.getDate()-i);
+      function applyBonus() {
+        const arr = getDays(), dates = [];
+        let bonus = 0, streak = 0;
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(); d.setDate(d.getDate() - i);
           dates.push(d.toISOString().split('T')[0]);
         }
-        dates.forEach(d=>{
-          if(arr.includes(d)){
+        dates.forEach(d => {
+          if (arr.includes(d)) {
             streak++;
-            if(streak===2)bonus+=0.05;
-            if(streak===5)bonus+=0.5;
-          } else streak=0;
+            if (streak === 2) bonus += 0.05;
+            if (streak === 5) bonus += 0.5;
+          } else streak = 0;
         });
-        if(bonus){
+        if (bonus) {
           alert('🎉 Bonus earned!');
-          setBalance(getBalance()+bonus);
+          setBalance(getBalance() + bonus);
           const user = getUser();
-          if(user) {
+          if (user) {
             user.balance = getBalance();
             saveUser(user);
           }
         }
       }
-      function tick(){
+      function tick() {
         const currentUser = localStorage.getItem('currentUser') || '';
         const start = parseInt(get('startTime'));
         const base = parseFloat(get('baseBalance') || '0');
@@ -317,7 +312,7 @@
         const secs = String(Math.floor((remain % 60000) / 1000)).padStart(2, '0');
         countdownEl.textContent = `${hours}:${mins}:${secs}`;
       }
-      window.startMining = function(){
+      window.startMining = function() {
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser || get('startTime')) return;
         sound.play();
@@ -325,21 +320,21 @@
         const currentBalance = getBalance();
         set('startTime', now);
         set('baseBalance', currentBalance);
-        timer = setInterval(tick,1000);
+        timer = setInterval(tick, 1000);
       };
-      window.toggleCalendar = function(){
-        const arr=getDays(), t=today();
-        let html='';
-        for(let i=0;i<30;i++){
-          const d=new Date(); d.setDate(d.getDate()-i);
-          const ds=d.toISOString().split('T')[0];
-          html += `<div>${ds} ${arr.includes(ds)?'✅':'<span class="missed">❌</span>'}</div>`;
+      window.toggleCalendar = function() {
+        const arr = getDays(), t = today();
+        let html = '';
+        for (let i = 0; i < 30; i++) {
+          const d = new Date(); d.setDate(d.getDate() - i);
+          const ds = d.toISOString().split('T')[0];
+          html += `<div>${ds} ${arr.includes(ds) ? '✅' : '<span class="missed">❌</span>'}</div>`;
         }
-        calendar.innerHTML=html;
-        calendar.style.display = calendar.style.display==='block'? 'none':'block';
+        calendar.innerHTML = html;
+        calendar.style.display = calendar.style.display === 'block' ? 'none' : 'block';
       };
-      rankEl.addEventListener('click',()=>{
-        rankDetails.style.display = rankDetails.style.display==='block'?'none':'block';
+      rankEl.addEventListener('click', () => {
+        rankDetails.style.display = rankDetails.style.display === 'block' ? 'none' : 'block';
       });
       window.onload = () => {
         const refCode = new URLSearchParams(window.location.search).get('ref');
@@ -358,7 +353,7 @@
         const bal = getBalance();
         setBalance(bal);
         const currentUser = localStorage.getItem('currentUser') || '';
-        if(get(`startTime_${currentUser}`)){
+        if (get(`startTime_${currentUser}`)) {
           timer = setInterval(tick, 1000);
           sound.play();
         }
