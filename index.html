@@ -116,14 +116,15 @@
         Object.keys(localStorage).forEach(key => {
           if (key.startsWith('user_')) {
             const inviter = JSON.parse(localStorage.getItem(key));
-            if (inviter.referralCode === inviterCode) {
+            if (inviter && inviter.referralCode === inviterCode) {
               inviter.invited = (inviter.invited || 0) + 1;
               inviter.referralProfit = (inviter.referralProfit || 0) + 0.3;
               inviter.balance = (parseFloat(inviter.balance) || 0) + 0.3;
               localStorage.setItem(key, JSON.stringify(inviter));
-              newUser.balance = 0.3; // Credit invitee
-              newUser.referralProfit = 0.3; // Track invitee's referral profit
+              newUser.balance = 0.3;
+              newUser.referralProfit = 0.3;
               inviterFound = true;
+              alert("Referral bonus credited! You and your friend earned $0.3 each.");
             }
           }
         });
@@ -134,7 +135,6 @@
 
       localStorage.setItem(`user_${username}`, JSON.stringify(newUser));
       localStorage.setItem('currentUser', username);
-      localStorage.setItem(`${username}_balance`, newUser.balance.toFixed(6));
       showPage('referral');
     }
     function loginUser() {
@@ -159,8 +159,9 @@
       document.getElementById('referralProfit').innerText = (userData.referralProfit || 0).toFixed(2);
       const balance = parseFloat(userData.balance) || 0;
       document.getElementById('balance').textContent = '$' + balance.toFixed(2);
-      localStorage.setItem(`${username}_balance`, balance.toFixed(6));
       localStorage.setItem('balance', balance.toFixed(6));
+      // Sync with mining balance
+      setBalance(balance);
     }
     function logout() {
       localStorage.removeItem('currentUser');
@@ -204,11 +205,13 @@
             sound = document.getElementById('miningSound');
       function get(key) { 
         const currentUser = localStorage.getItem('currentUser') || '';
-        return localStorage.getItem(currentUser ? key.replace('{user}', currentUser) : key); 
+        const fullKey = currentUser ? `${key}_${currentUser}` : key;
+        return localStorage.getItem(fullKey); 
       }
       function set(key, val) { 
         const currentUser = localStorage.getItem('currentUser') || '';
-        localStorage.setItem(currentUser ? key.replace('{user}', currentUser) : key, val); 
+        const fullKey = currentUser ? `${key}_${currentUser}` : key;
+        localStorage.setItem(fullKey, val); 
       }
       function today() { return new Date().toISOString().split('T')[0]; }
       function getUser() {
@@ -235,16 +238,17 @@
       }
       function getDays() { 
         const currentUser = localStorage.getItem('currentUser') || '';
-        return JSON.parse(localStorage.getItem(`days_${currentUser}`) || '[]'); 
+        const fullKey = `days_${currentUser}`;
+        return JSON.parse(localStorage.getItem(fullKey) || '[]'); 
       }
       function saveDay() {
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser) return;
-        const key = `days_${currentUser}`;
+        const fullKey = `days_${currentUser}`;
         const d = getDays(), t = today();
         if (!d.includes(t)) { 
           d.push(t); 
-          localStorage.setItem(key, JSON.stringify(d)); 
+          localStorage.setItem(fullKey, JSON.stringify(d)); 
         }
       }
       function updateRankUI() {
@@ -273,7 +277,7 @@
             if (streak === 5) bonus += 0.5;
           } else streak = 0;
         });
-        if (bonus) {
+        if (bonus > 0) {
           alert('🎉 Bonus earned!');
           setBalance(getBalance() + bonus);
           const user = getUser();
@@ -285,8 +289,10 @@
       }
       function tick() {
         const currentUser = localStorage.getItem('currentUser') || '';
-        const start = parseInt(get('startTime'));
-        const base = parseFloat(get('baseBalance') || '0');
+        const startKey = `startTime_${currentUser}`;
+        const baseKey = `baseBalance_${currentUser}`;
+        const start = parseInt(localStorage.getItem(startKey));
+        const base = parseFloat(localStorage.getItem(baseKey) || '0');
         const now = Date.now();
         const elapsed = now - start;
         const remain = Math.max(0, DURATION - elapsed);
@@ -296,8 +302,8 @@
           minedEl.textContent = '+1.72800';
           const finalBalance = base + 1.728;
           setBalance(finalBalance);
-          localStorage.removeItem(`startTime_${currentUser}`);
-          localStorage.removeItem(`baseBalance_${currentUser}`);
+          localStorage.removeItem(startKey);
+          localStorage.removeItem(baseKey);
           saveDay();
           applyBonus();
           updateRankUI();
@@ -314,13 +320,16 @@
       }
       window.startMining = function() {
         const currentUser = localStorage.getItem('currentUser');
-        if (!currentUser || get('startTime')) return;
+        if (!currentUser) return alert("Please log in first.");
+        const startKey = `startTime_${currentUser}`;
+        if (localStorage.getItem(startKey)) return alert("Mining is already active!");
         sound.play();
         const now = Date.now();
         const currentBalance = getBalance();
-        set('startTime', now);
-        set('baseBalance', currentBalance);
+        localStorage.setItem(startKey, now);
+        localStorage.setItem(`baseBalance_${currentUser}`, currentBalance);
         timer = setInterval(tick, 1000);
+        alert("Mining started! Check back in 24 hours for rewards.");
       };
       window.toggleCalendar = function() {
         const arr = getDays(), t = today();
@@ -353,7 +362,8 @@
         const bal = getBalance();
         setBalance(bal);
         const currentUser = localStorage.getItem('currentUser') || '';
-        if (get(`startTime_${currentUser}`)) {
+        const startKey = `startTime_${currentUser}`;
+        if (localStorage.getItem(startKey)) {
           timer = setInterval(tick, 1000);
           sound.play();
         }
