@@ -2,228 +2,289 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Referral Mining App</title>
+  <title>Mining Savi Referral</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f0f0f3;
+      background: #f5f7fa;
       margin: 0;
       padding: 0;
+      text-align: center;
     }
     .container {
       max-width: 400px;
-      margin: auto;
+      margin: 20px auto;
+      background: #fff;
       padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    input, button {
+    h2 { margin-bottom: 15px; }
+    input {
       width: 90%;
       padding: 10px;
       margin: 8px 0;
-      border: none;
-      border-radius: 8px;
-      box-shadow: inset 2px 2px 5px #ccc, inset -2px -2px 5px #fff;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
     }
     button {
       background: #007bff;
-      color: white;
+      color: #fff;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
-      box-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
+      margin-top: 10px;
     }
-    button:hover {
-      background: #0056b3;
+    button:hover { background: #0056b3; }
+    .hidden { display: none; }
+    .balance {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 15px 0;
     }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 15px;
-      box-shadow: 4px 4px 10px #ccc, -4px -4px 10px #fff;
+    .info-box {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+      text-align: left;
+    }
+    .referral-link {
+      font-size: 14px;
+      word-break: break-all;
+      color: #007bff;
+      display: block;
+      margin-top: 5px;
+    }
+    .copy-btn {
+      background: #28a745;
+      margin-top: 5px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    .copy-btn:hover { background: #1e7e34; }
+
+    /* ✅ Toast Notification */
+    #toast {
+      visibility: hidden;
+      min-width: 220px;
+      background: #28a745;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 12px;
+      position: fixed;
+      z-index: 1000;
+      left: 50%;
+      bottom: 30px;
+      font-size: 16px;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.5s, bottom 0.5s;
+    }
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 50px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Signup -->
-    <div id="signupPage" class="card">
-      <h2>Sign Up</h2>
-      <input type="text" id="username" placeholder="Username">
-      <input type="password" id="password" placeholder="Password">
-      <input type="text" id="inviterCode" placeholder="Referral Code (Optional)">
-      <button onclick="registerUser()">Sign Up</button>
-    </div>
 
-    <!-- Dashboard -->
-    <div id="dashboardPage" class="card" style="display:none;">
-      <h2>Welcome, <span id="displayUsername"></span></h2>
-      <p>Balance: $<span id="balance">0.00000</span></p>
-      <p>Referral Code: <span id="referralCode"></span></p>
-      <p>Referrals: <span id="referralCount">0</span></p>
-      <p>Referral Profit: $<span id="referralProfit">0</span></p>
-      <button id="mineBtn" onclick="toggleMining()">Start Mining</button>
-    </div>
+<div id="registerPage" class="container">
+  <h2>Register</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <input type="text" id="inviterCode" placeholder="Referral Code (optional)">
+  <button onclick="registerUser()">Register</button>
+  <p>Already have an account? <a href="#" onclick="showPage('loginPage')">Login</a></p>
+</div>
+
+<div id="loginPage" class="container hidden">
+  <h2>Login</h2>
+  <input type="text" id="loginUsername" placeholder="Username">
+  <input type="password" id="loginPassword" placeholder="Password">
+  <button onclick="loginUser()">Login</button>
+  <p>No account? <a href="#" onclick="showPage('registerPage')">Register</a></p>
+</div>
+
+<div id="referralPage" class="container hidden">
+  <h2>Mining Dashboard</h2>
+  <p class="balance">Balance: $<span id="balance">0.00</span></p>
+  <button id="mineBtn" onclick="startMining()">Start Mining</button>
+
+  <div class="info-box">
+    <p>Referral Code: <span id="referralCode"></span></p>
+    <p>Referral Link:</p>
+    <span class="referral-link" id="referralLink"></span>
+    <button class="copy-btn" onclick="copyReferralLink()">Copy Link</button>
+    <p>Total Invited: <span id="totalInvited">0</span></p>
+    <p>Referral Profit: $<span id="referralProfit">0.00</span></p>
   </div>
 
-  <script>
-    let miningInterval = null;
-    const miningRate = 0.00002; // per second
+  <button onclick="logoutUser()">Logout</button>
+</div>
 
-    // Generate referral code
-    function generateReferralCode(username) {
-      return btoa(username).substring(0, 6).toUpperCase();
-    }
+<!-- ✅ Toast -->
+<div id="toast">Referral link copied!</div>
 
-    // Register User
-    function registerUser() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const inviterCode = document.getElementById('inviterCode').value.trim();
+<script>
+/* === UTILITIES === */
+function showPage(pageId) {
+  document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+  document.getElementById(pageId).classList.remove('hidden');
+}
+function generateReferralCode(username) {
+  return username + "_" + Math.random().toString(36).substring(2, 6);
+}
 
-      if (!username || !password) return alert("Fill all fields.");
-      if (localStorage.getItem(`user_${username}`)) return alert("Username already exists.");
+/* === REGISTER USER === */
+function registerUser() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const inviterCode = document.getElementById('inviterCode').value.trim();
 
-      const user = {
-        username,
-        password,
-        referralCode: generateReferralCode(username),
-        invited: 0,
-        referralProfit: 0,
-        balance: 0
-      };
+  if (!username || !password) return alert("Please fill all required fields.");
+  if (localStorage.getItem(`user_${username}`)) return alert("Username already exists.");
 
-      // Referral bonus
-      if (inviterCode) {
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('user_')) {
-            let inviter = JSON.parse(localStorage.getItem(key));
-            if (inviter.referralCode === inviterCode && inviter.username !== username) {
-              // Update inviter
-              inviter.invited += 1;
-              inviter.referralProfit += 0.3;
-              inviter.balance += 0.3;
-              localStorage.setItem(key, JSON.stringify(inviter));
-              localStorage.setItem('baseBalance_' + inviter.username, inviter.balance);
+  const user = {
+    username,
+    password,
+    referralCode: generateReferralCode(username),
+    invited: 0,
+    referralProfit: 0,
+    balance: 0,
+    referralClaimed: false
+  };
 
-              // Update invitee
-              user.balance = 0.3;
-            }
-          }
-        });
+  // Check inviter
+  if (inviterCode) {
+    let inviterFound = false;
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('user_')) {
+        let inviter = JSON.parse(localStorage.getItem(key));
+        if (inviter.referralCode === inviterCode && inviter.username !== username) {
+          inviterFound = true;
+          inviter.invited = (inviter.invited || 0) + 1;
+          inviter.referralProfit = (inviter.referralProfit || 0) + 0.3;
+          inviter.balance = (parseFloat(inviter.balance) || 0) + 0.3;
+          localStorage.setItem(`user_${inviter.username}`, JSON.stringify(inviter));
+          localStorage.setItem('baseBalance_' + inviter.username, inviter.balance);
+          // Give bonus to invitee
+          user.balance = 0.3;
+          user.referralClaimed = true;
+          localStorage.setItem('baseBalance_' + username, user.balance);
+        }
       }
+    });
+    if (!inviterFound) alert("Invalid referral code.");
+  }
 
-      // Save user
-      localStorage.setItem(`user_${username}`, JSON.stringify(user));
-      localStorage.setItem('currentUser', username);
-      localStorage.setItem('balance', user.balance);
-      localStorage.setItem('baseBalance_' + username, user.balance);
+  localStorage.setItem(`user_${username}`, JSON.stringify(user));
+  localStorage.setItem('currentUser', username);
+  localStorage.setItem('balance', user.balance);
+  localStorage.setItem('baseBalance_' + username, user.balance);
 
-      showDashboard();
-    }
+  showPage('referralPage');
+  displayReferralInfo();
+}
 
-    // Show dashboard
-    function showDashboard() {
-      const username = localStorage.getItem('currentUser');
-      if (!username) return;
+/* === LOGIN === */
+function loginUser() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
 
-      const user = JSON.parse(localStorage.getItem(`user_${username}`));
-      document.getElementById('displayUsername').innerText = user.username;
-      document.getElementById('balance').innerText = parseFloat(user.balance).toFixed(5);
-      document.getElementById('referralCode').innerText = user.referralCode;
-      document.getElementById('referralCount').innerText = user.invited;
-      document.getElementById('referralProfit').innerText = user.referralProfit.toFixed(2);
+  const userData = localStorage.getItem(`user_${username}`);
+  if (!userData) return alert("User not found.");
+  const user = JSON.parse(userData);
+  if (user.password !== password) return alert("Incorrect password.");
 
-      document.getElementById('signupPage').style.display = "none";
-      document.getElementById('dashboardPage').style.display = "block";
+  localStorage.setItem('currentUser', username);
+  localStorage.setItem('balance', user.balance);
+  localStorage.setItem('baseBalance_' + username, user.balance);
 
-      // Auto-resume mining if active
-      resumeMining();
-    }
+  showPage('referralPage');
+  displayReferralInfo();
+}
 
-    // Start mining
-    function startMining() {
-      const username = localStorage.getItem('currentUser');
-      if (!username) return;
+/* === LOGOUT === */
+function logoutUser() {
+  localStorage.removeItem('currentUser');
+  showPage('loginPage');
+}
 
-      let baseBalance = parseFloat(localStorage.getItem('baseBalance_' + username)) || 0;
-      let startTime = Date.now();
+/* === DISPLAY REFERRAL === */
+function displayReferralInfo() {
+  const currentUser = localStorage.getItem('currentUser');
+  if (!currentUser) return;
+  const user = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+  document.getElementById('balance').innerText = (parseFloat(user.balance) || 0).toFixed(2);
+  document.getElementById('referralCode').innerText = user.referralCode;
+  const link = window.location.origin + window.location.pathname + "?ref=" + user.referralCode;
+  document.getElementById('referralLink').innerText = link;
+  document.getElementById('totalInvited').innerText = user.invited || 0;
+  document.getElementById('referralProfit').innerText = (parseFloat(user.referralProfit) || 0).toFixed(2);
+}
 
-      localStorage.setItem('miningActive_' + username, true);
-      localStorage.setItem('miningStart_' + username, startTime);
-      localStorage.setItem('baseBalance_' + username, baseBalance);
+/* === COPY REFERRAL LINK === */
+function copyReferralLink() {
+  const linkText = document.getElementById('referralLink').innerText;
+  navigator.clipboard.writeText(linkText).then(() => {
+    showToast("Referral link copied!");
+  }).catch(() => {
+    showToast("Failed to copy link.");
+  });
+}
 
-      document.getElementById('mineBtn').innerText = "Stop Mining";
+/* ✅ Toast Function */
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+}
 
-      miningInterval = setInterval(() => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        let newBalance = baseBalance + (elapsed * miningRate);
-        updateBalance(username, newBalance);
-      }, 1000);
-    }
+/* === MINING === */
+let miningInterval = null;
+function startMining() {
+  const currentUser = localStorage.getItem('currentUser');
+  if (!currentUser) return;
+  const user = JSON.parse(localStorage.getItem(`user_${currentUser}`));
+  let balance = parseFloat(user.balance) || 0;
+  const rate = 0.00002; // per sec
+  document.getElementById('mineBtn').disabled = true;
 
-    // Stop mining
-    function stopMining() {
-      const username = localStorage.getItem('currentUser');
-      if (!username) return;
+  if (miningInterval) clearInterval(miningInterval);
+  miningInterval = setInterval(() => {
+    balance += rate;
+    user.balance = balance;
+    localStorage.setItem(`user_${currentUser}`, JSON.stringify(user));
+    localStorage.setItem('balance', balance);
+    localStorage.setItem('baseBalance_' + currentUser, balance);
+    document.getElementById('balance').innerText = balance.toFixed(5);
+  }, 1000);
+}
 
-      clearInterval(miningInterval);
-      miningInterval = null;
-
-      let finalBalance = parseFloat(document.getElementById('balance').innerText);
-      localStorage.setItem('baseBalance_' + username, finalBalance);
-      localStorage.setItem('miningActive_' + username, false);
-
-      document.getElementById('mineBtn').innerText = "Start Mining";
-    }
-
-    // Toggle mining
-    function toggleMining() {
-      const username = localStorage.getItem('currentUser');
-      if (!username) return;
-      const isMining = localStorage.getItem('miningActive_' + username) === "true";
-
-      if (isMining) {
-        stopMining();
-      } else {
-        startMining();
-      }
-    }
-
-    // Resume mining after reload
-    function resumeMining() {
-      const username = localStorage.getItem('currentUser');
-      if (!username) return;
-
-      const isMining = localStorage.getItem('miningActive_' + username) === "true";
-      if (!isMining) return;
-
-      let baseBalance = parseFloat(localStorage.getItem('baseBalance_' + username)) || 0;
-      let startTime = parseInt(localStorage.getItem('miningStart_' + username)) || Date.now();
-
-      document.getElementById('mineBtn').innerText = "Stop Mining";
-
-      miningInterval = setInterval(() => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        let newBalance = baseBalance + (elapsed * miningRate);
-        updateBalance(username, newBalance);
-      }, 1000);
-    }
-
-    // Update balance
-    function updateBalance(username, newBalance) {
-      const user = JSON.parse(localStorage.getItem(`user_${username}`));
-      user.balance = newBalance;
-      localStorage.setItem(`user_${username}`, JSON.stringify(user));
-      localStorage.setItem('balance', newBalance);
-      document.getElementById('balance').innerText = newBalance.toFixed(5);
-    }
-
-    // Auto login if user already exists
-    window.onload = function() {
-      if (localStorage.getItem('currentUser')) {
-        showDashboard();
-      }
-    }
-  </script>
+/* === AUTO LOGIN / RESUME === */
+window.onload = function() {
+  const refCode = new URLSearchParams(window.location.search).get("ref");
+  if (refCode) {
+    document.getElementById('inviterCode').value = refCode;
+  }
+  const currentUser = localStorage.getItem('currentUser');
+  if (currentUser) {
+    showPage('referralPage');
+    displayReferralInfo();
+    startMining();
+  } else {
+    showPage('registerPage');
+  }
+}
+</script>
 </body>
 </html>
