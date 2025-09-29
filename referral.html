@@ -431,7 +431,7 @@
       const userData = JSON.parse(localStorage.getItem(`user_${username}`));
       document.getElementById('displayUsername').innerText = userData.username;
       document.getElementById('referralCode').innerText = userData.referralCode;
-      const referralLink = `https://yourdomain.com/index.html?ref=${userData.referralCode}`;
+      const referralLink = `https://coachflux.github.io/Ref/index.html?ref=${userData.referralCode}`;
       document.getElementById('referralLink').innerText = referralLink;
       document.getElementById('referralCount').innerText = userData.invited || 0;
     }
