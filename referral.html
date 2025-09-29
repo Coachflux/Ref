@@ -133,7 +133,7 @@
       align-items: center;
     }
 
-/* Icon animation on click */
+    /* Icon animation on click */
     .animate-click {
       animation: clickAnim 3s ease;
     }
@@ -145,7 +145,6 @@
       75%  { transform: scale(1.1); }
       100% { transform: scale(1); }
     }
-    
     
     .container {
       padding: 20px;
@@ -399,6 +398,7 @@
             if (inviter.referralCode === inviterCode) {
               inviter.invited = (inviter.invited || 0) + 1;
               localStorage.setItem(key, JSON.stringify(inviter));
+              console.log(`Updated inviter ${inviter.username} referral count to ${inviter.invited}`);
             }
           }
         });
@@ -431,7 +431,7 @@
       const userData = JSON.parse(localStorage.getItem(`user_${username}`));
       document.getElementById('displayUsername').innerText = userData.username;
       document.getElementById('referralCode').innerText = userData.referralCode;
-      const referralLink = `${location.origin}${location.pathname}?ref=${userData.referralCode}`;
+      const referralLink = `https://yourdomain.com/index.html?ref=${userData.referralCode}`;
       document.getElementById('referralLink').innerText = referralLink;
       document.getElementById('referralCount').innerText = userData.invited || 0;
     }
@@ -450,11 +450,9 @@
         navigator.clipboard.writeText(shareMessage).then(() => {
           alert("Referral share message copied to clipboard! Paste it on social media to share with friends.");
         }).catch(() => {
-          // Fallback for older browsers
           prompt("Copy this share message:", shareMessage);
         });
       } else {
-        // Fallback
         prompt("Copy this share message:", shareMessage);
       }
     }
