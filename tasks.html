@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earn USDT Tasks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .neumorphic-container {
+            background: #f0f0f0;
+            border-radius: 20px;
+            box-shadow: 10px 10px 20px #d1d1d1, -10px -10px 20px #ffffff;
+            padding: 20px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .bulb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .red { background-color: red; }
+        .green { background-color: green; }
+
+        .task-header {
+            font-size: 16px;
+        }
+
+        .dropdown {
+            display: none;
+            background: #f0f0f0;
+            border-radius: 10px;
+            box-shadow: inset 5px 5px 10px #d1d1d1, inset -5px -5px 10px #ffffff;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .input-container {
+            margin-top: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            background: #f0f0f0;
+            box-shadow: inset 5px 5px 10px #d1d1d1, inset -5px -5px 10px #ffffff;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #f0f0f0;
+            box-shadow: 5px 5px 10px #d1d1d1, -5px -5px 10px #ffffff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            box-shadow: inset 5px 5px 10px #d1d1d1, inset -5px -5px 10px #ffffff;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .confirm-btn {
+            margin-top: 20px;
+            background: #f0f0f0;
+        }
+
+        .green-btn {
+            background: #4caf50;
+            color: white;
+            box-shadow: 5px 5px 10px #3e8e41, -5px -5px 10px #5bb75f;
+        }
+    </style>
+</head>
+<body>
+    <div class="neumorphic-container">
+        <div class="header">Complete these tasks to Earn USDT</div>
+        
+        <div class="task" id="task1">
+            <div class="bulb red" id="bulb1"></div>
+            <div class="task-header">Invite Your Friends</div>
+        </div>
+        <div class="dropdown" id="dropdown1">
+            <p>Invite Your Friends, Top The Leader Board And Earn USDT</p>
+            <div class="input-container">
+                <input type="text" id="referralCode" placeholder="Submit Your Referral Code">
+                <button id="submit1">Submit</button>
+            </div>
+        </div>
+        
+        <div class="task" id="task2">
+            <div class="bulb red" id="bulb2"></div>
+            <div class="task-header">Join Nebit campaign</div>
+        </div>
+        <div class="dropdown" id="dropdown2">
+            <p>Join Nebit campaign, the new crypto currency wallet and exchange platform set to launch on Q1 2026.</p>
+            <div class="input-container">
+                <input type="text" id="nebitAddress" placeholder="Submit Your Nebit Wallet Address">
+                <button id="submit2">Submit</button>
+                <button id="visitNebit">Visit</button>
+            </div>
+        </div>
+        
+        <div class="task" id="task3">
+            <div class="bulb red" id="bulb3"></div>
+            <div class="task-header">Submit Your USDT-TRX Address</div>
+        </div>
+        <div class="dropdown" id="dropdown3">
+            <p>By submitting my USDT-TRX Address, I here-by accept that the above provide information is correct and my USDT should be transferred to this USDT-TRX wallet address after the Airdrop Count Down.</p>
+            <div class="input-container">
+                <input type="text" id="usdtAddress" placeholder="Submit Your USDT-TRX Wallet Address">
+                <button id="submit3">Submit</button>
+            </div>
+        </div>
+        
+        <button class="confirm-btn" id="confirm" disabled>Confirm</button>
+    </div>
+
+    <script>
+        // Load from localStorage
+        const storageKeys = {
+            task1: 'task1Completed',
+            task2: 'task2Completed',
+            task3: 'task3Completed',
+            referralCode: 'referralCode',
+            nebitAddress: 'nebitAddress',
+            usdtAddress: 'usdtAddress'
+        };
+
+        const completed = {
+            task1: localStorage.getItem(storageKeys.task1) === 'true',
+            task2: localStorage.getItem(storageKeys.task2) === 'true',
+            task3: localStorage.getItem(storageKeys.task3) === 'true'
+        };
+
+        document.getElementById('referralCode').value = localStorage.getItem(storageKeys.referralCode) || '';
+        document.getElementById('nebitAddress').value = localStorage.getItem(storageKeys.nebitAddress) || '';
+        document.getElementById('usdtAddress').value = localStorage.getItem(storageKeys.usdtAddress) || '';
+
+        // Update bulbs and confirm button
+        function updateUI() {
+            document.getElementById('bulb1').classList.toggle('green', completed.task1);
+            document.getElementById('bulb1').classList.toggle('red', !completed.task1);
+            document.getElementById('bulb2').classList.toggle('green', completed.task2);
+            document.getElementById('bulb2').classList.toggle('red', !completed.task2);
+            document.getElementById('bulb3').classList.toggle('green', completed.task3);
+            document.getElementById('bulb3').classList.toggle('red', !completed.task3);
+
+            const allCompleted = completed.task1 && completed.task2 && completed.task3;
+            const confirmBtn = document.getElementById('confirm');
+            confirmBtn.disabled = !allCompleted;
+            confirmBtn.classList.toggle('green-btn', allCompleted);
+        }
+        updateUI();
+
+        // Toggle dropdowns
+        document.getElementById('task1').addEventListener('click', () => {
+            document.getElementById('dropdown1').style.display = document.getElementById('dropdown1').style.display === 'block' ? 'none' : 'block';
+        });
+        document.getElementById('task2').addEventListener('click', () => {
+            document.getElementById('dropdown2').style.display = document.getElementById('dropdown2').style.display === 'block' ? 'none' : 'block';
+        });
+        document.getElementById('task3').addEventListener('click', () => {
+            document.getElementById('dropdown3').style.display = document.getElementById('dropdown3').style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Submit handlers
+        function handleSubmit(taskId, inputId, storageKey, message) {
+            const btn = document.getElementById(`submit${taskId}`);
+            const input = document.getElementById(inputId);
+            btn.addEventListener('click', () => {
+                if (input.value.trim() === '') return;
+                btn.disabled = true;
+                btn.textContent = 'Loading...';
+                localStorage.setItem(storageKeys[storageKey], input.value);
+                setTimeout(() => {
+                    completed[`task${taskId}`] = true;
+                    localStorage.setItem(storageKeys[`task${taskId}`], 'true');
+                    alert(message);
+                    btn.textContent = 'Submit';
+                    btn.disabled = false;
+                    updateUI();
+                }, 5000);
+            });
+        }
+
+        handleSubmit(1, 'referralCode', 'referralCode', 'Referral Code Accepted');
+        handleSubmit(2, 'nebitAddress', 'nebitAddress', 'Wallet Address Accepted');
+        handleSubmit(3, 'usdtAddress', 'usdtAddress', 'USDT-TRX Wallet Address Accepted');
+
+        // Visit Nebit button
+        document.getElementById('visitNebit').addEventListener('click', () => {
+            window.open('https://nebit.io', '_blank');
+        });
+
+        // Confirm button
+        document.getElementById('confirm').addEventListener('click', () => {
+            const btn = document.getElementById('confirm');
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+            setTimeout(() => {
+                alert('You Have Successfully Confirmed And Submitted Your Details');
+                btn.textContent = 'Confirm';
+                btn.disabled = false;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
