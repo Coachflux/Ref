@@ -149,11 +149,15 @@
     
     .container {
       padding: 20px;
+      max-width: 400px;
+      width: 100%;
     }
     input {
       padding: 10px;
       margin: 5px;
       border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     button {
@@ -161,6 +165,10 @@
       margin: 5px;
       border-radius: 5px;
       background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
+      color: white;
+      border: none;
+      width: 100%;
+      cursor: pointer;
     }
     
     .hidden {
@@ -172,9 +180,79 @@
       border-radius: 10px;
       margin-top: 10px;
     }
+
+    .mining-ui {
+      text-align: center;
+      background: #f0ffff;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    #balance {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00ff99;
+      margin: 10px 0;
+    }
+
+    #countdown {
+      font-size: 1.5rem;
+      color: #052820;
+      margin: 10px 0;
+    }
+
+    #mined {
+      font-size: 1rem;
+      color: #00ffcc;
+      margin: 10px 0;
+    }
+
+    #rank {
+      cursor: pointer;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    #rankProgress {
+      background: #00ff99;
+      height: 10px;
+      border-radius: 5px;
+      transition: width 0.3s;
+    }
+
+    #rankDetails {
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    #calendarPopup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      z-index: 1000;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    #minedDates div {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .missed {
+      color: red;
+    }
   </style>
 </head>
 <body>
+  <header>Mining USDT</header>
+  
   <nav>
     <a href="#" onclick="showPage('home')">Home</a>
     <a href="#" onclick="showPage('referral')">Referral</a>
@@ -184,8 +262,19 @@
 
   <div class="container">
     <div id="home" class="page">
-      <h1>Welcome to NHCoin!</h1>
-      <p>This is a demo app with mining and a referral system.</p>
+      <div class="mining-ui">
+        <h1>Welcome to NHCoin!</h1>
+        <p>This is a demo app with mining and a referral system.</p>
+        <div id="balance">$0.00</div>
+        <div id="countdown">00:00:00</div>
+        <div id="mined">+0.00000</div>
+        <button onclick="startMining()">Start Mining</button>
+        <div id="rank">Rank: Starter</div>
+        <div id="rankProgress"></div>
+        <div id="rankDetails"></div>
+        <button onclick="toggleCalendar()">View Calendar</button>
+        <div id="minedDates"></div>
+      </div>
     </div>
 
     <div id="login" class="page hidden">
@@ -211,47 +300,60 @@
         <p><strong>Referral Code:</strong> <span id="referralCode"></span></p>
         <p><strong>Referral Link:</strong> <span id="referralLink"></span></p>
         <p><strong>Friends Invited:</strong> <span id="referralCount">0</span></p>
-        <button onclick="copyText('referralLink')">Copy Link</button>
+        <button onclick="copyText('referralLink')">Copy Share Message</button>
       </div>
     </div>
   </div>
 
   <!-- Nav Bar -->
-<div class="bottom-nav">
-  <a href="airdrop.html">
-  <div class="nav-item" onclick="handleNavClick(this, 'airdrop.html')">
-    <svg viewBox="0 0 24 24"><path d="M12 2C10.89 2 10 2.89 10 4s.89 2 2 2 2-.89 2-2-.89-2-2-2zm0 10c-.89 0-1.74-.29-2.42-.79l-.9.89 2.61 2.61c.18.18.43.29.7.29s.52-.11.7-.29l2.61-2.61-.9-.89c-.68.5-1.53.79-2.42.79zm0-8C6.48 4 2 8.48 2 14h2c0-4.42 3.58-8 8-8s8 3.58 8 8h2c0-5.52-4.48-10-10-10z"/></svg>
-    <span>Airdrop</span>
+  <div class="bottom-nav">
+    <a href="airdrop.html">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 2C10.89 2 10 2.89 10 4s.89 2 2 2 2-.89 2-2-.89-2-2-2zm0 10c-.89 0-1.74-.29-2.42-.79l-.9.89 2.61 2.61c.18.18.43.29.7.29s.52-.11.7-.29l2.61-2.61-.9-.89c-.68.5-1.53.79-2.42.79zm0-8C6.48 4 2 8.48 2 14h2c0-4.42 3.58-8 8-8s8 3.58 8 8h2c0-5.52-4.48-10-10-10z"/></svg>
+        <span>Airdrop</span>
+      </div>
+    </a>
+
+    <a href="referral.html">
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        <span>Referral</span>
+      </div>
+    </a>
+
+    <a href="index.html" class="mine-link">
+      <div class="mine-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.1 4.93L17.67 3.5l-3.19 3.19L12.5 4.7l-.7.7 1.99 1.99-9.08 9.09c-.39.39-.39 1.02 0 1.41.2.2.45.29.71.29s.51-.1.71-.29l9.08-9.09 1.99 1.99.7-.7-2-1.99L19.1 4.93z"/>
+        </svg>
+      </div>
+      <div class="mine-label">Mine</div>
+    </a>
+
+    <a href="vault.html">
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M21 7H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h16v-2H5v-1h16v-2H5v-1h16v-2H5v-1h16v-2z"/></svg>
+        <span>Wallet</span>
+      </div>
+    </a>
+
+    <a href="settings.html">
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.39.12-.59l-1.91-3.32a.495.495 0 00-.58-.22l-2.39.96a7.007 7.007 0 00-1.62-.94L14.5 2.5a.5.5 0 00-.5-.5h-4a.5.5 0 00-.5.5l-.38 2.43a7.007 7.007 0 00-1.62.94l-2.39-.96a.495.495 0 00-.58.22l-1.91 3.32c-.11.2-.06.45.12.59l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94L2.86 14.5c-.18.14-.23.39-.12.59l1.91 3.32c.11.2.37.28.58.22l2.39-.96c.5.38 1.05.7 1.62.94l.38 2.43c.05.25.25.44.5.44h4c.25 0 .45-.19.5-.44l.38-2.43a7.007 7.007 0 001.62-.94l2.39.96c.21.06.47-.02.58-.22l1.91-3.32a.495.495 0 00-.12-.59l-2.03-1.56zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+        <span>Settings</span>
+      </div>
+    </a>
   </div>
-  </a>
 
-  <div class="nav-item" onclick="handleNavClick(this, 'referral.html')">
-    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-    <span>Referral</span>
+  <audio id="miningSound" preload="auto">
+    <!-- Simple beep sound can be added as base64 or external -->
+  </audio>
+
+  <div id="calendarPopup" style="display: none;">
+    <h3>Mining Calendar (Last 30 Days)</h3>
+    <div id="minedDates"></div>
+    <button onclick="toggleCalendar()">Close</button>
   </div>
-
-  <a href="index.html" class="mine-link" onclick="handleNavClick(this, 'mine.html')">
-    <div class="mine-icon">
-      <svg viewBox="0 0 24 24">
-        <path d="M19.1 4.93L17.67 3.5l-3.19 3.19L12.5 4.7l-.7.7 1.99 1.99-9.08 9.09c-.39.39-.39 1.02 0 1.41.2.2.45.29.71.29s.51-.1.71-.29l9.08-9.09 1.99 1.99.7-.7-2-1.99L19.1 4.93z"/>
-      </svg>
-    </div>
-    <div class="mine-label">Mine</div>
-  </a>
-
-  <a href="vault.html">
-  <div class="nav-item" onclick="handleNavClick(this, 'wallet.html')">
-    <svg viewBox="0 0 24 24"><path d="M21 7H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h16v-2H5v-1h16v-2H5v-1h16v-2H5v-1h16v-2z"/></svg>
-    <span>Wallet</span>
-  </div>
-  </a>
-
-  <div class="nav-item" onclick="handleNavClick(this, 'settings.html')">
-    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.39.12-.59l-1.91-3.32a.495.495 0 00-.58-.22l-2.39.96a7.007 7.007 0 00-1.62-.94L14.5 2.5a.5.5 0 00-.5-.5h-4a.5.5 0 00-.5.5l-.38 2.43a7.007 7.007 0 00-1.62.94l-2.39-.96a.495.495 0 00-.58.22l-1.91 3.32c-.11.2-.06.45.12.59l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94L2.86 14.5c-.18.14-.23.39-.12.59l1.91 3.32c.11.2.37.28.58.22l2.39-.96c.5.38 1.05.7 1.62.94l.38 2.43c.05.25.25.44.5.44h4c.25 0 .45-.19.5-.44l.38-2.43a7.007 7.007 0 001.62-.94l2.39.96c.21.06.47-.02.58-.22l1.91-3.32a.495.495 0 00-.12-.59l-2.03-1.56zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
-    <span>Settings</span>
-  </div>
-</div>
-
 
   <script>
     function showPage(page) {
@@ -269,36 +371,42 @@
     function registerUser() {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
-      const inviterCode = document.getElementById('inviterCode').value.trim();
+      let inviterCode = document.getElementById('inviterCode').value.trim();
+      const incomingRefCode = localStorage.getItem('incomingRefCode');
+
+      if (!inviterCode && incomingRefCode) {
+        inviterCode = incomingRefCode;
+      }
 
       if (!username || !password) return alert("Please fill all required fields.");
 
-      if (!localStorage.getItem(`user_${username}`)) {
-        const user = {
-          username: username,
-          password: password,
-          referralCode: generateReferralCode(username),
-          invited: 0
-        };
-        localStorage.setItem(`user_${username}`, JSON.stringify(user));
-
-        if (inviterCode) {
-          Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('user_')) {
-              const inviter = JSON.parse(localStorage.getItem(key));
-              if (inviter.referralCode === inviterCode) {
-                inviter.invited = (inviter.invited || 0) + 1;
-                localStorage.setItem(key, JSON.stringify(inviter));
-              }
-            }
-          });
-        }
-
-        localStorage.setItem('currentUser', username);
-        showPage('referral');
-      } else {
-        alert("Username already exists.");
+      if (localStorage.getItem(`user_${username}`)) {
+        return alert("Username already exists.");
       }
+
+      const user = {
+        username: username,
+        password: password,
+        referralCode: generateReferralCode(username),
+        invited: 0
+      };
+      localStorage.setItem(`user_${username}`, JSON.stringify(user));
+
+      if (inviterCode) {
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('user_')) {
+            const inviter = JSON.parse(localStorage.getItem(key));
+            if (inviter.referralCode === inviterCode) {
+              inviter.invited = (inviter.invited || 0) + 1;
+              localStorage.setItem(key, JSON.stringify(inviter));
+            }
+          }
+        });
+      }
+
+      localStorage.setItem('currentUser', username);
+      localStorage.removeItem('incomingRefCode'); // Clear after use
+      showPage('referral');
     }
 
     function loginUser() {
@@ -323,7 +431,8 @@
       const userData = JSON.parse(localStorage.getItem(`user_${username}`));
       document.getElementById('displayUsername').innerText = userData.username;
       document.getElementById('referralCode').innerText = userData.referralCode;
-      document.getElementById('referralLink').innerText = `${location.origin}?ref=${userData.referralCode}`;
+      const referralLink = `${location.origin}${location.pathname}?ref=${userData.referralCode}`;
+      document.getElementById('referralLink').innerText = referralLink;
       document.getElementById('referralCount').innerText = userData.invited || 0;
     }
 
@@ -333,8 +442,21 @@
     }
 
     function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+      const linkEl = document.getElementById(id);
+      const text = linkEl.innerText;
+      const shareMessage = `Earn by Mining and Referring!\n\nJoin NHCoin and start earning USDT by mining daily and inviting friends. Get instant bonuses!\n\nDescription: Earn daily by mining and referring friends. Get bonuses instantly!\n\nImage: https://yourdomain.com/referral.png\n\nYour exclusive referral link: ${text}\n\nClick here to join and start mining: ${text}`;
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareMessage).then(() => {
+          alert("Referral share message copied to clipboard! Paste it on social media to share with friends.");
+        }).catch(() => {
+          // Fallback for older browsers
+          prompt("Copy this share message:", shareMessage);
+        });
+      } else {
+        // Fallback
+        prompt("Copy this share message:", shareMessage);
+      }
     }
 
     window.onload = () => {
@@ -343,14 +465,29 @@
         localStorage.setItem('incomingRefCode', refCode);
       }
 
-      const user = localStorage.getItem('currentUser');
-      if (user) {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
         showPage('referral');
       } else {
-        showPage('login');
+        if (refCode) {
+          showPage('register');
+          document.getElementById('inviterCode').value = refCode;
+        } else {
+          showPage('login');
+        }
       }
-    }
 
+      // Initialize mining UI
+      updateRankUI();
+      const bal = getBalance();
+      setBalance(bal);
+      if (get('startTime')) {
+        timer = setInterval(tick, 1000);
+        // sound.play(); // Uncomment if sound is added
+      }
+    };
+
+    // Mining script
     (function(){
       const DURATION = 86400000, RATE = 0.00002;
       let timer = null;
@@ -457,7 +594,7 @@
 
       window.startMining = function(){
         if(get('startTime')) return;
-        sound.play();
+        // sound.play(); // Add sound if needed
         const now = Date.now();
         const currentBalance = getBalance();
         set('startTime', now);
@@ -481,17 +618,11 @@
         rankDetails.style.display = rankDetails.style.display==='block'?'none':'block';
       });
 
-      window.onload = function(){
-        updateRankUI();
-        const bal = getBalance();
-        setBalance(bal);
-        if(get('startTime')){
-          timer = setInterval(tick, 1000);
-          sound.play();
-        }
+      // For bottom nav, simple navigation
+      window.handleNavClick = function(el, url) {
+        window.location.href = url;
       };
     })();
-
   </script>
 </body>
 </html>
