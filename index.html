@@ -117,23 +117,20 @@
   </style>
 </head>
 <body>
-  <div class="usdt-card" id="form-card">
+  <div class="usdt-card">
     <div class="logo-wrap">
       <img src="./img/usdt.webp" alt="Tether USDT Logo" draggable="false"/>
     </div>
     <!-- Login Form -->
     <div id="login">
-    <form id="login-form" autocomplete="on">
       <h2>USDT Login</h2>
       <input type="text" id="loginUsername" placeholder="Email or Username" autocomplete="username" required>
       <input type="password" id="loginPassword" placeholder="Password" required minlength="5" autocomplete="current-password">
       <button type="submit">Login</button>
       <span class="toggle-link" onclick="toggleForms('register')">Don't have an account? Register</span>
-    </form>
     </div>
     <!-- Register Form (hidden by default) -->
     <div id="register">
-    <form id="register-form" autocomplete="on" style="display:none;">
       <h2>USDT Registration</h2>
       <input type="text" id="username" placeholder="Username" required minlength="3" maxlength="16" pattern="^[a-zA-Z0-9_]+$" autocomplete="username">
       <input type="password" id="password" placeholder="Password" required minlength="5" autocomplete="new-password">
@@ -144,7 +141,6 @@
       </div>
       <button type="submit">Register</button>
       <span class="toggle-link" onclick="toggleForms('login')">Already registered? Login</span>
-    </form>
     </div>
   </div>
 
