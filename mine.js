@@ -1,3 +1,129 @@
+  <!-- Firebase SDK scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script>
+    // CHANGE THIS to your Firebase project's config (get from Firebase Console > Project settings > Web app)
+    var firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+      // measurementId: "G-XXXXXXXX", // Optional
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Toggle between forms
+    function toggleForms(form) {
+      document.getElementById('register-form').style.display = (form==='register') ? '' : 'none';
+      document.getElementById('login-form').style.display = (form==='login') ? '' : 'none';
+      document.getElementById('register-message').innerHTML = '';
+      document.getElementById('login-message').innerHTML = '';
+    }
+
+    // Registration with Firebase and username save
+    document.getElementById('register-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value.trim();
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const password2 = document.getElementById('reg-password2').value;
+      const terms = document.getElementById('reg-terms').checked;
+      const msg = document.getElementById('register-message');
+      let errors = [];
+      if(!email.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/)) errors.push("Enter a valid email.");
+      if(!username.match(/^[a-zA-Z0-9_]{3,16}$/)) errors.push("Username must be 3-16 characters (letters, numbers, underscores).");
+      if(password.length < 6) errors.push("Password must be at least 6 characters.");
+      if(password !== password2) errors.push("Passwords do not match.");
+      if(!terms) errors.push("You must accept the terms and conditions.");
+      if(errors.length){ msg.innerHTML = '<div class="error">'+errors.join('<br>')+'</div>'; return; }
+      // Check if username already exists
+      db.collection("usernames").doc(username.toLowerCase()).get().then((docSnap) => {
+        if(docSnap.exists){
+          msg.innerHTML = '<div class="error">Username already taken.</div>';
+          return;
+        }
+        // Create user
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            // Set display name
+            userCredential.user.updateProfile({ displayName: username });
+            // Store username->email mapping in Firestore
+            db.collection("usernames").doc(username.toLowerCase()).set({
+              uid: userCredential.user.uid,
+              email: email
+            });
+            msg.innerHTML = '<div class="success">Registration successful! You can now log in.</div>';
+            setTimeout(()=>{ toggleForms('login'); }, 1400);
+          })
+          .catch((error) => {
+            msg.innerHTML = '<div class="error">'+error.message+'</div>';
+          });
+      }).catch((error) => {
+        msg.innerHTML = '<div class="error">'+error.message+'</div>';
+      });
+    });
+
+    // Login with Firebase (by email OR username)
+    document.getElementById('login-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const id = document.getElementById('login-identifier').value.trim();
+      const pw = document.getElementById('login-password').value;
+      const msg = document.getElementById('login-message');
+      if(!id || !pw){
+        msg.innerHTML = '<div class="error">All fields are required.</div>';
+        return;
+      }
+      // If @ in id, treat as email; else lookup username
+      if(id.includes('@')){
+        auth.signInWithEmailAndPassword(id, pw)
+          .then(() => {
+            msg.innerHTML = '<div class="success">Login successful. Welcome back!</div>';
+            // Redirect to mine.html after successful login
+            setTimeout(() => {
+              window.location.href = 'mine.html';
+            }, 1000); // Delay to show success message
+          })
+          .catch((error) => {
+            msg.innerHTML = '<div class="error">'+error.message+'</div>';
+          });
+      } else {
+        // Username: lookup email in Firestore
+        db.collection("usernames").doc(id.toLowerCase()).get().then((docSnap)=>{
+          if(!docSnap.exists){
+            msg.innerHTML = '<div class="error">Username or email not found.</div>';
+            return;
+          }
+          const email = docSnap.data().email;
+          auth.signInWithEmailAndPassword(email, pw)
+            .then(() => {
+              msg.innerHTML = '<div class="success">Login successful. Welcome back!</div>';
+              // Redirect to mine.html after successful login
+              setTimeout(() => {
+                window.location.href = 'mine.html';
+              }, 1000); // Delay to show success message
+            })
+            .catch((error) => {
+              msg.innerHTML = '<div class="error">'+error.message+'</div>';
+            });
+        }).catch((error)=>{
+          msg.innerHTML = '<div class="error">'+error.message+'</div>';
+        });
+      }
+    });
+
+    // Optionally: Check Firebase Auth state here for dashboard/redirects
+    // auth.onAuthStateChanged(user => { ... });
+  </script>
+
+
+
+
+
 
 (function(){
   const DURATION = 86400000, RATE = 0.00002;
