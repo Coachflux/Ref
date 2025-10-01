@@ -308,7 +308,7 @@
       </div>
     </div>
 
-    <div id="register" class="page">
+    <div id="register" class="page hidden">
       <div class="usdt-form-container">
         <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
         <h2>USDT Registration</h2>
@@ -355,7 +355,7 @@
     function showPage(page) {
       document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
       document.getElementById(page).classList.remove('hidden');
-      if (page === 'referral') {
+      if (page === 'register') {
         displayReferralInfo();
       }
     }
