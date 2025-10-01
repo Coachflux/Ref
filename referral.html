@@ -11,242 +11,285 @@
   <meta property="og:image" content="https://coachflux.github.io/Ref/img/usdt.webp">
   <style>
       * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background: #052820;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 6rem;
-      color: black;
-    }
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #052820;
+        font-family: 'Segoe UI', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 6rem;
+        color: black;
+      }
 
-    header {
-      width: 100%;
-      padding: 1rem;
-      text-align: center;
-      background-color: #f0ffff;
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #052828;
-    }
-    
-    nav {
-      background-color: #1f2229;
-      padding: 10px;
-      display: flex;
-      justify-content: space-around;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
+      header {
+        width: 100%;
+        padding: 1rem;
+        text-align: center;
+        background-color: #f0ffff;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #052828;
+      }
+      
+      nav {
+        background-color: #1f2229;
+        padding: 10px;
+        display: flex;
+        justify-content: space-around;
+      }
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 50px;
-      background: #031e1e;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      border-top-left-radius: 30px;
-      border-top-right-radius: 30px;
-      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
-      z-index: 999;
-    }
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+        background: #031e1e;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        border-top-left-radius: 30px;
+        border-top-right-radius: 30px;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+        z-index: 999;
+      }
 
-    .nav-item {
-      text-align: center;
-      color: #aaa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.3s ease;
-      cursor: pointer;
-    }
+      .nav-item {
+        text-align: center;
+        color: #aaa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+      }
 
-    .nav-item svg {
-      width: 25px;
-      height: 25px;
-      fill: #888;
-      transition: transform 0.3s ease, fill 0.3s ease;
-    }
+      .nav-item svg {
+        width: 25px;
+        height: 25px;
+        fill: #888;
+        transition: transform 0.3s ease, fill 0.3s ease;
+      }
 
-    .nav-item span {
-      font-size: 0.7rem;
-      margin-top: 2px;
-      display: none;
-    }
+      .nav-item span {
+        font-size: 0.7rem;
+        margin-top: 2px;
+        display: none;
+      }
 
-    .nav-item.active svg,
-    .nav-item:hover svg {
-      fill: #00ff99;
-      transform: scale(1.2) rotate(360deg);
-    }
+      .nav-item.active svg,
+      .nav-item:hover svg {
+        fill: #00ff99;
+        transform: scale(1.2) rotate(360deg);
+      }
 
-    .nav-item.active span {
-      display: block;
-      color: #00ff99;
-    }
+      .nav-item.active span {
+        display: block;
+        color: #00ff99;
+      }
 
-    .mine-icon {
-      position: relative;
-      top: -15px;
-      width: 50px;
-      height: 50px;
-      background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
-      border-radius: 50%;
-      box-shadow: 0 0 15px #00ffcc, inset 5px 5px 10px rgba(0,0,0,0.2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 4px solid #031e1e;
-      transition: transform 0.3s ease;
-    }
+      .mine-icon {
+        position: relative;
+        top: -15px;
+        width: 50px;
+        height: 50px;
+        background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
+        border-radius: 50%;
+        box-shadow: 0 0 15px #00ffcc, inset 5px 5px 10px rgba(0,0,0,0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 4px solid #031e1e;
+        transition: transform 0.3s ease;
+      }
 
-    .mine-icon svg {
-      width: 30px;
-      height: 30px;
-      fill: #ffffff;
-      filter: drop-shadow(0 0 4px #00ffcc);
-    }
+      .mine-icon svg {
+        width: 30px;
+        height: 30px;
+        fill: #ffffff;
+        filter: drop-shadow(0 0 4px #00ffcc);
+      }
 
-    .mine-label {
-      position: absolute;
-      top: 76px;
-      font-size: 0.7rem;
-      color: #00ffcc;
-      font-weight: bold;
-    }
+      .mine-label {
+        position: absolute;
+        top: 76px;
+        font-size: 0.7rem;
+        color: #00ffcc;
+        font-weight: bold;
+      }
 
-    a.mine-link {
-      text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+      a.mine-link {
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-    /* Icon animation on click */
-    .animate-click {
-      animation: clickAnim 3s ease;
-    }
+      /* Icon animation on click */
+      .animate-click {
+        animation: clickAnim 3s ease;
+      }
 
-    @keyframes clickAnim {
-      0%   { transform: scale(1); }
-      25%  { transform: scale(1.1); }
-      50%  { transform: scale(0.9); }
-      75%  { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    
-    .container {
-      padding: 20px;
-      max-width: 400px;
-      width: 100%;
-    }
-    input {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-      width: 100%;
-      box-sizing: border-box;
-    }
+      @keyframes clickAnim {
+        0%   { transform: scale(1); }
+        25%  { transform: scale(1.1); }
+        50%  { transform: scale(0.9); }
+        75%  { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+      
+      .container {
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+      }
+      input {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+      }
 
-    button {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-      background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
-      color: white;
-      border: none;
-      width: 100%;
-      cursor: pointer;
-    }
-    
-    .hidden {
-      display: none;
-    }
-    .card {
-      background: #f0ffff;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 10px;
-    }
+      button {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
+        color: white;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+      }
+      
+      .hidden {
+        display: none;
+      }
+      .card {
+        background: #f0ffff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+      }
 
-    .mining-ui {
-      text-align: center;
-      background: #f0ffff;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 10px 0;
-    }
+      .mining-ui {
+        text-align: center;
+        background: #f0ffff;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 10px 0;
+      }
 
-    #balance {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #00ff99;
-      margin: 10px 0;
-    }
+      #balance {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #00ff99;
+        margin: 10px 0;
+      }
 
-    #countdown {
-      font-size: 1.5rem;
-      color: #052820;
-      margin: 10px 0;
-    }
+      #countdown {
+        font-size: 1.5rem;
+        color: #052820;
+        margin: 10px 0;
+      }
 
-    #mined {
-      font-size: 1rem;
-      color: #00ffcc;
-      margin: 10px 0;
-    }
+      #mined {
+        font-size: 1rem;
+        color: #00ffcc;
+        margin: 10px 0;
+      }
 
-    #rank {
-      cursor: pointer;
-      font-weight: bold;
-      margin: 10px 0;
-    }
+      #rank {
+        cursor: pointer;
+        font-weight: bold;
+        margin: 10px 0;
+      }
 
-    #rankProgress {
-      background: #00ff99;
-      height: 10px;
-      border-radius: 5px;
-      transition: width 0.3s;
-    }
+      #rankProgress {
+        background: #00ff99;
+        height: 10px;
+        border-radius: 5px;
+        transition: width 0.3s;
+      }
 
-    #rankDetails {
-      font-size: 0.8rem;
-      margin-top: 5px;
-    }
+      #rankDetails {
+        font-size: 0.8rem;
+        margin-top: 5px;
+      }
 
-    #calendarPopup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      z-index: 1000;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
+      #calendarPopup, #termsPopup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        z-index: 1000;
+        max-height: 80vh;
+        overflow-y: auto;
+        max-width: 90%;
+        width: 400px;
+      }
 
-    #minedDates div {
-      padding: 5px;
-      border-bottom: 1px solid #eee;
-    }
+      #minedDates div {
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+      }
 
-    .missed {
-      color: red;
-    }
+      .missed {
+        color: red;
+      }
+
+      .usdt-image {
+        width: 100px;
+        display: block;
+        margin: 0 auto 20px;
+      }
+
+      .usdt-form-container {
+        background: #f0ffff;
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid #00ffcc;
+        box-shadow: 0 0 10px #00ffcc;
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .usdt-form-container h2 {
+        color: #052820;
+        margin-bottom: 20px;
+      }
+
+      .terms-link {
+        color: #00775e;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .terms-container {
+        position: relative;
+        text-align: left;
+      }
+
+      .close-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #052820;
+      }
   </style>
 </head>
 <body>
@@ -260,7 +303,7 @@
   </nav>
 
   <div class="container">
-    <div id="home" class="page">
+    <div id="home" class="page hidden">
       <div class="mining-ui">
         <h1>Welcome to NHCoin!</h1>
         <p>This is a demo app with mining and a referral system.</p>
@@ -276,20 +319,30 @@
       </div>
     </div>
 
-    <div id="login" class="page hidden">
-      <h2>Login</h2>
-      <input type="text" id="loginUsername" placeholder="Enter your username">
-      <input type="password" id="loginPassword" placeholder="Enter your password">
-      <button onclick="loginUser()">Login</button>
-      <p>Don't have an account? <a href="#" onclick="showPage('register')">Register here</a></p>
+    <div id="login" class="page">
+      <div class="usdt-form-container">
+        <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
+        <h2>USDT Login</h2>
+        <input type="text" id="loginUsername" placeholder="Enter your username">
+        <input type="password" id="loginPassword" placeholder="Enter your password">
+        <button onclick="loginUser()">Login</button>
+        <p>Don't have an account? <a href="#" onclick="showPage('register')">Register here</a></p>
+      </div>
     </div>
 
     <div id="register" class="page hidden">
-      <h2>Register</h2>
-      <input type="text" id="username" placeholder="Enter your username">
-      <input type="password" id="password" placeholder="Enter your password">
-      <input type="text" id="inviterCode" placeholder="Referral code (optional)">
-      <button onclick="registerUser()">Register</button>
+      <div class="usdt-form-container">
+        <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
+        <h2>USDT Registration</h2>
+        <input type="text" id="username" placeholder="Enter your username">
+        <input type="password" id="password" placeholder="Enter your password">
+        <input type="text" id="inviterCode" placeholder="Referral code (optional)">
+        <label>
+          <input type="checkbox" id="terms">
+          I agree to the <span class="terms-link" onclick="showTerms()">terms and conditions</span>
+        </label>
+        <button onclick="registerUser()">Register</button>
+      </div>
     </div>
 
     <div id="referral" class="page hidden">
@@ -320,7 +373,7 @@
       </div>
     </a>
 
-    <a href="index.html" class="mine-link">
+    <a href="mine.html" class="mine-link">
       <div class="mine-icon">
         <svg viewBox="0 0 24 24">
           <path d="M19.1 4.93L17.67 3.5l-3.19 3.19L12.5 4.7l-.7.7 1.99 1.99-9.08 9.09c-.39.39-.39 1.02 0 1.41.2.2.45.29.71.29s.51-.1.71-.29l9.08-9.09 1.99 1.99.7-.7-2-1.99L19.1 4.93z"/>
@@ -354,6 +407,21 @@
     <button onclick="toggleCalendar()">Close</button>
   </div>
 
+  <div id="termsPopup" style="display: none;" class="terms-container">
+    <i class="fas fa-times close-icon" onclick="hideTerms()"></i>
+    <h3>Terms and Conditions</h3>
+    <p>Welcome to NHCoin. By registering, you agree to the following terms:</p>
+    <ul>
+      <li>You must be at least 18 years old to use this service.</li>
+      <li>USDT mining and referrals are for demonstration purposes only.</li>
+      <li>Do not share your login credentials with others.</li>
+      <li>We are not responsible for any financial losses incurred.</li>
+      <li>Users are responsible for maintaining the security of their accounts.</li>
+      <li>Any abuse of the referral system may result in account suspension.</li>
+    </ul>
+    <p>By checking the box, you acknowledge that you have read and agree to these terms.</p>
+  </div>
+
   <script>
     function showPage(page) {
       document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
@@ -361,6 +429,14 @@
       if (page === 'referral') {
         displayReferralInfo();
       }
+    }
+
+    function showTerms() {
+      document.getElementById('termsPopup').style.display = 'block';
+    }
+
+    function hideTerms() {
+      document.getElementById('termsPopup').style.display = 'none';
     }
 
     function generateReferralCode(username) {
@@ -371,6 +447,7 @@
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
       let inviterCode = document.getElementById('inviterCode').value.trim();
+      const termsChecked = document.getElementById('terms').checked;
       const incomingRefCode = localStorage.getItem('incomingRefCode');
 
       if (!inviterCode && incomingRefCode) {
@@ -378,6 +455,7 @@
       }
 
       if (!username || !password) return alert("Please fill all required fields.");
+      if (!termsChecked) return alert("You must agree to the terms and conditions.");
 
       if (localStorage.getItem(`user_${username}`)) {
         return alert("Username already exists.");
@@ -404,9 +482,9 @@
         });
       }
 
-      localStorage.setItem('currentUser', username);
-      localStorage.removeItem('incomingRefCode'); // Clear after use
-      showPage('referral');
+      localStorage.removeItem('incomingRefCode');
+      alert("Registration Successful, You can now login");
+      showPage('login');
     }
 
     function loginUser() {
@@ -421,7 +499,7 @@
       }
 
       localStorage.setItem('currentUser', username);
-      showPage('referral');
+      window.location.href = 'mine.html';
     }
 
     function displayReferralInfo() {
@@ -444,7 +522,7 @@
     function copyText(id) {
       const linkEl = document.getElementById(id);
       const text = linkEl.innerText;
-      const shareMessage = `Earn by Mining and Referring!\n\nJoin NHCoin and start earning USDT by mining daily and inviting friends. Get instant bonuses!\n\nDescription: Earn daily by mining and referring friends. Get bonuses instantly!\n\nImage: https://yourdomain.com/referral.png\n\nYour exclusive referral link: ${text}\n\nClick here to join and start mining: ${text}`;
+      const shareMessage = `Earn by Mining and Referring!\n\nJoin NHCoin and start earning USDT by mining daily and inviting friends. Get instant bonuses!\n\nDescription: Earn daily by mining and referring friends. Get bonuses instantly!\n\nImage: https://coachflux.github.io/Ref/img/usdt.webp\n\nYour exclusive referral link: ${text}\n\nClick here to join and start mining: ${text}`;
       
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(shareMessage).then(() => {
@@ -475,13 +553,13 @@
         }
       }
 
-      // Initialize mining UI
-      updateRankUI();
-      const bal = getBalance();
-      setBalance(bal);
-      if (get('startTime')) {
-        timer = setInterval(tick, 1000);
-        // sound.play(); // Uncomment if sound is added
+      if (document.getElementById('home').classList.contains('hidden') === false) {
+        updateRankUI();
+        const bal = getBalance();
+        setBalance(bal);
+        if (get('startTime')) {
+          timer = setInterval(tick, 1000);
+        }
       }
     };
 
@@ -592,7 +670,6 @@
 
       window.startMining = function(){
         if(get('startTime')) return;
-        // sound.play(); // Add sound if needed
         const now = Date.now();
         const currentBalance = getBalance();
         set('startTime', now);
@@ -616,7 +693,6 @@
         rankDetails.style.display = rankDetails.style.display==='block'?'none':'block';
       });
 
-      // For bottom nav, simple navigation
       window.handleNavClick = function(el, url) {
         window.location.href = url;
       };
