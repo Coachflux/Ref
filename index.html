@@ -297,6 +297,22 @@
   
 
   <div class="container">
+    <div id="home" class="page hidden">
+      <div class="mining-ui">
+        <h1>Welcome to NHCoin!</h1>
+        <p>This is a demo app with mining and a referral system.</p>
+        <div id="balance">$0.00</div>
+        <div id="countdown">00:00:00</div>
+        <div id="mined">+0.00000</div>
+        <button onclick="startMining()">Start Mining</button>
+        <div id="rank">Rank: Starter</div>
+        <div id="rankProgress"></div>
+        <div id="rankDetails"></div>
+        <button onclick="toggleCalendar()">View Calendar</button>
+        <div id="minedDates"></div>
+      </div>
+    </div>
+
     <div id="login" class="page">
       <div class="usdt-form-container">
         <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
@@ -320,6 +336,17 @@
           I agree to the <span class="terms-link" onclick="showTerms()">terms and conditions</span>
         </label>
         <button onclick="registerUser()">Register</button>
+      </div>
+    </div>
+
+    <div id="referral" class="page hidden">
+      <h2>Your Referral Details</h2>
+      <div class="card">
+        <p><strong>Username:</strong> <span id="displayUsername"></span></p>
+        <p><strong>Referral Code:</strong> <span id="referralCode"></span></p>
+        <p><strong>Referral Link:</strong> <span id="referralLink"></span></p>
+        <p><strong>Friends Invited:</strong> <span id="referralCount">0</span></p>
+        <button onclick="copyText('referralLink')">Copy Share Message</button>
       </div>
     </div>
   </div>
