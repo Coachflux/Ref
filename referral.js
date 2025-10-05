@@ -84,6 +84,7 @@ function registerUser() {
     localStorage.setItem('currentUser', username);
     // Remove incomingRefCode after registration to avoid re-using for next registration
     localStorage.removeItem('incomingRefCode');
+    alert("Registration Successful, You can now login");
     showPage('login');
   } else {
     alert("Username already exists.");
