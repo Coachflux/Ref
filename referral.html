@@ -384,63 +384,6 @@ function showPage(page) {
             }
         }
 
-        function updateReferralCount(username) {
-            const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-            if (userData) {
-                userData.invited = (userData.invited || 0) + 1;
-                localStorage.setItem(`user_${username}`, JSON.stringify(userData));
-                displayReferralInfo(); 
-            }
-        }
-
-        function registerUser() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            let inviterCode = document.getElementById('inviterCode').value.trim();
-            const termsChecked = document.getElementById('terms').checked;
-            const incomingRefCode = localStorage.getItem('incomingRefCode');
-            if (!inviterCode && incomingRefCode) {
-                inviterCode = incomingRefCode;
-            }
-            if (!username || !password) return alert("Please fill all required fields.");
-            if (!termsChecked) return alert("You must agree to the terms and conditions.");
-            if (localStorage.getItem(`user_${username}`)) {
-                return alert("Username already exists.");
-            }
-            const user = { username: username, password: password, referralCode: generateReferralCode(username), invited: 0 };
-            localStorage.setItem(`user_${username}`, JSON.stringify(user));
-            if (inviterCode) {
-                Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('user_')) {
-                        const inviter = JSON.parse(localStorage.getItem(key));
-                        if (inviter.referralCode === inviterCode) {
-                            updateReferralCount(inviter.username);
-                        }
-                    }
-                });
-            }
-            localStorage.removeItem('incomingRefCode');
-            alert("Registration Successful, You can now login");
-            showPage('login');
-        }
-
-        function displayReferralInfo() {
-            const username = localStorage.getItem('currentUser');
-            if (!username) return showPage('login');
-            const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-            document.getElementById('displayUsername').innerText = userData.username;
-            document.getElementById('referralCode').innerText = userData.referralCode;
-            const referralLink = `https://coachflux.github.io/Ref/index.html?ref=${userData.referralCode}`;
-            document.getElementById('referralLink').innerText = referralLink;
-            document.getElementById('referralCount').innerText = userData.invited || 0;
-        }
-
-        // rest of the JavaScript code remains the same
-
-
-
-    
-
     function showTerms() {
       document.getElementById('termsPopup').style.display = 'block';
     }
