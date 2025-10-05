@@ -12,7 +12,7 @@ function getUserKey(key) {
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
   document.getElementById(page).classList.remove('hidden');
-  if (page === 'referral') displayReferralInfo();
+  if (page === 'register') displayReferralInfo();
 }
 
 function generateReferralCode(username) {
