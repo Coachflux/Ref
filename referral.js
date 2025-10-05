@@ -15,6 +15,14 @@ function showPage(page) {
   if (page === 'register') displayReferralInfo();
 }
 
+function showTerms() {
+      document.getElementById('termsPopup').style.display = 'block';
+    }
+
+    function hideTerms() {
+      document.getElementById('termsPopup').style.display = 'none';
+    }
+
 function generateReferralCode(username) {
   return username + Math.floor(Math.random() * 10000);
 }
@@ -76,7 +84,7 @@ function registerUser() {
     localStorage.setItem('currentUser', username);
     // Remove incomingRefCode after registration to avoid re-using for next registration
     localStorage.removeItem('incomingRefCode');
-    showPage('referral');
+    showPage('login');
   } else {
     alert("Username already exists.");
   }
