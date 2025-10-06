@@ -447,18 +447,18 @@ function shareReferral() {
   // Link should go to index.html for registration
   const link = `${location.origin}${location.pathname.replace(/referral\.html$/, "index.html")}?ref=${code}`;
   const shareTitle = "USDT Mining & Referral Program";
-  const shareText = `Earn free USDT with USDT Mining! Register with my referral code: **${code}** and we both get $0.3 instantly. Start mining USDT together!\n\nRegister here: ${link}\n\nNHCoin — Earn by mining and inviting!`;
+  const shareText = `Earn free USDT with USDT Mining! Register with my referral code: <strong>**${code}**</strong> and we both get $0.3 instantly. Start mining USDT together!\n\nRegister here: ${link}\n\nNHCoin — Earn by mining and inviting!`;
   const shareUrl = link;
   if (navigator.share) {
     navigator.share({
       title: shareTitle,
-      text: `Earn free USDT with USDT Mining! Register with my referral code: ${code} and we both get $0.3 instantly. Start mining with me!\n\n${link}`,
+      text: `Earn free USDT with USDT Mining! Register with my referral code: <strong>${code}</strong> and we both get $0.3 instantly. Start mining with me!\n\n${link}`,
       url: shareUrl
     });
   } else {
     // Fallback: show a dialog with preformatted text for user to copy
     const temp = document.createElement("textarea");
-    temp.value = `USDT Mining & Referral Program\n\nRegister and mine USDT for free!\n\nMy Referral Code: ${code}\nReferral Link: ${link}\n\nEarn $0.3 instantly for both of us when you join with my code!`;
+    temp.value = `USDT Mining & Referral Program\n\nRegister and mine USDT for free!\n\nMy Referral Code: <strong>${code}</strong>\nReferral Link: ${link}\n\nEarn $0.3 instantly for both of us when you join with my code!`;
     document.body.appendChild(temp);
     temp.select();
     document.execCommand("copy");
