@@ -446,13 +446,13 @@ function shareReferral() {
   const code = userData.referralCode;
   // Link should go to index.html for registration
   const link = `${location.origin}${location.pathname.replace(/referral\.html$/, "index.html")}?ref=${code}`;
-  const shareTitle = "NHCoin Mining & Referral Program";
+  const shareTitle = "USDT Mining & Referral Program";
   const shareText = `Earn free USDT with USDT Mining! Register with my referral code: **${code}** and we both get $0.3 instantly. Start mining USDT together!\n\nRegister here: ${link}\n\nNHCoin — Earn by mining and inviting!`;
   const shareUrl = link;
   if (navigator.share) {
     navigator.share({
       title: shareTitle,
-      text: `Earn free USDT with USDT RegisteriningHCoinining! Register with my referral code: ${code} and we both get $0.3 instantly. Start mining with me!\n\n${link}`,
+      text: `Earn free USDT with USDT Mining! Register with my referral code: ${code} and we both get $0.3 instantly. Start mining with me!\n\n${link}`,
       url: shareUrl
     });
   } else {
