@@ -4,10 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>USDT Miner — Referral Dashboard</title>
-<meta name="description" content="Start mining and earn USDT rewards by inviting friends." />
-<meta property="og:title" content="Earn USDT Daily with USDT Miner" />
-<meta property="og:description" content="Start mining and earn USDT rewards by inviting friends." />
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder" />
+<meta name="description" content="Start mining and earn USDT rewards by inviting friends.">
+<meta property="og:title" content="Earn USDT Daily with USDT Miner">
+<meta property="og:description" content="Start mining and earn USDT rewards by inviting friends.">
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder">
+<link rel="manifest" href="manifest.json">
 <style>
   :root{ --bg:#041d18; --card:#f6fff8; --accent1:#00d996; --accent2:#008f63; --muted:#6b8a81; --danger:#7a1f1f; }
   *{box-sizing:border-box}
@@ -36,14 +37,13 @@
   .terms-link{color:#00b87a;cursor:pointer;text-decoration:underline}
   /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:9999}
-  .modal{width:94%;max-width:820px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);position:relative}
+  .modal{width:94%;max-width:720px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);position:relative}
   .modal .close{position:absolute;right:12px;top:12px;border:none;background:transparent;font-size:20px;cursor:pointer}
   .terms-content{max-height:64vh;overflow:auto;padding-right:6px;color:#0c3b33}
   .tc-row{display:flex;align-items:center;gap:8px;margin-top:8px}
   footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
   .error{color:var(--danger);font-weight:700}
-  /* install button */
-  #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700}
+  #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700;display:none}
 </style>
 </head>
 <body>
@@ -112,7 +112,7 @@
           <div class="share-row">
             <button id="copyReferralBtn">Copy</button>
             <button class="small" id="shareReferralBtn">Share</button>
-            <button id="installBtn" class="small" style="margin-left:8px;display:none">Install App</button>
+            <button id="installBtn" class="small">Install App</button>
             <button style="margin-left:auto;background:#ffdede;color:var(--danger)" id="logoutBtn" class="small">Logout</button>
           </div>
         </div>
@@ -161,45 +161,35 @@
     const db = firebase.database();
     const functions = firebase.functions();
 
-    // Force no persistence so user must log in again after leaving
+    // Force auth persistence NONE (user must login again after leaving)
     auth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(err => console.warn('setPersistence error', err));
 
     // ---------- Helpers ----------
     const $ = id => document.getElementById(id);
-    function show(el){ el.classList.remove('hidden'); el.style.display = ''; el.setAttribute('aria-hidden','false'); }
-    function hide(el){ el.classList.add('hidden'); el.style.display = 'none'; el.setAttribute('aria-hidden','true'); }
+    function show(el){ el.classList.remove('hidden'); el.style.display=''; el.setAttribute('aria-hidden','false'); }
+    function hide(el){ el.classList.add('hidden'); el.style.display='none'; el.setAttribute('aria-hidden','true'); }
     function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
     function generateRefCode(username){ return username.trim().replace(/\s+/g,'').toUpperCase() + '-' + Math.floor(100 + Math.random()*900); }
 
-    // Modal wiring (only when clicked)
+    // ---------- Modal wiring (only when clicked) ----------
     const termsModal = $('termsModal'), openTC = $('openTC'), closeTC = $('closeTC');
     openTC.addEventListener('click', e => { e.preventDefault(); termsModal.style.display='flex'; termsModal.setAttribute('aria-hidden','false'); $('tcContent').focus(); });
     closeTC.addEventListener('click', ()=> { termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); });
     termsModal.addEventListener('click', e => { if(e.target === termsModal){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
     document.addEventListener('keydown', e => { if(e.key === 'Escape' && termsModal.style.display === 'flex'){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
 
-    // UI toggles for login/register
+    // ---------- UI toggles for login/register ----------
     $('showLoginBtn').addEventListener('click', ()=>{ $('registerBox').classList.add('hidden'); $('loginBox').classList.remove('hidden'); });
     $('showRegisterBtn').addEventListener('click', ()=>{ $('loginBox').classList.add('hidden'); $('registerBox').classList.remove('hidden'); });
 
-    // Prevent preserving auth across reloads: sign out when leaving page
-    window.addEventListener('beforeunload', ()=> { try { auth.signOut(); } catch(e){} });
+    // sign out on leaving so user must re-login when coming back
+    window.addEventListener('beforeunload', ()=> { try{ auth.signOut(); } catch(e){} });
 
     // ---------- PWA install prompt handling ----------
     let deferredPrompt = null;
     const installBtn = $('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = ''; // show install button
-    });
-    installBtn.addEventListener('click', async () => {
-      if(!deferredPrompt) return alert('Install not available');
-      deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      installBtn.style.display = 'none';
-    });
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display=''; });
+    installBtn.addEventListener('click', async () => { if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; installBtn.style.display='none'; }); });
 
     // ---------- Registration ----------
     $('btnRegister').addEventListener('click', async () => {
@@ -222,22 +212,19 @@
         const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
         await db.ref('users/' + uid).set(profile);
 
-        // Try Cloud Function first
+        // Try Cloud Function processReferral
         let functionSuccess = false;
         if(inviterCode){
           try{
             const processReferral = functions.httpsCallable('processReferral');
             const res = await processReferral({ inviterCode, newUserUid: uid });
-            // If function returns ok, assume it updated inviter
-            if(res && (res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter' || res.data.status === 'ok'))) {
-              functionSuccess = true;
-            }
+            if(res && res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter')) functionSuccess = true;
           }catch(fnErr){
-            console.warn('processReferral failed — will attempt fallback client update', fnErr);
+            console.warn('processReferral failed — client fallback will run', fnErr);
           }
         }
 
-        // If cloud function wasn't used/succeeded and inviterCode exists, fallback to client-side safe update
+        // Fallback if function not available or failed
         if(inviterCode && !functionSuccess){
           await clientReferralFallback(inviterCode, uid, username);
         }
@@ -252,32 +239,21 @@
       }
     });
 
-    // Client-side fallback to update inviter (attempts safety checks + atomic update)
     async function clientReferralFallback(inviterCode, newUserUid, newUsername){
-      // Find inviter
       const usersSnap = await db.ref('users').once('value');
       const users = usersSnap.val() || {};
       let inviterKey = null, inviter = null;
       for(const k of Object.keys(users)){
         const u = users[k];
-        if(u && u.referralCode === inviterCode){
-          inviterKey = k; inviter = u; break;
-        }
+        if(u && u.referralCode === inviterCode){ inviterKey = k; inviter = u; break; }
       }
-      if(!inviterKey) return; // no inviter found
-
-      // Prevent self-referral
+      if(!inviterKey) return;
       if(inviterKey === newUserUid) return;
-
-      // Prevent duplicate: check if newUsername exists in inviter.referrals values
       if(inviter.referrals && Object.values(inviter.referrals).includes(newUsername)) return;
-
-      // Atomic multi-path update
       const updates = {};
       updates[`/users/${inviterKey}/referrals/${newUserUid}`] = newUsername;
       updates[`/users/${inviterKey}/referralEarnings`] = (inviter.referralEarnings || 0) + 0.30;
       updates[`/users/${inviterKey}/balance`] = (inviter.balance || 0) + 0.30;
-      // ensure new user has at least 0.30
       updates[`/users/${newUserUid}/balance`] = Math.max((users[newUserUid] && users[newUserUid].balance) || 0, 0.30);
       await db.ref().update(updates);
     }
@@ -293,7 +269,6 @@
       try{
         let emailToUse = identifier;
         if(!identifier.includes('@')){
-          // lookup username -> email
           const snap = await db.ref('users').once('value');
           const users = snap.val() || {};
           let foundEmail = null;
@@ -322,24 +297,22 @@
       }
     });
 
-    // ---------- Auth state change: if signed-in, load dashboard. (Note: persistence = NONE so this will be empty on reload) ----------
+    // ---------- Auth state ----------
     auth.onAuthStateChanged(async user => {
       if(user){
         await loadDashboard(user.uid);
       } else {
-        // show auth
         $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden');
       }
     });
 
-    // ---------- loadDashboard ----------
+    // ---------- Dashboard loader ----------
     async function loadDashboard(uid){
       try{
         const snap = await db.ref('users/' + uid).once('value');
         const me = snap.val();
         if(!me){ alert('Profile not found'); return; }
 
-        // show dashboard
         $('authCard').classList.add('hidden'); $('dashboard').classList.remove('hidden');
 
         $('d_username').innerText = me.username || '';
@@ -347,76 +320,38 @@
         $('d_email').innerText = me.email || '';
         $('d_refcode').innerText = me.referralCode || '';
         $('d_invited').innerText = me.referrals ? Object.keys(me.referrals).length : 0;
-        $('d_earnings').innerText = '$' + ((me.referralEarnings || 0).toFixed ? me.referralEarnings.toFixed(2) : Number(me.referralEarnings || 0).toFixed(2));
-        $('d_balance').innerText = '$' + ((me.balance || 0).toFixed ? me.balance.toFixed(2) : Number(me.balance || 0).toFixed(2));
+        $('d_earnings').innerText = '$' + Number(me.referralEarnings || 0).toFixed(2);
+        $('d_balance').innerText = '$' + Number(me.balance || 0).toFixed(2);
 
         const link = `${location.origin}${location.pathname}?ref=${encodeURIComponent(me.referralCode)}`;
         $('d_link').innerText = link;
         localStorage.setItem('myReferralLink', link);
 
-        // copy/share
-        $('copyReferralBtn').onclick = async () => {
-          await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`);
-          alert('Referral message copied');
-        };
+        // copy/share wiring
+        $('copyReferralBtn').onclick = async () => { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`); alert('Referral message copied'); };
         $('shareReferralBtn').onclick = async () => {
           const shareData = { title: APP_META.title, text: APP_META.description, url: link };
-          if(navigator.share){ navigator.share(shareData).catch(()=>alert('Share cancelled')); }
+          if(navigator.share) navigator.share(shareData).catch(()=>alert('Share cancelled'));
           else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Share not supported — message copied'); }
         };
 
-        // Logout
+        // logout
         $('logoutBtn').onclick = async () => { await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
-
       }catch(err){
-        console.error(err);
-        alert('Could not load dashboard: ' + (err.message||err));
+        console.error(err); alert('Could not load dashboard: ' + (err.message||err));
       }
     }
 
-    // ---------- App meta & PWA service worker (inline registration using blob) ----------
+    // ---------- App meta & service worker ----------
     const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
-
-    // register a lightweight service worker from a blob (caches app shell minimally)
     if('serviceWorker' in navigator){
-      const swCode = `
-        const CACHE = 'usdt-miner-cache-v1';
-        self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/']))); });
-        self.addEventListener('activate', e => { clients.claim(); });
-        self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))); });
-      `;
-      try{
-        const blob = new Blob([swCode], {type:'application/javascript'});
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(err => console.warn('sw register failed', err));
-      }catch(e){ console.warn('sw blob failed', e); }
+      const swCode = `const CACHE='usdt-miner-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])))});self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+      try { const blob=new Blob([swCode],{type:'application/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>console.warn('sw register failed')); } catch(e){ console.warn('sw blob failed', e); }
     }
 
-    // beforeinstallprompt & install button
-    let deferredPrompt = null;
-    const installBtn = $('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = '';
-    });
-    installBtn.addEventListener('click', async () => {
-      if(!deferredPrompt) return alert('Install not available');
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(choice => {
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
-      });
-    });
-
-    // On load: prefill ref if present
-    window.addEventListener('load', () => {
-      const params = new URLSearchParams(location.search);
-      const ref = params.get('ref');
-      if(ref) $('regRef').value = ref;
-    });
+    // beforeinstallprompt handled above: reveal install button
+    window.addEventListener('load', ()=>{ const params=new URLSearchParams(location.search); const ref=params.get('ref'); if(ref) $('regRef').value = ref; });
   })();
   </script>
 </body>
 </html>
-
