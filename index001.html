@@ -286,7 +286,7 @@
         const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
         localStorage.setItem('currentUserUid', uc.user.uid);
         $('loginStatus').innerText = '';
-        await loadDashboard(uc.user.uid);
+        setTimeout(()=>location.href="mine.html",1500);
       }catch(err){
         console.error(err);
         $('loginStatus').innerText = '';
