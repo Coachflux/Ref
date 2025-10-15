@@ -231,7 +231,7 @@
 
         localStorage.setItem('currentUserUid', uid);
         $('regStatus').innerText = '';
-        await loadDashboard(uid);
+        setTimeout(()=>{$('registerBox').classList.add('hidden');$('loginBox').classList.remove('hidden');},2000);
       } catch(err){
         console.error(err);
         $('regStatus').innerText = '';
@@ -300,7 +300,7 @@
     // ---------- Auth state ----------
     auth.onAuthStateChanged(async user => {
       if(user){
-        await loadDashboard(user.uid);
+    setTimeout(()=>{$('registerBox').classList.add('hidden');$('loginBox').classList.remove('hidden');},2000);
       } else {
         $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden');
       }
