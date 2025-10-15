@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USDT Miner Admin</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #f0f0f3;
+      box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+      border-radius: 20px;
+      padding: 25px;
+      width: 350px;
+      text-align: center;
+    }
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 10px;
+      box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff;
+      background: #f0f0f3;
+      outline: none;
+    }
+    button {
+      width: 95%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #2196f3;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="loginBox">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Enter Admin Password">
+    <button onclick="checkAdmin()">Login</button>
+  </div>
+
+  <div class="container" id="notifyBox" style="display:none;">
+    <h2>Send Notification</h2>
+    <input type="text" id="title" placeholder="Notification Title">
+    <textarea id="message" placeholder="Notification Message"></textarea>
+    <button onclick="sendNotification()">Send to All</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+      authDomain: "usdt-login.firebaseapp.com",
+      projectId: "usdt-login",
+      messagingSenderId: "807602854227",
+      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const messaging = getMessaging(app);
+
+    window.checkAdmin = () => {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "AdminOnly123") {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("notifyBox").style.display = "block";
+      } else {
+        alert("Invalid password");
+      }
+    };
+
+    window.sendNotification = async () => {
+      const title = document.getElementById("title").value;
+      const message = document.getElementById("message").value;
+      if (!title || !message) return alert("Fill in all fields");
+
+      // Here, you would send your message to all tokens stored in Firebase Database
+      alert("✅ Notification sent to all users (simulation)");
+    };
+  </script>
+</body>
+</html>
