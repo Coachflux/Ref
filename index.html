@@ -1,57 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>USDT Miner — Referral Dashboard</title>
-<meta name="description" content="Start mining and earn USDT rewards by inviting friends." />
-<meta property="og:title" content="Earn USDT Daily with USDT Miner" />
-<meta property="og:description" content="Start mining and earn USDT rewards by inviting friends." />
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder" />
-<link rel="manifest" href="/manifest.json">
+<meta name="description" content="Start mining and earn USDT rewards by inviting friends.">
+<meta property="og:title" content="Earn USDT Daily with USDT Miner">
+<meta property="og:description" content="Start mining and earn USDT rewards by inviting friends.">
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder">
 <style>
-:root{ --bg:#041d18; --card:#f6fff8; --accent1:#00d996; --accent2:#008f63; --muted:#6b8a81; --danger:#7a1f1f; }
+:root{--bg:#041d18;--card:#f6fff8;--accent1:#00d996;--accent2:#008f63;--muted:#6b8a81;--danger:#7a1f1f}
 *{box-sizing:border-box}
 body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#01312b);display:flex;align-items:center;justify-content:center;padding:24px;color:#052828}
 .app{width:100%;max-width:980px;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,0.45)}
 header{display:flex;gap:14px;align-items:center;justify-content:center;margin-bottom:12px}
 header img{width:64px;height:64px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
 header h1{margin:0;color:#04312a}
-header p{margin:0;color:var(--muted)}
+.muted{color:var(--muted)}
 .grid{display:flex;gap:18px;flex-wrap:wrap}
 .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);flex:1 1 360px;min-width:320px}
 h3{margin-top:0;color:#006b57}
 label{display:block;font-size:13px;color:#006b57;margin-bottom:6px}
 input[type=text],input[type=email],input[type=password]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3ee;background:#fbfffd;outline:none}
-input:focus{border-color:#00b87a;box-shadow:0 0 4px rgba(0,184,122,0.12)}
 button{background:linear-gradient(180deg,var(--accent1),var(--accent2));color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
 .small{font-size:13px;padding:8px;background:#eef7f1;border-radius:8px;border:none;color:#006b57;cursor:pointer}
-.muted{color:var(--muted);font-size:13px}
 .hidden{display:none}
-.center{text-align:center}
 .kpi-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .kpi{flex:1;background:linear-gradient(180deg,#fcfffd,#f0fff7);padding:10px;border-radius:8px;text-align:center}
-.kpi h4{margin:4px 0;color:#006b57}
-.kpi p{margin:0;font-weight:700}
 .share-row{display:flex;gap:8px;margin-top:8px;align-items:center}
 .terms-link{color:#00b87a;cursor:pointer;text-decoration:underline}
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:9999}
 .modal{width:94%;max-width:720px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);position:relative}
 .modal .close{position:absolute;right:12px;top:12px;border:none;background:transparent;font-size:20px;cursor:pointer}
 .terms-content{max-height:64vh;overflow:auto;padding-right:6px;color:#0c3b33}
-.tc-row{display:flex;align-items:center;gap:8px;margin-top:8px}
-footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
-#error{color:var(--danger);font-weight:700}
 #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700;display:none}
+#error{color:var(--danger)}
 </style>
 </head>
 <body>
-<div class="app" role="main" aria-live="polite">
+<div class="app" role="main">
   <header>
     <img id="appImage" src="https://via.placeholder.com/128.png?text=USDT" alt="USDT Miner logo"/>
     <div>
       <h1>USDT Miner</h1>
-      <p class="muted">Invite friends, mine USDT, and earn rewards — <strong>0.30 USDT per referral</strong>.</p>
+      <p class="muted">Invite friends, mine USDT, earn <strong>0.30 USDT</strong> per referral.</p>
     </div>
   </header>
 
@@ -59,17 +51,14 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
     <div class="card" id="authCard">
       <div id="registerBox">
         <h3>Create account</h3>
-        <div class="field"><label for="regUsername">Username</label><input id="regUsername" type="text" autocomplete="username" /></div>
-        <div class="field"><label for="regEmail">Email</label><input id="regEmail" type="email" autocomplete="email" /></div>
-        <div class="field"><label for="regPassword">Password</label><input id="regPassword" type="password" autocomplete="new-password" /></div>
-        <div class="field"><label for="regRef">Referral Code (optional)</label><input id="regRef" type="text" /></div>
-
-        <div class="tc-row">
-          <input id="agreeTC" type="checkbox" />
-          <div><label for="agreeTC" id="tcLabel">I agree to the <span class="terms-link" id="openTC">Terms &amp; Conditions</span></label></div>
+        <div class="field"><label>Username</label><input id="regUsername" type="text" autocomplete="username"></div>
+        <div class="field"><label>Email</label><input id="regEmail" type="email" autocomplete="email"></div>
+        <div class="field"><label>Password</label><input id="regPassword" type="password" autocomplete="new-password"></div>
+        <div class="field"><label>Referral Code (optional)</label><input id="regRef" type="text"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <input id="agreeTC" type="checkbox"><label for="agreeTC" style="margin:0">I agree to the <span class="terms-link" id="openTC">Terms & Conditions</span></label>
         </div>
-
-        <div style="display:flex;gap:10px;margin-top:12px;">
+        <div style="display:flex;gap:10px;margin-top:12px">
           <button id="btnRegister">Create account</button>
           <button class="small" id="showLoginBtn">Have an account? Login</button>
         </div>
@@ -78,8 +67,8 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
 
       <div id="loginBox" class="hidden">
         <h3>Login</h3>
-        <div class="field"><label for="loginIdentifier">Username or Email</label><input id="loginIdentifier" type="text" autocomplete="username" /></div>
-        <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" /></div>
+        <div class="field"><label>Username or Email</label><input id="loginIdentifier" type="text" autocomplete="username"></div>
+        <div class="field"><label>Password</label><input id="loginPass" type="password" autocomplete="current-password"></div>
         <div style="display:flex;gap:10px">
           <button id="btnLogin">Login</button>
           <button class="small" id="showRegisterBtn">Register</button>
@@ -89,7 +78,7 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
     </div>
 
     <div class="card hidden" id="dashboard">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;justify-content:space-between">
         <h3>Your Referral Dashboard</h3>
         <div class="muted">Welcome, <span id="d_username_small"></span></div>
       </div>
@@ -100,12 +89,12 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
         <div class="kpi"><h4>Balance</h4><p id="d_balance">$0.00</p></div>
       </div>
 
-      <div style="margin-top:12px;">
-        <div class="field"><label>Username</label><div class="value" id="d_username"></div></div>
-        <div class="field"><label>Email</label><div class="value" id="d_email"></div></div>
-        <div class="field"><label>Referral Code</label><div class="value" id="d_refcode"></div></div>
-        <div class="field"><label>Your Referral Link</label><div class="value" id="d_link"></div></div>
-        <div class="field"><label>Your Position</label><div class="value" id="d_position"></div></div>
+      <div style="margin-top:12px">
+        <div class="field"><label>Username</label><div id="d_username"></div></div>
+        <div class="field"><label>Email</label><div id="d_email"></div></div>
+        <div class="field"><label>Referral Code</label><div id="d_refcode"></div></div>
+        <div class="field"><label>Your Referral Link</label><div id="d_link"></div></div>
+        <div class="field"><label>Your Position</label><div id="d_position"></div></div>
 
         <div class="share-row">
           <button id="copyReferralBtn">Copy</button>
@@ -113,31 +102,30 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
           <button id="installBtn" class="small">Install App</button>
           <button style="margin-left:auto;background:#ffdede;color:var(--danger)" id="logoutBtn" class="small">Logout</button>
         </div>
-        <div id="error" style="margin-top:8px"></div>
+
+        <div id="error" style="margin-top:10px"></div>
       </div>
     </div>
   </div>
 
-  <footer>USDT Miner — demo (Firebase Auth + Realtime DB + FCM)</footer>
+  <footer style="margin-top:16px">USDT Miner — demo (Firebase + FCM)</footer>
 </div>
 
 <!-- Terms modal -->
-<div id="termsModal" class="modal-backdrop" aria-hidden="true" role="dialog" style="display:none;">
-  <div class="modal" role="document" aria-labelledby="tcTitle">
-    <button class="close" id="closeTC" aria-label="Close">✕</button>
-    <div class="terms-content" id="tcContent" tabindex="0">
-      <h3 id="tcTitle">Terms & Conditions — USDT Miner</h3>
-      <p><strong>Last updated:</strong> October 14, 2025</p>
-      <p>By registering and using USDT Miner you agree to the following terms...</p>
-      <h4>1. Eligibility</h4><p>Users must be 18+.</p>
-      <h4>2. Referral Bonuses</h4><p>Valid referrals earn 0.30 USDT; abuse prohibited.</p>
-      <h4>3. Account Security</h4><p>Protect your credentials.</p>
-      <h4>4. Changes</h4><p>We may update these terms; continued use is acceptance.</p>
+<div id="termsModal" class="modal-backdrop" style="display:none">
+  <div class="modal" role="document">
+    <button class="close" id="closeTC">✕</button>
+    <div class="terms-content" tabindex="0">
+      <h3>Terms & Conditions</h3>
+      <p>Last updated: Oct 14, 2025</p>
+      <p>By using USDT Miner you agree...</p>
+      <h4>1. Eligibility</h4><p>18+ only.</p>
+      <h4>2. Referral</h4><p>0.30 USDT per valid referral.</p>
     </div>
   </div>
 </div>
 
-<!-- Firebase compat SDKs -->
+<!-- Firebase libs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -146,7 +134,7 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
 
 <script>
 (async function(){
-  // ---------- CONFIG: use your project config ----------
+  // ---------- CONFIG ----------
   const firebaseConfig = {
     apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
     authDomain: "usdt-login.firebaseapp.com",
@@ -162,69 +150,60 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
   const functions = firebase.functions();
   const messaging = firebase.messaging();
 
-  // Force no persistence so user must login again after leaving
+  // Disable persistence so user must re-login
   auth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(()=>{});
 
-  // helpers
+  // Helpers
   const $ = id => document.getElementById(id);
-  function show(el){ el.classList.remove('hidden'); el.style.display=''; el.setAttribute('aria-hidden','false'); }
-  function hide(el){ el.classList.add('hidden'); el.style.display='none'; el.setAttribute('aria-hidden','true'); }
+  function show(el){ el.classList.remove('hidden'); el.style.display=''; }
+  function hide(el){ el.classList.add('hidden'); el.style.display='none'; }
   function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-  function genRefCode(username){ return username.trim().replace(/\s+/g,'').toUpperCase() + '-' + Math.floor(100 + Math.random()*900); }
+  function genRefCode(username){ return username.trim().replace(/\s+/g,'').toUpperCase() + '-' + Math.floor(100+Math.random()*900); }
 
   // Terms modal wiring
   const termsModal = $('termsModal'), openTC = $('openTC'), closeTC = $('closeTC');
-  openTC.addEventListener('click', e=>{ e.preventDefault(); termsModal.style.display='flex'; termsModal.setAttribute('aria-hidden','false'); $('tcContent').focus(); });
-  closeTC.addEventListener('click', ()=>{ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); });
-  termsModal.addEventListener('click', e=>{ if(e.target === termsModal){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && termsModal.style.display==='flex'){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
+  openTC.addEventListener('click', e=>{ e.preventDefault(); termsModal.style.display='flex'; $('termsModal').setAttribute('aria-hidden','false'); $('termsModal').focus(); });
+  closeTC.addEventListener('click', ()=>{ termsModal.style.display='none'; $('termsModal').setAttribute('aria-hidden','true'); });
+  termsModal.addEventListener('click', e=>{ if(e.target === termsModal){ termsModal.style.display='none'; $('termsModal').setAttribute('aria-hidden','true'); } });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && termsModal.style.display==='flex'){ termsModal.style.display='none'; } });
 
   // UI toggles
   $('showLoginBtn').addEventListener('click', ()=>{ $('registerBox').classList.add('hidden'); $('loginBox').classList.remove('hidden'); });
   $('showRegisterBtn').addEventListener('click', ()=>{ $('loginBox').classList.add('hidden'); $('registerBox').classList.remove('hidden'); });
 
-  // Install prompt
+  // PWA install prompt handling
   let deferredPrompt = null;
   const installBtn = $('installBtn');
-  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display=''; });
-  installBtn.addEventListener('click', async () => { if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); const choice = await deferredPrompt.userChoice; deferredPrompt = null; installBtn.style.display='none'; });
+  window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt = e; installBtn.style.display=''; });
+  installBtn.addEventListener('click', async ()=>{ if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; installBtn.style.display='none'; });
 
-  // PWA service worker (small)
+  // service worker (small)
   if('serviceWorker' in navigator){
-    const swCode = `const CACHE='usdt-miner-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])))});self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-    try{ const blob=new Blob([swCode],{type:'application/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>{}); }catch(e){}
+    const swCode = `self.addEventListener('push', function(e){ const data = e.data && e.data.json ? e.data.json() : {}; const title = data.notification && data.notification.title || 'USDT Miner'; const options = { body: data.notification && data.notification.body || '', data: data.data || {} }; e.waitUntil(self.registration.showNotification(title, options)); });`;
+    try{ const blob = new Blob([swCode], {type:'application/javascript'}); const swUrl = URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>{}); }catch(e){}
   }
 
-  // ensure ref param prefill
-  window.addEventListener('load', ()=>{ const params=new URLSearchParams(location.search); const ref=params.get('ref'); if(ref) $('regRef').value = ref; });
+  // VAPID PUBLIC KEY — REPLACE with your VAPID public key
+  const VAPID_PUBLIC_KEY = 'YOUR_VAPID_PUBLIC_KEY_HERE';
 
-  // App meta for share
-  const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
-
-  // ---- FCM registration (client) ----
-  // Replace this with your VAPID public key (NOT the private key). Do NOT put private keys here.
-  const VAPID_PUBLIC_KEY = 'BOL_q9yn151IXymDdYd7e06m1vZjjlCAZf91wtAJa8S4IsfcaoW_4Pu54z74qwzhUzfy81rmDO-Is-pTVDTUYNY';
-
+  // Request FCM token & subscribe via callable
   async function requestFcmTokenAndSubscribe(uid){
     try{
-      const permission = await Notification.requestPermission();
-      if(permission !== 'granted') return console.log('Notification permission not granted');
+      const perm = await Notification.requestPermission();
+      if(perm !== 'granted') return;
       const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY });
       if(!token) return console.warn('No FCM token obtained');
-      // Save token in user's DB node
       await db.ref(`fcmTokens/${uid}/${token}`).set({ createdAt: Date.now() });
-      // ask server to subscribe token to topic 'all'
+      // ask function to subscribe token to topic 'all' (server-side)
       try{
         const subscribeFn = functions.httpsCallable('subscribeTokenToTopic');
         await subscribeFn({ token, topic: 'all' });
-      }catch(err){
-        console.warn('subscribeTokenToTopic failed', err);
-      }
-    }catch(err){ console.error('fcm register err', err); }
+      }catch(err){ console.warn('subscribeTokenToTopic failed', err); }
+    }catch(err){ console.error('fcm err', err); }
   }
 
-  // ---- Registration ----
-  $('btnRegister').addEventListener('click', async () => {
+  // Register
+  $('btnRegister').addEventListener('click', async ()=>{
     const username = $('regUsername').value.trim();
     const email = $('regEmail').value.trim().toLowerCase();
     const password = $('regPassword').value;
@@ -232,36 +211,31 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
     const agreed = $('agreeTC').checked;
     $('regStatus').innerText = '';
 
-    if(!username || !email || !password){ alert('Please fill username, email and password'); return; }
-    if(!isValidEmail(email)){ alert('Please enter a valid email'); return; }
-    if(!agreed){ alert('You must accept Terms & Conditions'); return; }
+    if(!username || !email || !password) { alert('Fill username, email, password'); return; }
+    if(!isValidEmail(email)){ alert('Invalid email'); return; }
+    if(!agreed){ alert('You must accept terms'); return; }
 
     try{
       $('regStatus').innerText = 'Creating account...';
       const uc = await auth.createUserWithEmailAndPassword(email, password);
       const uid = uc.user.uid;
       const refCode = genRefCode(username);
-      const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
+      const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings:0, referrals:{}, createdAt:Date.now() };
       await db.ref('users/' + uid).set(profile);
 
-      // Try cloud function first
-      let functionSuccess = false;
+      // try cloud function; fallback to client update
+      let fnOk = false;
       if(inviterCode){
         try{
-          const processReferral = functions.httpsCallable('processReferral');
-          const res = await processReferral({ inviterCode, newUserUid: uid });
-          if(res && res.data && (res.data.status==='ok' || res.data.status==='no_inviter')) functionSuccess = true;
-        }catch(fnErr){ console.warn('processReferral failed, will fallback', fnErr); }
+          const proc = functions.httpsCallable('processReferral');
+          const res = await proc({ inviterCode, newUserUid: uid });
+          if(res && res.data) fnOk = true;
+        }catch(e){ console.warn('processReferral failed', e); }
       }
-      // fallback if needed
-      if(inviterCode && !functionSuccess){
-        await clientReferralFallback(inviterCode, uid, username);
-      }
+      if(inviterCode && !fnOk) await clientReferralFallback(inviterCode, uid, username);
 
       localStorage.setItem('currentUserUid', uid);
-      // request FCM token and subscribe the token to topic
       await requestFcmTokenAndSubscribe(uid);
-
       $('regStatus').innerText = '';
       await loadDashboard(uid);
     }catch(err){
@@ -290,76 +264,55 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
     await db.ref().update(updates);
   }
 
-  // ---- Login ----
-  $('btnLogin').addEventListener('click', async () => {
-    const identifier = $('loginIdentifier').value.trim();
+  // Login
+  $('btnLogin').addEventListener('click', async ()=>{
+    const iden = $('loginIdentifier').value.trim();
     const pass = $('loginPass').value;
-    $('loginStatus').innerText = '';
-
-    if(!identifier || !pass){ alert('Please enter username/email and password'); return; }
-
+    if(!iden || !pass) return alert('Enter credentials');
+    let emailToUse = iden;
+    if(!iden.includes('@')){
+      const snap = await db.ref('users').once('value');
+      const users = snap.val() || {};
+      let found = null;
+      for(const k of Object.keys(users)){ if(users[k].username && users[k].username.toLowerCase()===iden.toLowerCase()){ found = users[k].email; break; } }
+      if(!found) return alert('Username not found');
+      emailToUse = found;
+    }
+    if(!isValidEmail(emailToUse)) return alert('Resolved email invalid');
     try{
-      let emailToUse = identifier;
-      if(!identifier.includes('@')){
-        const snap = await db.ref('users').once('value');
-        const users = snap.val() || {};
-        let foundEmail = null;
-        for(const k of Object.keys(users)){
-          if(users[k].username && users[k].username.toLowerCase() === identifier.toLowerCase()){
-            foundEmail = users[k].email; break;
-          }
-        }
-        if(!foundEmail){ alert('Username not found'); return; }
-        emailToUse = foundEmail;
-      }
-
-      if(!isValidEmail(emailToUse)){ alert('Resolved email is invalid'); return; }
       $('loginStatus').innerText = 'Signing in...';
       const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
       localStorage.setItem('currentUserUid', uc.user.uid);
-
-      // request fcm token and subscribe
       await requestFcmTokenAndSubscribe(uc.user.uid);
-
       $('loginStatus').innerText = '';
       await loadDashboard(uc.user.uid);
     }catch(err){
       console.error(err);
       $('loginStatus').innerText = '';
-      if(err.code === 'auth/invalid-email') alert('Invalid email format.'); else if(err.code==='auth/wrong-password') alert('Incorrect password.'); else if(err.code==='auth/user-not-found') alert('No account found with that email.'); else alert('Login error: ' + (err.message||err));
+      if(err.code==='auth/wrong-password') alert('Incorrect password'); else alert('Login error: ' + (err.message || err));
     }
   });
 
-  // sign out on leave so user must re-login on return
+  // sign out on leave so user must login again
   window.addEventListener('beforeunload', ()=>{ try{ auth.signOut(); }catch(e){} });
 
-  // auth state change
-  auth.onAuthStateChanged(async user => {
-    if(user){
-      await loadDashboard(user.uid);
-    } else {
-      // show auth view
-      $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden');
-    }
-  });
+  // onAuth change
+  auth.onAuthStateChanged(async user => { if(user) await loadDashboard(user.uid); else { $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); } });
 
   async function loadDashboard(uid){
     try{
       const snap = await db.ref('users/' + uid).once('value');
-      const me = snap.val();
-      if(!me){ alert('Profile not found'); return; }
+      const me = snap.val(); if(!me) { alert('Profile not found'); return; }
 
-      // compute rankings: sort all users by invited count desc and put positions starting at 5783
+      // compute ranking: sort users by number of referrals desc; positions start at 5783 + index
       const allSnap = await db.ref('users').once('value');
       const allUsers = allSnap.val() || {};
-      // create array of {uid, invited}
-      const arr = Object.keys(allUsers).map(k => ({ uid: k, username: allUsers[k].username, invited: allUsers[k].referrals ? Object.keys(allUsers[k].referrals).length : 0 }));
-      // sort by invited desc then username for tie-breaker
-      arr.sort((a,b) => { if(b.invited === a.invited) return (a.username||'').localeCompare(b.username||''); return b.invited - a.invited; });
-      const posIndex = arr.findIndex(x => x.uid === uid);
-      const position = (5783 + (posIndex === -1 ? arr.length : posIndex)); // start at 5783 + index
+      const arr = Object.keys(allUsers).map(k => ({ uid:k, username: allUsers[k].username, invited: allUsers[k].referrals ? Object.keys(allUsers[k].referrals).length : 0 }));
+      arr.sort((a,b)=>{ if(b.invited===a.invited) return (a.username||'').localeCompare(b.username||''); return b.invited - a.invited; });
+      const idx = arr.findIndex(x=>x.uid===uid);
+      const position = 5783 + (idx === -1 ? arr.length : idx);
 
-      // show dashboard UI
+      // show dashboard
       $('authCard').classList.add('hidden'); $('dashboard').classList.remove('hidden');
 
       $('d_username').innerText = me.username || '';
@@ -369,26 +322,24 @@ footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
       $('d_invited').innerText = me.referrals ? Object.keys(me.referrals).length : 0;
       $('d_earnings').innerText = '$' + Number(me.referralEarnings || 0).toFixed(2);
       $('d_balance').innerText = '$' + Number(me.balance || 0).toFixed(2);
-      $('d_position').innerText = position + (position === 1 ? 'st' : position === 2 ? 'nd' : position === 3 ? 'rd' : 'th');
+      $('d_position').innerText = position + (position%10===1 && position%100!==11 ? 'st' : position%10===2 && position%100!==12 ? 'nd' : position%10===3 && position%100!==13 ? 'rd' : 'th');
 
       const link = `${location.origin}${location.pathname}?ref=${encodeURIComponent(me.referralCode)}`;
       $('d_link').innerText = link;
       localStorage.setItem('myReferralLink', link);
 
-      // copy/share wiring
-      $('copyReferralBtn').onclick = async () => { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`); alert('Referral message copied'); };
-      $('shareReferralBtn').onclick = async () => { const shareData={title:APP_META.title,text:APP_META.description,url:link}; if(navigator.share) navigator.share(shareData).catch(()=>alert('Share cancelled')); else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Share not supported — message copied'); } };
+      // copy/share
+      $('copyReferralBtn').onclick = async ()=>{ await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`); alert('Referral copied'); };
+      $('shareReferralBtn').onclick = async ()=>{ const shareData={title:APP_META.title,text:APP_META.description,url:link}; if(navigator.share) navigator.share(shareData).catch(()=>{}); else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Copied'); } };
 
-      // logout
-      $('logoutBtn').onclick = async () => { await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
-    }catch(err){
-      console.error(err);
-      $('error').innerText = 'Could not load dashboard: ' + (err.message || err);
-    }
+      $('logoutBtn').onclick = async ()=>{ await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
+
+      // show install if available (handled via beforeinstallprompt elsewhere)
+      // Install button wired earlier, visible only if event fired
+    }catch(err){ console.error(err); $('error').innerText = 'Could not load dashboard: ' + (err.message || err); }
   }
 
-  // App meta
-  const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
+  const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.' };
 
 })();
 </script>
