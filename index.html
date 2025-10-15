@@ -343,5 +343,33 @@ button{background:linear-gradient(180deg,var(--accent1),var(--accent2));color:#f
 
 })();
 </script>
+
+  <script>
+  // ✅ Register service worker
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(() => console.log("Service Worker Registered"));
+  }
+
+  // ✅ Handle PWA install prompt
+  let deferredPrompt;
+  const installBtn = document.getElementById("installBtn");
+  installBtn.style.display = "none";
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = "block";
+  });
+
+  installBtn.addEventListener("click", async () => {
+    installBtn.style.display = "none";
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    if (result.outcome === "accepted") console.log("App installed");
+    deferredPrompt = null;
+  });
+</script>
+
 </body>
 </html>
