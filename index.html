@@ -192,111 +192,103 @@
     installBtn.addEventListener('click', async () => { if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; installBtn.style.display='none'; }); });
 
     // ---------- Registration ----------
-    $('btnRegister').addEventListener('click', async () => {
-      const username = $('regUsername').value.trim();
-      const email = $('regEmail').value.trim().toLowerCase();
-      const password = $('regPassword').value;
-      const inviterCode = $('regRef').value.trim();
-      const agreed = $('agreeTC').checked;
-      $('regStatus').innerText = '';
+    // ---------- Registration ----------
+$('btnRegister').addEventListener('click', async () => {
+  const username = $('regUsername').value.trim();
+  const email = $('regEmail').value.trim().toLowerCase();
+  const password = $('regPassword').value;
+  const inviterCode = $('regRef').value.trim();
+  const agreed = $('agreeTC').checked;
+  $('regStatus').innerText = '';
 
-      if(!username || !email || !password){ alert('Please fill username, email and password'); return; }
-      if(!isValidEmail(email)){ alert('Please enter a valid email'); return; }
-      if(!agreed){ alert('You must accept Terms & Conditions'); return; }
+  if(!username || !email || !password){ alert('Please fill username, email and password'); return; }
+  if(!isValidEmail(email)){ alert('Please enter a valid email'); return; }
+  if(!agreed){ alert('You must accept Terms & Conditions'); return; }
 
+  try{
+    $('regStatus').innerText = 'Creating account...';
+    const uc = await auth.createUserWithEmailAndPassword(email, password);
+    const uid = uc.user.uid;
+    const refCode = generateRefCode(username);
+    const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
+    await db.ref('users/' + uid).set(profile);
+
+    // Referral logic (unchanged)
+    let functionSuccess = false;
+    if(inviterCode){
       try{
-        $('regStatus').innerText = 'Creating account...';
-        const uc = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = uc.user.uid;
-        const refCode = generateRefCode(username);
-        const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
-        await db.ref('users/' + uid).set(profile);
-
-        // Try Cloud Function processReferral
-        let functionSuccess = false;
-        if(inviterCode){
-          try{
-            const processReferral = functions.httpsCallable('processReferral');
-            const res = await processReferral({ inviterCode, newUserUid: uid });
-            if(res && res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter')) functionSuccess = true;
-          }catch(fnErr){
-            console.warn('processReferral failed — client fallback will run', fnErr);
-          }
-        }
-
-        // Fallback if function not available or failed
-        if(inviterCode && !functionSuccess){
-          await clientReferralFallback(inviterCode, uid, username);
-        }
-
-        localStorage.setItem('currentUserUid', uid);
-        $('regStatus').innerText = '';
-        await loadDashboard(uid);
-      } catch(err){
-        console.error(err);
-        $('regStatus').innerText = '';
-        alert('Registration error: ' + (err.message || err));
+        const processReferral = functions.httpsCallable('processReferral');
+        const res = await processReferral({ inviterCode, newUserUid: uid });
+        if(res && res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter')) functionSuccess = true;
+      }catch(fnErr){
+        console.warn('processReferral failed — client fallback will run', fnErr);
       }
-    });
-
-    async function clientReferralFallback(inviterCode, newUserUid, newUsername){
-      const usersSnap = await db.ref('users').once('value');
-      const users = usersSnap.val() || {};
-      let inviterKey = null, inviter = null;
-      for(const k of Object.keys(users)){
-        const u = users[k];
-        if(u && u.referralCode === inviterCode){ inviterKey = k; inviter = u; break; }
-      }
-      if(!inviterKey) return;
-      if(inviterKey === newUserUid) return;
-      if(inviter.referrals && Object.values(inviter.referrals).includes(newUsername)) return;
-      const updates = {};
-      updates[`/users/${inviterKey}/referrals/${newUserUid}`] = newUsername;
-      updates[`/users/${inviterKey}/referralEarnings`] = (inviter.referralEarnings || 0) + 0.30;
-      updates[`/users/${inviterKey}/balance`] = (inviter.balance || 0) + 0.30;
-      updates[`/users/${newUserUid}/balance`] = Math.max((users[newUserUid] && users[newUserUid].balance) || 0, 0.30);
-      await db.ref().update(updates);
+    }
+    if(inviterCode && !functionSuccess){
+      await clientReferralFallback(inviterCode, uid, username);
     }
 
-    // ---------- Login ----------
-    $('btnLogin').addEventListener('click', async () => {
-      const identifier = $('loginIdentifier').value.trim();
-      const pass = $('loginPass').value;
-      $('loginStatus').innerText = '';
+    // Sign out and redirect to login
+    $('regStatus').innerText = '';
+    try{ await auth.signOut(); } catch(e){ console.warn('signOut after register failed', e); }
+    localStorage.removeItem('currentUserUid');
+    alert('Account created. Please login.');
+    const params = new URLSearchParams(location.search);
+    params.set('show','login');
+    // preserve ref param if present
+    if(location.search){ const old = new URLSearchParams(location.search); if(old.get('ref')) params.set('ref', old.get('ref')); }
+    location.search = params.toString();
+  } catch(err){
+    console.error(err);
+    $('regStatus').innerText = '';
+    alert('Registration error: ' + (err.message || err));
+  }
+});
 
-      if(!identifier || !pass){ alert('Please enter username/email and password'); return; }
+// ---------- Login ----------
+$('btnLogin').addEventListener('click', async () => {
+  const identifier = $('loginIdentifier').value.trim();
+  const pass = $('loginPass').value;
+  $('loginStatus').innerText = '';
 
-      try{
-        let emailToUse = identifier;
-        if(!identifier.includes('@')){
-          const snap = await db.ref('users').once('value');
-          const users = snap.val() || {};
-          let foundEmail = null;
-          for(const k of Object.keys(users)){
-            if(users[k].username && users[k].username.toLowerCase() === identifier.toLowerCase()){
-              foundEmail = users[k].email; break;
-            }
-          }
-          if(!foundEmail){ alert('Username not found'); return; }
-          emailToUse = foundEmail;
+  if(!identifier || !pass){ alert('Please enter username/email and password'); return; }
+
+  try{
+    let emailToUse = identifier;
+    if(!identifier.includes('@')){
+      const snap = await db.ref('users').once('value');
+      const users = snap.val() || {};
+      let foundEmail = null;
+      for(const k of Object.keys(users)){
+        if(users[k].username && users[k].username.toLowerCase() === identifier.toLowerCase()){
+          foundEmail = users[k].email; break;
         }
-
-        if(!isValidEmail(emailToUse)){ alert('Resolved email is invalid'); return; }
-        $('loginStatus').innerText = 'Signing in...';
-        const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
-        localStorage.setItem('currentUserUid', uc.user.uid);
-        $('loginStatus').innerText = '';
-        await loadDashboard(uc.user.uid);
-      }catch(err){
-        console.error(err);
-        $('loginStatus').innerText = '';
-        if(err.code === 'auth/invalid-email') alert('Invalid email format. Please check your email.');
-        else if(err.code === 'auth/wrong-password') alert('Incorrect password.');
-        else if(err.code === 'auth/user-not-found') alert('No account found with that email.');
-        else alert('Login error: ' + (err.message || err));
       }
-    });
+      if(!foundEmail){ alert('Username not found'); return; }
+      emailToUse = foundEmail;
+    }
 
+    if(!isValidEmail(emailToUse)){ alert('Resolved email is invalid'); return; }
+    $('loginStatus').innerText = 'Signing in...';
+    const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
+    // store uid locally and redirect to mine.html
+    localStorage.setItem('currentUserUid', uc.user.uid);
+    $('loginStatus').innerText = '';
+    location.href = 'mine.html';
+  }catch(err){
+    console.error(err);
+    $('loginStatus').innerText = '';
+    if(err.code === 'auth/invalid-email') alert('Invalid email format. Please check your email.');
+    else if(err.code === 'auth/wrong-password') alert('Incorrect password.');
+    else if(err.code === 'auth/user-not-found') alert('No account found with that email.');
+    else alert('Login error: ' + (err.message || err));
+  }
+});
+        // Try Cloud Function processReferral
+        
+
+    // ---------- Login ----------
+    
     // ---------- Auth state ----------
     auth.onAuthStateChanged(async user => {
       if(user){
