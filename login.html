@@ -7,7 +7,7 @@
 <meta name="description" content="Start mining and earn USDT rewards by inviting friends.">
 <meta property="og:title" content="Earn USDT Daily with USDT Miner">
 <meta property="og:description" content="Start mining and earn USDT rewards by inviting friends.">
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder">
+<meta property="og:image" content="https://coachflux.github.io/Ref/img/usdt.webp">
 <link rel="manifest" href="manifest.json">
 <style>
   :root{ --bg:#041d18; --card:#f6fff8; --accent1:#00d996; --accent2:#008f63; --muted:#6b8a81; --danger:#7a1f1f; }
@@ -335,7 +335,7 @@ $('btnLogin').addEventListener('click', async () => {
     }
 
     // ---------- App meta & service worker ----------
-    const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
+    const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://coachflux.github.io/Ref/img/usdt.webp' };
     if('serviceWorker' in navigator){
       const swCode = `const CACHE='usdt-miner-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])))});self.addEventListener('activate',e=>{e.waitUntil(clients.claim())});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`;
       try { const blob=new Blob([swCode],{type:'application/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>console.warn('sw register failed')); } catch(e){ console.warn('sw blob/register failed', e); }
