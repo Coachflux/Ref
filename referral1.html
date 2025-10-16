@@ -1,655 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mining USDT</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta property="og:title" content="Earn by Mining and Referring!">
-  <meta property="og:description" content="Earn daily by mining and referring friends. Get bonuses instantly!">
-  <meta property="og:image" content="https://coachflux.github.io/Ref/img/usdt.webp">
-  <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: #052820;
-        font-family: 'Segoe UI', sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-bottom: 6rem;
-        color: black;
-      }
-
-      header {
-        width: 100%;
-        padding: 1rem;
-        text-align: center;
-        background-color: #052820;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #052828;
-      }
-
-    h2 {
-      color: #ffff;
-    }
-      
-      nav {
-        background-color: #1f2229;
-        padding: 10px;
-        display: flex;
-        justify-content: space-around;
-      }
-      nav a {
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-      }
-
-      .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 50px;
-        background: #031e1e;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        border-top-left-radius: 30px;
-        border-top-right-radius: 30px;
-        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
-        z-index: 999;
-      }
-
-      .nav-item {
-        text-align: center;
-        color: #aaa;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: transform 0.3s ease;
-        cursor: pointer;
-      }
-
-      .nav-item svg {
-        width: 25px;
-        height: 25px;
-        fill: #888;
-        transition: transform 0.3s ease, fill 0.3s ease;
-      }
-
-      .nav-item span {
-        font-size: 0.7rem;
-        margin-top: 2px;
-        display: none;
-      }
-
-      .nav-item.active svg,
-      .nav-item:hover svg {
-        fill: #00ff99;
-        transform: scale(1.2) rotate(360deg);
-      }
-
-      .nav-item.active span {
-        display: block;
-        color: #00ff99;
-      }
-
-      .mine-icon {
-        position: relative;
-        top: -15px;
-        width: 50px;
-        height: 50px;
-        background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
-        border-radius: 50%;
-        box-shadow: 0 0 15px #00ffcc, inset 5px 5px 10px rgba(0,0,0,0.2);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 4px solid #031e1e;
-        transition: transform 0.3s ease;
-      }
-
-      .mine-icon svg {
-        width: 30px;
-        height: 30px;
-        fill: #ffffff;
-        filter: drop-shadow(0 0 4px #00ffcc);
-      }
-
-      .mine-label {
-        position: absolute;
-        top: 76px;
-        font-size: 0.7rem;
-        color: #00ffcc;
-        font-weight: bold;
-      }
-
-      a.mine-link {
-        text-decoration: none;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      /* Icon animation on click */
-      .animate-click {
-        animation: clickAnim 3s ease;
-      }
-
-      @keyframes clickAnim {
-        0%   { transform: scale(1); }
-        25%  { transform: scale(1.1); }
-        50%  { transform: scale(0.9); }
-        75%  { transform: scale(1.1); }
-        100% { transform: scale(1); }
-      }
-      
-      .container {
-        padding: 20px;
-        max-width: 400px;
-        width: 100%;
-      }
-      input {
-        padding: 10px;
-        margin: 5px;
-        border-radius: 5px;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      button {
-        padding: 10px;
-        margin: 5px;
-        border-radius: 5px;
-        background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
-        color: white;
-        border: none;
-        width: 100%;
-        cursor: pointer;
-      }
-      
-      .hidden {
-        display: none;
-      }
-      .card {
-        background: #f0ffff;
-        padding: 15px;
-        border-radius: 10px;
-        margin-top: 10px;
-      }
-
-      .mining-ui {
-        text-align: center;
-        background: #f0ffff;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 10px 0;
-      }
-
-      #balance {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #00ff99;
-        margin: 10px 0;
-      }
-
-      #countdown {
-        font-size: 1.5rem;
-        color: #052820;
-        margin: 10px 0;
-      }
-
-      #mined {
-        font-size: 1rem;
-        color: #00ffcc;
-        margin: 10px 0;
-      }
-
-      #rank {
-        cursor: pointer;
-        font-weight: bold;
-        margin: 10px 0;
-      }
-
-      #rankProgress {
-        background: #00ff99;
-        height: 10px;
-        border-radius: 5px;
-        transition: width 0.3s;
-      }
-
-      #rankDetails {
-        font-size: 0.8rem;
-        margin-top: 5px;
-      }
-
-      #calendarPopup, #termsPopup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        z-index: 1000;
-        max-height: 80vh;
-        overflow-y: auto;
-        max-width: 90%;
-        width: 400px;
-      }
-
-      #minedDates div {
-        padding: 5px;
-        border-bottom: 1px solid #eee;
-      }
-
-      .missed {
-        color: red;
-      }
-
-      .usdt-image {
-        width: 100px;
-        display: block;
-        margin: 0 auto 20px;
-      }
-
-      .usdt-form-container {
-        background: #f0ffff;
-        padding: 20px;
-        border-radius: 10px;
-        border: 2px solid #00ffcc;
-        box-shadow: 0 0 10px #00ffcc;
-        text-align: center;
-        margin-top: 20px;
-      }
-
-      .usdt-form-container h2 {
-        color: #052820;
-        margin-bottom: 20px;
-      }
-
-      .terms-link {
-        color: #00775e;
-        text-decoration: underline;
-        cursor: pointer;
-      }
-
-      .terms-container {
-        position: relative;
-        text-align: left;
-      }
-
-      .close-icon {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #052820;
-      }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>USDT Miner — Referral Dashboard</title>
+<meta name="description" content="Start mining and earn USDT rewards by inviting friends.">
+<meta property="og:title" content="Earn USDT Daily with USDT Miner">
+<meta property="og:description" content="Start mining and earn USDT rewards by inviting friends.">
+<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{ --bg:#041d18; --card:#f6fff8; --accent1:#00d996; --accent2:#008f63; --muted:#6b8a81; --danger:#7a1f1f; }
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#01312b);display:flex;align-items:center;justify-content:center;padding:20px}
+  .app{width:100%;max-width:980px;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,0.45)}
+  header{display:flex;gap:14px;align-items:center;justify-content:center;margin-bottom:12px}
+  header img{width:64px;height:64px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+  header h1{margin:0;color:#04312a}
+  header p{margin:0;color:var(--muted)}
+  .grid{display:flex;gap:18px;flex-wrap:wrap}
+  .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);flex:1 1 360px;min-width:320px}
+  h3{margin-top:0;color:#006b57}
+  label{display:block;font-size:13px;color:#006b57;margin-bottom:6px}
+  input[type=text],input[type=email],input[type=password]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3ee;background:#fbfffd;outline:none}
+  input:focus{border-color:#00b87a;box-shadow:0 0 4px rgba(0,184,122,0.12)}
+  button{background:linear-gradient(180deg,var(--accent1),var(--accent2));color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+  .small{font-size:13px;padding:8px;background:#eef7f1;border-radius:8px;border:none;color:#006b57;cursor:pointer}
+  .muted{color:var(--muted);font-size:13px}
+  .hidden{display:none}
+  .center{text-align:center}
+  .kpi-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .kpi{flex:1;background:linear-gradient(180deg,#fcfffd,#f0fff7);padding:10px;border-radius:8px;text-align:center}
+  .kpi h4{margin:4px 0;color:#006b57}
+  .kpi p{margin:0;font-weight:700}
+  .share-row{display:flex;gap:8px;margin-top:8px;align-items:center}
+  .terms-link{color:#00b87a;cursor:pointer;text-decoration:underline}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:9999}
+  .modal{width:94%;max-width:720px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);position:relative}
+  .modal .close{position:absolute;right:12px;top:12px;border:none;background:transparent;font-size:20px;cursor:pointer}
+  .terms-content{max-height:64vh;overflow:auto;padding-right:6px;color:#0c3b33}
+  .tc-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+  footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
+  .error{color:var(--danger);font-weight:700}
+  #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700;display:none}
+</style>
 </head>
 <body>
-  <header>Mining USDT</header>
-  
-    <div id="referral" class="page">
-      <h2>Your Referral Details</h2>
-      <div class="card">
-        <p><strong>Username:</strong> <span id="displayUsername"></span></p>
-        <p><strong>Referral Code:</strong> <span id="referralCode"></span></p>
-        <p><strong>Referral Link:</strong> <span id="referralLink"></span></p>
-        <p><strong>Friends Invited:</strong> <span id="referralCount">0</span></p>
-        <button onclick="copyText('referralLink')">Copy Share Message</button>
+  <div class="app" role="main" aria-live="polite">
+    <header>
+      <img id="appImage" src="https://via.placeholder.com/128.png?text=USDT" alt="USDT Miner logo"/>
+      <div>
+        <h1>USDT Miner</h1>
+        <p class="muted">Invite friends, mine USDT, and earn rewards — <strong>0.30 USDT per referral</strong>.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- AUTH CARD -->
+      <div class="card" id="authCard">
+        <div id="registerBox" class="hidden">
+          <h3>Create account</h3>
+          <div class="field"><label for="regUsername">Username</label><input id="regUsername" type="text" autocomplete="username" /></div>
+          <div class="field"><label for="regEmail">Email</label><input id="regEmail" type="email" autocomplete="email" /></div>
+          <div class="field"><label for="regPassword">Password</label><input id="regPassword" type="password" autocomplete="new-password" /></div>
+          <div class="field"><label for="regRef">Referral Code (optional)</label><input id="regRef" type="text" /></div>
+
+          <div class="tc-row">
+            <input id="agreeTC" type="checkbox" />
+            <div><label for="agreeTC" id="tcLabel">I agree to the <span class="terms-link" id="openTC">Terms &amp; Conditions</span></label></div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button id="btnRegister">Create account</button>
+            <button class="small" id="showLoginBtn">Have an account? Login</button>
+          </div>
+          <div id="regStatus" class="muted" style="margin-top:10px"></div>
+        </div>
+
+        <div id="loginBox" class="hidden">
+          <h3>Login</h3>
+          <div class="field"><label for="loginIdentifier">Username or Email</label><input id="loginIdentifier" type="text" autocomplete="username" /></div>
+          <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" /></div>
+          <div style="display:flex;gap:10px">
+            <button id="btnLogin">Login</button>
+            <button class="small" id="showRegisterBtn">Register</button>
+          </div>
+          <div id="loginStatus" class="muted" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="card" id="dashboard">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <h3>Your Referral Dashboard</h3>
+          <div class="muted">Welcome, <span id="d_username_small"></span></div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi"><h4>Invited</h4><p id="d_invited">0</p></div>
+          <div class="kpi"><h4>Earnings</h4><p id="d_earnings">$0.00</p></div>
+          <div class="kpi"><h4>Balance</h4><p id="d_balance">$0.00</p></div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="field"><label>Username</label><div class="value" id="d_username"></div></div>
+          <div class="field"><label>Email</label><div class="value" id="d_email"></div></div>
+          <div class="field"><label>Referral Code</label><div class="value" id="d_refcode"></div></div>
+          <div class="field"><label>Your Referral Link</label><div class="value" id="d_link"></div></div>
+
+          <div class="share-row">
+            <button id="copyReferralBtn">Copy</button>
+            <button class="small" id="shareReferralBtn">Share</button>
+            <button id="installBtn" class="small">Install App</button>
+            <button style="margin-left:auto;background:#ffdede;color:var(--danger)" id="logoutBtn" class="small">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>USDT Miner — $ (Firebase Auth + Realtime DB)</footer>
+  </div>
+
+  <!-- Terms modal -->
+  <div id="termsModal" class="modal-backdrop" aria-hidden="true" role="dialog" style="display:none;">
+    <div class="modal" role="document" aria-labelledby="tcTitle">
+      <button class="close" id="closeTC" aria-label="Close">✕</button>
+      <div class="terms-content" id="tcContent" tabindex="0">
+        <h3 id="tcTitle">Terms & Conditions — USDT Miner</h3>
+        <p><strong>Last updated:</strong> October 14, 2025</p>
+        <p>By registering and using USDT Miner you agree to the following terms...</p>
+        <h4>1. Eligibility</h4><p>Users must be 18+.</p>
+        <h4>2. Referral Bonuses</h4><p>Valid referrals earn 0.30 USDT; abuse prohibited.</p>
+        <h4>3. Account Security</h4><p>Protect your credentials.</p>
+        <h4>4. Changes</h4><p>We may update these terms; continued use is acceptance.</p>
       </div>
     </div>
   </div>
 
-  <!-- Nav Bar -->
-  <div class="bottom-nav">
-    <a href="airdrop.html">
-      <div class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M12 2C10.89 2 10 2.89 10 4s.89 2 2 2 2-.89 2-2-.89-2-2-2zm0 10c-.89 0-1.74-.29-2.42-.79l-.9.89 2.61 2.61c.18.18.43.29.7.29s.52-.11.7-.29l2.61-2.61-.9-.89c-.68.5-1.53.79-2.42.79zm0-8C6.48 4 2 8.48 2 14h2c0-4.42 3.58-8 8-8s8 3.58 8 8h2c0-5.52-4.48-10-10-10z"/></svg>
-        <span>Airdrop</span>
-      </div>
-    </a>
-
-      <div class="nav-item active">
-        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-        <span>Referral</span>
-      </div>
-
-    <a href="mine.html" class="mine-link">
-      <div class="mine-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M19.1 4.93L17.67 3.5l-3.19 3.19L12.5 4.7l-.7.7 1.99 1.99-9.08 9.09c-.39.39-.39 1.02 0 1.41.2.2.45.29.71.29s.51-.1.71-.29l9.08-9.09 1.99 1.99.7-.7-2-1.99L19.1 4.93z"/>
-        </svg>
-      </div>
-      <div class="mine-label">Mine</div>
-    </a>
-
-    <a href="vault.html">
-      <div class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M21 7H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h16v-2H5v-1h16v-2H5v-1h16v-2H5v-1h16v-2z"/></svg>
-        <span>Wallet</span>
-      </div>
-    </a>
-
-    <a href="settings.html">
-      <div class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.39.12-.59l-1.91-3.32a.495.495 0 00-.58-.22l-2.39.96a7.007 7.007 0 00-1.62-.94L14.5 2.5a.5.5 0 00-.5-.5h-4a.5.5 0 00-.5.5l-.38 2.43a7.007 7.007 0 00-1.62.94l-2.39-.96a.495.495 0 00-.58.22l-1.91 3.32c-.11.2-.06.45.12.59l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94L2.86 14.5c-.18.14-.23.39-.12.59l1.91 3.32c.11.2.37.28.58.22l2.39-.96c.5.38 1.05.7 1.62.94l.38 2.43c.05.25.25.44.5.44h4c.25 0 .45-.19.5-.44l.38-2.43a7.007 7.007 0 001.62-.94l2.39.96c.21.06.47-.02.58-.22l1.91-3.32a.495.495 0 00-.12-.59l-2.03-1.56zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
-        <span>Settings</span>
-      </div>
-    </a>
-  </div>
-
-  <audio id="miningSound" preload="auto">
-    <!-- Simple beep sound can be added as base64 or external -->
-  </audio>
-
-  <div id="calendarPopup" style="display: none;">
-    <h3>Mining Calendar (Last 30 Days)</h3>
-    <div id="minedDates"></div>
-    <button onclick="toggleCalendar()">Close</button>
-  </div>
-
-  <div id="termsPopup" style="display: none;" class="terms-container">
-    <i class="fas fa-times close-icon" onclick="hideTerms()"></i>
-    <h3>Terms and Conditions</h3>
-    <p>Welcome to NHCoin. By registering, you agree to the following terms:</p>
-    <ul>
-      <li>You must be at least 18 years old to use this service.</li>
-      <li>USDT mining and referrals are for demonstration purposes only.</li>
-      <li>Do not share your login credentials with others.</li>
-      <li>We are not responsible for any financial losses incurred.</li>
-      <li>Users are responsible for maintaining the security of their accounts.</li>
-      <li>Any abuse of the referral system may result in account suspension.</li>
-    </ul>
-    <p>By checking the box, you acknowledge that you have read and agree to these terms.</p>
-  </div>
+  <!-- Firebase compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
   <script>
-    
-function showPage(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(page).classList.remove('hidden');
-            if (page === 'referral') {
-                displayReferralInfo();
-            }
+  (function(){
+    // ---------- CONFIG ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+      authDomain: "usdt-login.firebaseapp.com",
+      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
+      projectId: "usdt-login",
+      storageBucket: "usdt-login.firebasestorage.app",
+      messagingSenderId: "807602854227",
+      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const functions = firebase.functions();
+
+    // Force auth persistence NONE (user must login again after leaving)
+    auth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(err => console.warn('setPersistence error', err));
+
+    // ---------- Helpers ----------
+    const $ = id => document.getElementById(id);
+    function show(el){ el.classList.remove('hidden'); el.style.display=''; el.setAttribute('aria-hidden','false'); }
+    function hide(el){ el.classList.add('hidden'); el.style.display='none'; el.setAttribute('aria-hidden','true'); }
+    function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+    function generateRefCode(username){ return username.trim().replace(/\s+/g,'').toUpperCase() + '-' + Math.floor(100 + Math.random()*900); }
+
+    // ---------- Modal wiring (only when clicked) ----------
+    const termsModal = $('termsModal'), openTC = $('openTC'), closeTC = $('closeTC');
+    openTC.addEventListener('click', e => { e.preventDefault(); termsModal.style.display='flex'; termsModal.setAttribute('aria-hidden','false'); $('tcContent').focus(); });
+    closeTC.addEventListener('click', ()=> { termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); });
+    termsModal.addEventListener('click', e => { if(e.target === termsModal){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape' && termsModal.style.display === 'flex'){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
+
+    // ---------- UI toggles for login/register ----------
+    $('showLoginBtn').addEventListener('click', ()=>{ $('registerBox').classList.add('hidden'); $('loginBox').classList.remove('hidden'); });
+    $('showRegisterBtn').addEventListener('click', ()=>{ $('loginBox').classList.add('hidden'); $('registerBox').classList.remove('hidden'); });
+
+    // sign out on leaving so user must re-login when coming back
+    window.addEventListener('beforeunload', ()=> { try{ auth.signOut(); } catch(e){} });
+
+    // ---------- PWA install prompt handling ----------
+    let deferredPrompt = null;
+    const installBtn = $('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display=''; });
+    installBtn.addEventListener('click', async () => { if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; }); });
+
+    // ---------- Registration ----------
+    let skipDashboard = false; // Flag to prevent dashboard loading during registration
+    $('btnRegister').addEventListener('click', async () => {
+      const username = $('regUsername').value.trim();
+      const email = $('regEmail').value.trim().toLowerCase();
+      const password = $('regPassword').value;
+      const inviterCode = $('regRef').value.trim();
+      const agreed = $('agreeTC').checked;
+      $('regStatus').innerText = '';
+
+      if(!username || !email || !password){ alert('Please fill username, email and password'); return; }
+      if(!isValidEmail(email)){ alert('Please enter a valid email'); return; }
+      if(!agreed){ alert('You must accept Terms & Conditions'); return; }
+
+      try{
+        $('regStatus').innerText = 'Creating account...';
+        skipDashboard = true; // Set flag to skip dashboard loading
+        const uc = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = uc.user.uid;
+        const refCode = generateRefCode(username);
+        const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
+        await db.ref('users/' + uid).set(profile);
+
+        // Referral logic (unchanged)
+        let functionSuccess = false;
+        if(inviterCode){
+          try{
+            const processReferral = functions.httpsCallable('processReferral');
+            const res = await processReferral({ inviterCode, newUserUid: uid });
+            if(res && res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter')) functionSuccess = true;
+          }catch(fnErr){
+            console.warn('processReferral failed — client fallback will run', fnErr);
+          }
+        }
+        if(inviterCode && !functionSuccess){
+          // Placeholder for clientReferralFallback (not provided in original code)
+          console.log('Client referral fallback for:', inviterCode, uid, username);
         }
 
-    function showTerms() {
-      document.getElementById('termsPopup').style.display = 'block';
-    }
-
-    function hideTerms() {
-      document.getElementById('termsPopup').style.display = 'none';
-    }
-
-    function generateReferralCode(username) {
-      return username + Math.floor(Math.random() * 10000);
-    }
-
-    function registerUser() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      let inviterCode = document.getElementById('inviterCode').value.trim();
-      const termsChecked = document.getElementById('terms').checked;
-      const incomingRefCode = localStorage.getItem('incomingRefCode');
-
-      if (!inviterCode && incomingRefCode) {
-        inviterCode = incomingRefCode;
+        // Sign out and redirect to login.html
+        await auth.signOut(); // Ensure sign-out completes
+        skipDashboard = false; // Reset flag after sign-out
+        $('regStatus').innerText = '';
+        localStorage.removeItem('currentUserUid');
+        alert('Account created. Please login.');
+        // Redirect to login.html preserving ref if present
+        const params = new URLSearchParams();
+        if(location.search){ const old = new URLSearchParams(location.search); if(old.get('ref')) params.set('ref', old.get('ref')); }
+        const target = 'login.html' + (params.toString() ? ('?' + params.toString()) : '');
+        location.href = target;
+      } catch(err){
+        console.error(err);
+        $('regStatus').innerText = '';
+        skipDashboard = false; // Reset flag on error
+        alert('Registration error: ' + (err.message || err));
       }
+    });
 
-      if (!username || !password) return alert("Please fill all required fields.");
-      if (!termsChecked) return alert("You must agree to the terms and conditions.");
+    // ---------- Login ----------
+    $('btnLogin').addEventListener('click', async () => {
+      const identifier = $('loginIdentifier').value.trim();
+      const pass = $('loginPass').value;
+      $('loginStatus').innerText = '';
 
-      if (localStorage.getItem(`user_${username}`)) {
-        return alert("Username already exists.");
-      }
+      if(!identifier || !pass){ alert('Please enter username/email and password'); return; }
 
-      const user = {
-        username: username,
-        password: password,
-        referralCode: generateReferralCode(username),
-        invited: 0
-      };
-      localStorage.setItem(`user_${username}`, JSON.stringify(user));
-
-      if (inviterCode) {
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('user_')) {
-            const inviter = JSON.parse(localStorage.getItem(key));
-            if (inviter.referralCode === inviterCode) {
-              inviter.invited = (inviter.invited || 0) + 1;
-              localStorage.setItem(key, JSON.stringify(inviter));
-              console.log(`Updated inviter ${inviter.username} referral count to ${inviter.invited}`);
+      try{
+        let emailToUse = identifier;
+        if(!identifier.includes('@')){
+          const snap = await db.ref('users').once('value');
+          const users = snap.val() || {};
+          let foundEmail = null;
+          for(const k of Object.keys(users)){
+            if(users[k].username && users[k].username.toLowerCase() === identifier.toLowerCase()){
+              foundEmail = users[k].email; break;
             }
           }
-        });
+          if(!foundEmail){ alert('Username not found'); return; }
+          emailToUse = foundEmail;
+        }
+
+        if(!isValidEmail(emailToUse)){ alert('Resolved email is invalid'); return; }
+        $('loginStatus').innerText = 'Signing in...';
+        const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
+        localStorage.setItem('currentUserUid', uc.user.uid);
+        $('loginStatus').innerText = '';
+        location.href = 'mine.html';
+      }catch(err){
+        console.error(err);
+        $('loginStatus').innerText = '';
+        if(err.code === 'auth/invalid-email') alert('Invalid email format. Please check your email.');
+        else if(err.code === 'auth/wrong-password') alert('Incorrect password.');
+        else if(err.code === 'auth/user-not-found') alert('No account found with that email.');
+        else alert('Login error: ' + (err.message || err));
       }
+    });
 
-      localStorage.removeItem('incomingRefCode');
-      alert("Registration Successful, You can now login");
-      showPage('login');
-    }
-
-    function loginUser() {
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
-
-      if (!username || !password) return alert("Please enter your credentials.");
-
-      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-      if (!userData || userData.password !== password) {
-        return alert("Invalid username or password.");
-      }
-
-      localStorage.setItem('currentUser', username);
-      window.location.href = 'mine.html';
-    }
-
-    function displayReferralInfo() {
-      const username = localStorage.getItem('currentUser');
-      if (!username) return showPage('login');
-
-      const userData = JSON.parse(localStorage.getItem(`user_${username}`));
-      document.getElementById('displayUsername').innerText = userData.username;
-      document.getElementById('referralCode').innerText = userData.referralCode;
-      const referralLink = `https://coachflux.github.io/Ref/index.html?ref=${userData.referralCode}`;
-      document.getElementById('referralLink').innerText = referralLink;
-      document.getElementById('referralCount').innerText = userData.invited || 0;
-    }
-
-    function logout() {
-      localStorage.removeItem('currentUser');
-      showPage('login');
-    }
-
-    function copyText(id) {
-      const linkEl = document.getElementById(id);
-      const text = linkEl.innerText;
-      const shareMessage = `Earn by Mining and Referring!\n\nJoin NHCoin and start earning USDT by mining daily and inviting friends. Get instant bonuses!\n\nDescription: Earn daily by mining and referring friends. Get bonuses instantly!\n\nImage: https://coachflux.github.io/Ref/img/usdt.webp\n\nYour exclusive referral link: ${text}\n\nClick here to join and start mining: ${text}`;
-      
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(shareMessage).then(() => {
-          alert("Referral share message copied to clipboard! Paste it on social media to share with friends.");
-        }).catch(() => {
-          prompt("Copy this share message:", shareMessage);
-        });
+    // ---------- Auth state ----------
+    auth.onAuthStateChanged(async user => {
+      if(user && !skipDashboard){
+        await loadDashboard(user.uid);
       } else {
-        prompt("Copy this share message:", shareMessage);
+        $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden');
+      }
+    });
+
+    // ---------- Dashboard loader ----------
+    async function loadDashboard(uid){
+      try{
+        const snap = await db.ref('users/' + uid).once('value');
+        const me = snap.val();
+        if(!me){ alert('Profile not found'); return; }
+
+        $('authCard').classList.add('hidden'); $('dashboard').classList.remove('hidden');
+
+        $('d_username').innerText = me.username || '';
+        $('d_username_small').innerText = me.username || '';
+        $('d_email').innerText = me.email || '';
+        $('d_refcode').innerText = me.referralCode || '';
+        $('d_invited').innerText = me.referrals ? Object.keys(me.referrals).length : 0;
+        $('d_earnings').innerText = '$' + Number(me.referralEarnings || 0).toFixed(2);
+        $('d_balance').innerText = '$' + Number(me.balance || 0).toFixed(2);
+
+        const link = `${location.origin}${location.pathname}?ref=${encodeURIComponent(me.referralCode)}`;
+        $('d_link').innerText = link;
+        localStorage.setItem('myReferralLink', link);
+
+        // copy/share wiring
+        $('copyReferralBtn').onclick = async () => { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`); alert('Referral message copied'); };
+        $('shareReferralBtn').onclick = async () => {
+          const shareData = { title: APP_META.title, text: APP_META.description, url: link };
+          if(navigator.share) navigator.share(shareData).catch(()=>alert('Share cancelled'));
+          else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Share not supported — message copied'); }
+        };
+
+        // logout
+        $('logoutBtn').onclick = async () => { await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
+      }catch(err){
+        console.error(err); alert('Could not load dashboard: ' + (err.message||err));
       }
     }
 
-    window.onload = () => {
-      const refCode = new URLSearchParams(window.location.search).get('ref');
-      if (refCode) {
-        localStorage.setItem('incomingRefCode', refCode);
-      }
+    // ---------- App meta & service worker ----------
+    const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
+    if('serviceWorker' in navigator){
+      const swCode = `const CACHE='usdt-miner-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])))});self.addEventListener('activate',e=>{e.waitUntil(clients.claim())});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`;
+      try { const blob=new Blob([swCode],{type:'application/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>console.warn('sw register failed')); } catch(e){ console.warn('sw blob/register failed', e); }
+    }
 
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        showPage('referral');
-      } else {
-        if (refCode) {
-          showPage('register');
-          document.getElementById('inviterCode').value = refCode;
-        } else {
-          showPage('login');
-        }
-      }
-
-      if (document.getElementById('home').classList.contains('hidden') === false) {
-        updateRankUI();
-        const bal = getBalance();
-        setBalance(bal);
-        if (get('startTime')) {
-          timer = setInterval(tick, 1000);
-        }
-      }
-    };
-
-    // Mining script
-    (function(){
-      const DURATION = 86400000, RATE = 0.00002;
-      let timer = null;
-      const balanceEl = document.getElementById('balance'),
-            countdownEl = document.getElementById('countdown'),
-            minedEl = document.getElementById('mined'),
-            rankEl = document.getElementById('rank'),
-            rankBar = document.getElementById('rankProgress'),
-            rankDetails = document.getElementById('rankDetails'),
-            minedDates = document.getElementById('minedDates'),
-            calendar = document.getElementById('calendarPopup'),
-            sound = document.getElementById('miningSound');
-
-      function get(key){ return localStorage.getItem(key); }
-      function set(key, val){ localStorage.setItem(key, val); }
-      function today(){ return new Date().toISOString().split('T')[0]; }
-
-      function getBalance(){
-        const stored = parseFloat(get('balance') || '0');
-        const start = parseInt(get('startTime'));
-        if (!start) return stored;
-        const now = Date.now(), elapsed = Math.min(DURATION, now - start);
-        const earned = (elapsed / 1000) * RATE;
-        return parseFloat((parseFloat(get('baseBalance') || '0') + earned).toFixed(6));
-      }
-
-      function setBalance(val){
-        set('balance', val.toFixed(6));
-        balanceEl.textContent = '$' + val.toFixed(2);
-      }
-
-      function getDays(){ return JSON.parse(get('days') || '[]'); }
-      function saveDay(){
-        const d = getDays(), t = today();
-        if (!d.includes(t)){ d.push(t); set('days', JSON.stringify(d)); }
-      }
-
-      function updateRankUI(){
-        const days = getDays().length;
-        let name='Starter', pct=days/30*100, next='Pioneer', rem=30-days;
-        if(days>=90){name='Supreme';pct=100;next=null;}
-        else if(days>=60){name='Elite';pct=(days-60)/30*100;rem=90-days;next='Supreme';}
-        else if(days>=30){name='Pioneer';pct=(days-30)/30*100;rem=60-days;next='Elite';}
-        rankEl.textContent='Rank: '+name;
-        rankBar.style.width=pct+'%';
-        rankDetails.innerHTML = next
-          ? `Progress: ${days} days<br>Next: ${next} in ${rem} days`
-          : `🎉 Top rank! (${days} days)`;
-      }
-
-      function applyBonus(){
-        const arr=getDays(), dates=[];
-        let bonus=0, streak=0;
-        for(let i=0;i<7;i++){
-          const d=new Date();d.setDate(d.getDate()-i);
-          dates.push(d.toISOString().split('T')[0]);
-        }
-        dates.forEach(d=>{
-          if(arr.includes(d)){
-            streak++;
-            if(streak===2)bonus+=0.05;
-            if(streak===5)bonus+=0.5;
-          } else streak=0;
-        });
-        if(bonus){
-          alert('🎉 Bonus earned!');
-          setBalance(getBalance()+bonus);
-          set('baseBalance', getBalance());
-        }
-      }
-
-      function tick(){
-        const start = parseInt(get('startTime'));
-        const base = parseFloat(get('baseBalance') || '0');
-        const now = Date.now();
-        const elapsed = now - start;
-        const remain = Math.max(0, DURATION - elapsed);
-
-        if (remain <= 0) {
-          clearInterval(timer);
-          countdownEl.textContent = '00:00:00';
-          minedEl.textContent = '+1.72800';
-          const finalBalance = base + 1.728;
-          setBalance(finalBalance);
-          set('balance', finalBalance);
-          localStorage.removeItem('startTime');
-          localStorage.removeItem('baseBalance');
-          saveDay();
-          applyBonus();
-          updateRankUI();
-          return;
-        }
-
-        const earned = (elapsed / 1000) * RATE;
-        const currentBalance = base + earned;
-        minedEl.textContent = '+' + earned.toFixed(5);
-        setBalance(currentBalance);
-
-        const hours = String(Math.floor(remain / (3600 * 1000))).padStart(2, '0');
-        const mins = String(Math.floor((remain % (3600 * 1000)) / 60000)).padStart(2, '0');
-        const secs = String(Math.floor((remain % 60000) / 1000)).padStart(2, '0');
-        countdownEl.textContent = `${hours}:${mins}:${secs}`;
-      }
-
-      window.startMining = function(){
-        if(get('startTime')) return;
-        const now = Date.now();
-        const currentBalance = getBalance();
-        set('startTime', now);
-        set('baseBalance', currentBalance);
-        timer = setInterval(tick,1000);
-      };
-
-      window.toggleCalendar = function(){
-        const arr=getDays(), t=today();
-        let html='';
-        for(let i=0;i<30;i++){
-          const d=new Date(); d.setDate(d.getDate()-i);
-          const ds=d.toISOString().split('T')[0];
-          html += `<div>${ds} ${arr.includes(ds)?'✅':'<span class="missed">❌</span>'}</div>`;
-        }
-        minedDates.innerHTML=html;
-        calendar.style.display = calendar.style.display==='block'? 'none':'block';
-      };
-
-      rankEl.addEventListener('click',()=>{
-        rankDetails.style.display = rankDetails.style.display==='block'?'none':'block';
-      });
-
-      window.handleNavClick = function(el, url) {
-        window.location.href = url;
-      };
-    })();
+    // beforeinstallprompt handled above: reveal install button
+    window.addEventListener('load', ()=>{ const params=new URLSearchParams(location.search); const ref=params.get('ref'); if(ref) $('regRef').value = ref; });
+  })();
   </script>
 </body>
 </html>
