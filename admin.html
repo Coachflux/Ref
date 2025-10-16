@@ -1,82 +1,356 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NHCoin Admin Panel</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<style>
-body{background:#021a17;color:white;font-family:'Segoe UI',sans-serif;padding:20px;text-align:center;}
-table{width:100%;border-collapse:collapse;margin-top:20px;}
-th,td{padding:10px;border-bottom:1px solid #00ffcc;}
-th{background:#00775e;}
-tr:hover{background:#033d35;}
-button{background:linear-gradient(135deg,#00ffcc,#00775e);border:none;padding:10px 20px;color:white;border-radius:8px;cursor:pointer;font-weight:bold;}
-button:hover{transform:scale(1.05);}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Users</title>
+  <style>
+    :root{
+      --bg:#052820; --card:#f0ffff; --accent:#00ff99; --muted:#6b6b6b;
+    }
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#041815 0%, #07322a 100%);
+      color:#03221f;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:24px;
+      box-sizing:border-box;
+    }
+    header{
+      width:100%;
+      max-width:980px;
+      color:var(--card);
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    h1{ margin:0; font-size:1.15rem; color:#e9fff8; }
+    .controls{ display:flex; gap:8px; align-items:center; }
+    button{
+      background:var(--accent);
+      color:#052820;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      cursor:pointer;
+    }
+    button.ghost{
+      background:transparent;
+      color:#e9fff8;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .card{
+      width:100%;
+      max-width:980px;
+      background:linear-gradient(180deg, rgba(240,255,255,0.95), rgba(240,255,255,0.9));
+      border-radius:10px;
+      padding:16px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.45);
+      box-sizing:border-box;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+      font-size:0.95rem;
+    }
+    thead th{
+      text-align:left;
+      padding:10px 8px;
+      font-size:0.85rem;
+      color:var(--muted);
+      border-bottom:1px dashed rgba(0,0,0,0.06);
+    }
+    tbody td{
+      padding:10px 8px;
+      border-bottom:1px solid rgba(0,0,0,0.04);
+    }
+    tbody tr:hover{ background: rgba(0,0,0,0.02); }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:#03483e; }
+    .small{ font-size:0.85rem; color: #234; }
+    .count-pill{
+      background:#e6fff6;
+      padding:6px 8px;
+      border-radius:999px;
+      font-weight:700;
+      color:#006d53;
+    }
+    .no-users{ text-align:center; padding:28px; color:#005642; }
+    .row-actions button{ margin-left:6px; padding:6px 8px; font-size:0.85rem; }
+    input#filter{ padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
+    footer{ margin-top:16px; color:#cfeee6; font-size:0.85rem; }
+    @media (max-width:720px){
+      thead{display:none;}
+      table,tbody,td,tr{display:block;width:100%;}
+      tbody td{ display:flex; justify-content:space-between; gap:12px; }
+      tbody td::before{ content:""; display:none; }
+    }
+  </style>
 </head>
 <body>
-<h2>Admin Dashboard</h2>
-<p>Sorted by highest referrals</p>
-<button id="copyEmails">Copy All Emails</button>
-<table id="userTable">
-  <thead>
-    <tr>
-      <th>Position</th>
-      <th>Username</th>
-      <th>Email</th>
-      <th>Referrals</th>
-      <th>Referral Earning</th>
-      <th>Password</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <header>
+    <h1>Admin Panel — Registered Users</h1>
+    <div class="controls">
+      <input id="filter" placeholder="Filter by username or email" />
+      <button id="refreshBtn" title="Reload list">Refresh</button>
+      <button id="copyEmailsBtn" title="Copy all emails">Copy all emails</button>
+      <button id="exportCsvBtn" class="ghost" title="Export table as CSV">Export CSV</button>
+    </div>
+  </header>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+  <main class="card" id="mainCard">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>Total users:</strong> <span id="totalUsers" class="count-pill">0</span>
+        &nbsp;&nbsp;
+        <strong>Emails found:</strong> <span id="emailCount" class="count-pill">0</span>
+      </div>
+      <div class="small">Sorted by referral count (highest → lowest)</div>
+    </div>
 
-const firebaseConfig = {
-      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
-      authDomain: "usdt-login.firebaseapp.com",
-      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
-      projectId: "usdt-login",
-      storageBucket: "usdt-login.firebasestorage.app",
-      messagingSenderId: "807602854227",
-      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
-    };
+    <table id="usersTable" aria-label="Users table">
+      <thead>
+        <tr>
+          <th style="width:34%;">Email</th>
+          <th style="width:20%;">Username</th>
+          <th style="width:18%;">Referral Count</th>
+          <th style="width:18%;">Referral Earnings</th>
+          <th style="width:10%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="usersBody">
+        <!-- filled by JS -->
+      </tbody>
+    </table>
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    <div id="noUsers" class="no-users hidden" style="display:none">No registered users found.</div>
+  </main>
 
-const tableBody = document.querySelector("#userTable tbody");
+  <footer>
+    Note: this admin panel reads users stored in localStorage keys that start with "user_". If you want email addresses to appear,
+    ensure user objects include an "email" property (see notes below).
+  </footer>
 
-get(child(ref(db), "users")).then(snapshot=>{
-  if(snapshot.exists()){
-    const users = Object.values(snapshot.val());
-    users.sort((a,b)=>b.referrals - a.referrals);
-    let pos = 6574;
-    users.forEach(u=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${pos++}</td>
-        <td>${u.username}</td>
-        <td>${u.email}</td>
-        <td>${u.referrals || 0}</td>
-        <td>$${u.referralEarning || 0}</td>
-        <td>••••••</td>
-      `;
-      tableBody.appendChild(tr);
+  <script>
+    // Helper: read all user_* entries from localStorage
+    function loadUsersFromLocalStorage(){
+      const users = [];
+      for(const key of Object.keys(localStorage)){
+        if(!key.startsWith('user_')) continue;
+        try {
+          const raw = localStorage.getItem(key);
+          const obj = JSON.parse(raw);
+          // support legacy shapes gracefully
+          users.push({
+            storageKey: key,
+            username: obj.username || key.replace(/^user_/,''),
+            email: (obj.email && String(obj.email).trim()) || null,
+            invited: Number(obj.invited || 0),
+            referralEarnings: Number(obj.referralEarnings || 0),
+            referralCode: obj.referralCode || ''
+          });
+        } catch(e){
+          // skip malformed entries
+          console.warn('Skipping malformed user entry', key, e);
+        }
+      }
+      return users;
+    }
+
+    function renderTable(users){
+      const tbody = document.getElementById('usersBody');
+      tbody.innerHTML = '';
+      if(users.length === 0){
+        document.getElementById('noUsers').style.display = 'block';
+        document.getElementById('usersTable').style.display = 'none';
+      } else {
+        document.getElementById('noUsers').style.display = 'none';
+        document.getElementById('usersTable').style.display = '';
+      }
+
+      users.forEach(u=>{
+        const tr = document.createElement('tr');
+
+        const emailTd = document.createElement('td');
+        emailTd.innerHTML = u.email ? `<span class="mono">${escapeHtml(u.email)}</span>` : '<span class="small">N/A</span>';
+        tr.appendChild(emailTd);
+
+        const userTd = document.createElement('td');
+        userTd.textContent = u.username;
+        tr.appendChild(userTd);
+
+        const countTd = document.createElement('td');
+        countTd.textContent = u.invited;
+        tr.appendChild(countTd);
+
+        const earnTd = document.createElement('td');
+        earnTd.textContent = '$' + u.referralEarnings.toFixed(2);
+        tr.appendChild(earnTd);
+
+        const actionsTd = document.createElement('td');
+        actionsTd.className = 'row-actions';
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = 'Copy email';
+        copyBtn.onclick = () => {
+          if(!u.email){
+            alert('No email available for this user.');
+            return;
+          }
+          navigator.clipboard.writeText(u.email)
+            .then(()=> alert('Copied: ' + u.email))
+            .catch(()=> fallbackCopy(u.email));
+        };
+        actionsTd.appendChild(copyBtn);
+
+        // quick open user in localStorage: show JSON in new window
+        const viewBtn = document.createElement('button');
+        viewBtn.textContent = 'View JSON';
+        viewBtn.onclick = () => {
+          const json = localStorage.getItem(u.storageKey) || '{}';
+          const w = window.open('', '_blank', 'noopener');
+          w.document.write(`<pre>${escapeHtml(json)}</pre>`);
+          w.document.title = u.storageKey;
+        };
+        actionsTd.appendChild(viewBtn);
+
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Sort by invited desc, then by username
+    function sortUsers(users){
+      return users.slice().sort((a,b)=>{
+        if(b.invited === a.invited) return a.username.localeCompare(b.username);
+        return b.invited - a.invited;
+      });
+    }
+
+    // Copy all emails (only valid emails: user.email OR username that contains @)
+    function copyAllEmails(users){
+      const emails = users.map(u => {
+        if(u.email) return u.email;
+        if(u.username && u.username.includes('@')) return u.username;
+        return null;
+      }).filter(Boolean);
+
+      if(emails.length === 0){
+        alert('No email addresses found in user objects.');
+        return;
+      }
+
+      const text = emails.join(', ');
+      navigator.clipboard.writeText(text)
+        .then(()=> alert('Copied ' + emails.length + ' email(s) to clipboard.'))
+        .catch(()=> fallbackCopy(text, emails.length));
+    }
+
+    // Fallback for older browsers
+    function fallbackCopy(text, count){
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('Copied ' + (count || 'emails') + ' (fallback).');
+      } catch(e){
+        alert('Unable to copy to clipboard.');
+      }
+    }
+
+    // Small util to escape HTML when injecting
+    function escapeHtml(s){
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+
+    // Export table as CSV
+    function exportCsv(users){
+      const rows = [['email','username','referral_count','referral_earnings']];
+      users.forEach(u => {
+        rows.push([u.email || '', u.username, String(u.invited), u.referralEarnings.toFixed(2)]);
+      });
+      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'users_export.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // Load + render with optional filter
+    function refreshList(){
+      const raw = loadUsersFromLocalStorage();
+      const filtered = applyFilter(raw);
+      const sorted = sortUsers(filtered);
+      renderTable(sorted);
+
+      document.getElementById('totalUsers').textContent = raw.length;
+      // count emails discovered
+      const emailsFound = raw.filter(u => u.email || (u.username && u.username.includes('@'))).length;
+      document.getElementById('emailCount').textContent = emailsFound;
+      // keep lastLoaded for actions
+      window.__admin_last_list = sorted;
+    }
+
+    // basic filtering on username or email
+    function applyFilter(users){
+      const q = document.getElementById('filter').value.trim().toLowerCase();
+      if(!q) return users;
+      return users.filter(u => {
+        return (u.username && u.username.toLowerCase().includes(q)) ||
+               (u.email && u.email.toLowerCase().includes(q)) ||
+               (u.referralCode && u.referralCode.toLowerCase().includes(q));
+      });
+    }
+
+    // Wire up UI
+    document.getElementById('refreshBtn').addEventListener('click', refreshList);
+    document.getElementById('copyEmailsBtn').addEventListener('click', ()=>{
+      const list = window.__admin_last_list || sortUsers(loadUsersFromLocalStorage());
+      copyAllEmails(list);
     });
-  }
-});
+    document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+      const list = window.__admin_last_list || sortUsers(loadUsersFromLocalStorage());
+      exportCsv(list);
+    });
+    document.getElementById('filter').addEventListener('input', ()=> {
+      refreshList();
+    });
 
-document.getElementById('copyEmails').addEventListener('click', ()=>{
-  let emails = Array.from(document.querySelectorAll('#userTable tbody tr td:nth-child(3)')).map(td=>td.textContent).join(', ');
-  navigator.clipboard.writeText(emails);
-  alert("All emails copied to clipboard!");
-});
-</script>
+    // initial render
+    refreshList();
+  </script>
+
+  <!-- ADMIN NOTE:
+    To ensure emails appear in this admin panel, your registration code (registerUser) must store an "email" property
+    for each user object in localStorage. Example change in your registration form:
+
+      <input type="email" id="email" placeholder="Enter your email (optional)">
+
+    And in registerUser() add:
+      const email = document.getElementById('email').value.trim();
+      ... user = { username, password, email, referralCode: ..., ... }
+
+    After users have email properties, reopen admin.html to view / copy them.
+  -->
 </body>
 </html>
