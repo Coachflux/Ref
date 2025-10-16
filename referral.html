@@ -449,12 +449,7 @@
           else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Share not supported — message copied'); }
         };
 
-        // logout
-        $('logoutBtn').onclick = async () => { await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
-      }catch(err){
-        console.error(err); alert('Could not load dashboard: ' + (err.message||err));
-      }
-    }
+        
 
     // ---------- App meta & service worker ----------
     const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
