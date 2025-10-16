@@ -1,96 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>USDT Miner Admin</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #e0e0e0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #f0f0f3;
-      box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
-      border-radius: 20px;
-      padding: 25px;
-      width: 350px;
-      text-align: center;
-    }
-    input, textarea {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 10px;
-      box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff;
-      background: #f0f0f3;
-      outline: none;
-    }
-    button {
-      width: 95%;
-      padding: 10px;
-      border: none;
-      border-radius: 10px;
-      background: #2196f3;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NHCoin Admin Panel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+body{background:#021a17;color:white;font-family:'Segoe UI',sans-serif;padding:20px;text-align:center;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th,td{padding:10px;border-bottom:1px solid #00ffcc;}
+th{background:#00775e;}
+tr:hover{background:#033d35;}
+button{background:linear-gradient(135deg,#00ffcc,#00775e);border:none;padding:10px 20px;color:white;border-radius:8px;cursor:pointer;font-weight:bold;}
+button:hover{transform:scale(1.05);}
+</style>
 </head>
 <body>
-  <div class="container" id="loginBox">
-    <h2>Admin Login</h2>
-    <input type="password" id="adminPass" placeholder="Enter Admin Password">
-    <button onclick="checkAdmin()">Login</button>
-  </div>
+<h2>Admin Dashboard</h2>
+<p>Sorted by highest referrals</p>
+<button id="copyEmails">Copy All Emails</button>
+<table id="userTable">
+  <thead>
+    <tr>
+      <th>Position</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Referrals</th>
+      <th>Referral Earning</th>
+      <th>Password</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-  <div class="container" id="notifyBox" style="display:none;">
-    <h2>Send Notification</h2>
-    <input type="text" id="title" placeholder="Notification Title">
-    <textarea id="message" placeholder="Notification Message"></textarea>
-    <button onclick="sendNotification()">Send to All</button>
-  </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js";
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_DOMAIN",
+  databaseURL: "YOUR_DB_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
-      authDomain: "usdt-login.firebaseapp.com",
-      projectId: "usdt-login",
-      messagingSenderId: "807602854227",
-      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
-    };
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    const app = initializeApp(firebaseConfig);
-    const messaging = getMessaging(app);
+const tableBody = document.querySelector("#userTable tbody");
 
-    window.checkAdmin = () => {
-      const pass = document.getElementById("adminPass").value;
-      if (pass === "AdminOnly123") {
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("notifyBox").style.display = "block";
-      } else {
-        alert("Invalid password");
-      }
-    };
+get(child(ref(db), "users")).then(snapshot=>{
+  if(snapshot.exists()){
+    const users = Object.values(snapshot.val());
+    users.sort((a,b)=>b.referrals - a.referrals);
+    let pos = 6574;
+    users.forEach(u=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${pos++}</td>
+        <td>${u.username}</td>
+        <td>${u.email}</td>
+        <td>${u.referrals || 0}</td>
+        <td>$${u.referralEarning || 0}</td>
+        <td>••••••</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+});
 
-    window.sendNotification = async () => {
-      const title = document.getElementById("title").value;
-      const message = document.getElementById("message").value;
-      if (!title || !message) return alert("Fill in all fields");
-
-      // Here, you would send your message to all tokens stored in Firebase Database
-      alert("✅ Notification sent to all users (simulation)");
-    };
-  </script>
+document.getElementById('copyEmails').addEventListener('click', ()=>{
+  let emails = Array.from(document.querySelectorAll('#userTable tbody tr td:nth-child(3)')).map(td=>td.textContent).join(', ');
+  navigator.clipboard.writeText(emails);
+  alert("All emails copied to clipboard!");
+});
+</script>
 </body>
 </html>
