@@ -58,7 +58,7 @@
 
     <div class="grid">
       <!-- AUTH CARD -->
-      <div class="card" id="authCard">
+      <div class="card">
         <div id="registerBox" class="hidden">
           <h3>Create account</h3>
           <div class="field"><label for="regUsername">Username</label><input id="regUsername" type="text" autocomplete="username" /></div>
@@ -78,17 +78,15 @@
           <div id="regStatus" class="muted" style="margin-top:10px"></div>
         </div>
 
-        <div id="loginBox" class="card">
+        <div id="login" class="card">
           <h3>Login</h3>
-          <div class="field"><label for="loginIdentifier">Username or Email</label><input id="loginIdentifier" type="text" autocomplete="username" /></div>
-          <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" /></div>
-          <div style="display:flex;gap:10px">
-            <button id="btnLogin">Login</button>
-            <button class="small" id="showRegisterBtn">Register</button>
+          <div class="field"><label for="loginIdentifier">Username or Email</label><input id="loginUsername" type="text" autocomplete="username" /></div>
+          <div class="field"><label for="loginPass">Password</label><input id="loginPassword" type="password" autocomplete="current-password" /></div>
+          <button onclick="loginUser()">Login</button>
+          <p>Don't have an account? <a href="index.html" onclick="showPage('register')">Register here</a></p>
           </div>
-          <div id="loginStatus" class="muted" style="margin-top:10px"></div>
-        </div>
-      </div>
+          
+          
 
       <!-- DASHBOARD -->
       <div class="card hidden" id="dashboard">
@@ -139,211 +137,7 @@
   </div>
 
   <!-- Firebase compat SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
-  <script>
-  (function(){
-    // ---------- CONFIG ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
-      authDomain: "usdt-login.firebaseapp.com",
-      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
-      projectId: "usdt-login",
-      storageBucket: "usdt-login.firebasestorage.app",
-      messagingSenderId: "807602854227",
-      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const functions = firebase.functions();
-
-    // Force auth persistence NONE (user must login again after leaving)
-    auth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(err => console.warn('setPersistence error', err));
-
-    // ---------- Helpers ----------
-    const $ = id => document.getElementById(id);
-    function show(el){ el.classList.remove('hidden'); el.style.display=''; el.setAttribute('aria-hidden','false'); }
-    function hide(el){ el.classList.add('hidden'); el.style.display='none'; el.setAttribute('aria-hidden','true'); }
-    function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-    function generateRefCode(username){ return username.trim().replace(/\s+/g,'').toUpperCase() + '-' + Math.floor(100 + Math.random()*900); }
-
-    // ---------- Modal wiring (only when clicked) ----------
-    const termsModal = $('termsModal'), openTC = $('openTC'), closeTC = $('closeTC');
-    openTC.addEventListener('click', e => { e.preventDefault(); termsModal.style.display='flex'; termsModal.setAttribute('aria-hidden','false'); $('tcContent').focus(); });
-    closeTC.addEventListener('click', ()=> { termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); });
-    termsModal.addEventListener('click', e => { if(e.target === termsModal){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
-    document.addEventListener('keydown', e => { if(e.key === 'Escape' && termsModal.style.display === 'flex'){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
-
-    // ---------- UI toggles for login/register ----------
-    $('showLoginBtn').addEventListener('click', ()=>{ $('registerBox').classList.add('hidden'); $('loginBox').classList.remove('hidden'); });
-    $('showRegisterBtn').addEventListener('click', ()=>{ $('loginBox').classList.add('hidden'); $('registerBox').classList.remove('hidden'); });
-
-    // sign out on leaving so user must re-login when coming back
-    window.addEventListener('beforeunload', ()=> { try{ auth.signOut(); } catch(e){} });
-
-    // ---------- PWA install prompt handling ----------
-    let deferredPrompt = null;
-    const installBtn = $('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display=''; });
-    installBtn.addEventListener('click', async () => { if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; }); });
-
-    // ---------- Registration ----------
-    // ---------- Registration ----------
-$('btnRegister').addEventListener('click', async () => {
-  const username = $('regUsername').value.trim();
-  const email = $('regEmail').value.trim().toLowerCase();
-  const password = $('regPassword').value;
-  const inviterCode = $('regRef').value.trim();
-  const agreed = $('agreeTC').checked;
-  $('regStatus').innerText = '';
-
-  if(!username || !email || !password){ alert('Please fill username, email and password'); return; }
-  if(!isValidEmail(email)){ alert('Please enter a valid email'); return; }
-  if(!agreed){ alert('You must accept Terms & Conditions'); return; }
-
-  try{
-    $('regStatus').innerText = 'Creating account...';
-    const uc = await auth.createUserWithEmailAndPassword(email, password);
-    const uid = uc.user.uid;
-    const refCode = generateRefCode(username);
-    const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
-    await db.ref('users/' + uid).set(profile);
-
-    // Referral logic (unchanged)
-    let functionSuccess = false;
-    if(inviterCode){
-      try{
-        const processReferral = functions.httpsCallable('processReferral');
-        const res = await processReferral({ inviterCode, newUserUid: uid });
-        if(res && res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter')) functionSuccess = true;
-      }catch(fnErr){
-        console.warn('processReferral failed — client fallback will run', fnErr);
-      }
-    }
-    if(inviterCode && !functionSuccess){
-      await clientReferralFallback(inviterCode, uid, username);
-    }
-
-    // Sign out and redirect to login.html
-    $('regStatus').innerText = '';
-    try{ await auth.signOut(); } catch(e){ console.warn('signOut after register failed', e); }
-    localStorage.removeItem('currentUserUid');
-    alert('Account created. Please login.');
-    // Redirect to login.html preserving ref if present
-    const params = new URLSearchParams();
-    if(location.search){ const old = new URLSearchParams(location.search); if(old.get('ref')) params.set('ref', old.get('ref')); }
-    const target = 'login.html' + (params.toString() ? ('?' + params.toString()) : '');
-    location.href = target;
-  } catch(err){
-    console.error(err);
-    $('regStatus').innerText = '';
-    alert('Registration error: ' + (err.message || err));
-  }
-});
-
-// ---------- Login ----------
-$('btnLogin').addEventListener('click', async () => {
-  const identifier = $('loginIdentifier').value.trim();
-  const pass = $('loginPass').value;
-  $('loginStatus').innerText = '';
-
-  if(!identifier || !pass){ alert('Please enter username/email and password'); return; }
-
-  try{
-    let emailToUse = identifier;
-    if(!identifier.includes('@')){
-      const snap = await db.ref('users').once('value');
-      const users = snap.val() || {};
-      let foundEmail = null;
-      for(const k of Object.keys(users)){
-        if(users[k].username && users[k].username.toLowerCase() === identifier.toLowerCase()){
-          foundEmail = users[k].email; break;
-        }
-      }
-      if(!foundEmail){ alert('Username not found'); return; }
-      emailToUse = foundEmail;
-    }
-
-    if(!isValidEmail(emailToUse)){ alert('Resolved email is invalid'); return; }
-    $('loginStatus').innerText = 'Signing in...';
-    const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
-    // store uid locally and redirect to mine.html
-    localStorage.setItem('currentUserUid', uc.user.uid);
-    $('loginStatus').innerText = '';
-    location.href = 'mine.html';
-  }catch(err){
-    console.error(err);
-    $('loginStatus').innerText = '';
-    if(err.code === 'auth/invalid-email') alert('Invalid email format. Please check your email.');
-    else if(err.code === 'auth/wrong-password') alert('Incorrect password.');
-    else if(err.code === 'auth/user-not-found') alert('No account found with that email.');
-    else alert('Login error: ' + (err.message || err));
-  }
-});
-        // Try Cloud Function processReferral
-        
-
-    // ---------- Login ----------
-    
-    // ---------- Auth state ----------
-    auth.onAuthStateChanged(async user => {
-      if(user){
-        await loadDashboard(user.uid);
-      } else {
-        $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden');
-      }
-    });
-
-    // ---------- Dashboard loader ----------
-    async function loadDashboard(uid){
-      try{
-        const snap = await db.ref('users/' + uid).once('value');
-        const me = snap.val();
-        if(!me){ alert('Profile not found'); return; }
-
-        $('authCard').classList.add('hidden'); $('dashboard').classList.remove('hidden');
-
-        $('d_username').innerText = me.username || '';
-        $('d_username_small').innerText = me.username || '';
-        $('d_email').innerText = me.email || '';
-        $('d_refcode').innerText = me.referralCode || '';
-        $('d_invited').innerText = me.referrals ? Object.keys(me.referrals).length : 0;
-        $('d_earnings').innerText = '$' + Number(me.referralEarnings || 0).toFixed(2);
-        $('d_balance').innerText = '$' + Number(me.balance || 0).toFixed(2);
-
-        const link = `${location.origin}${location.pathname}?ref=${encodeURIComponent(me.referralCode)}`;
-        $('d_link').innerText = link;
-        localStorage.setItem('myReferralLink', link);
-
-        // copy/share wiring
-        $('copyReferralBtn').onclick = async () => { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`); alert('Referral message copied'); };
-        $('shareReferralBtn').onclick = async () => {
-          const shareData = { title: APP_META.title, text: APP_META.description, url: link };
-          if(navigator.share) navigator.share(shareData).catch(()=>alert('Share cancelled'));
-          else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Share not supported — message copied'); }
-        };
-
-        // logout
-        $('logoutBtn').onclick = async () => { await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
-      }catch(err){
-        console.error(err); alert('Could not load dashboard: ' + (err.message||err));
-      }
-    }
-
-    // ---------- App meta & service worker ----------
-    const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://coachflux.github.io/Ref/img/usdt.webp' };
-    if('serviceWorker' in navigator){
-      const swCode = `const CACHE='usdt-miner-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])))});self.addEventListener('activate',e=>{e.waitUntil(clients.claim())});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});`;
-      try { const blob=new Blob([swCode],{type:'application/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>console.warn('sw register failed')); } catch(e){ console.warn('sw blob/register failed', e); }
-    }
-
-    // beforeinstallprompt handled above: reveal install button
-    window.addEventListener('load', ()=>{ const params=new URLSearchParams(location.search); const ref=params.get('ref'); if(ref) $('regRef').value = ref; });
-  })();
   </script>
 </body>
 </html>
