@@ -135,59 +135,12 @@
         75%  { transform: scale(1.1); }
         100% { transform: scale(1); }
       }
-
-.usdt-image {
-        width: 100px;
-        display: block;
-        margin: 0 auto 20px;
-      }
-
-      .usdt-form-container {
-        background: #f0ffff;
-        padding: 20px;
-        border-radius: 10px;
-        border: 2px solid #00ffcc;
-        box-shadow: 0 0 10px #00ffcc;
-        text-align: center;
-        margin-top: 20px;
-      }
-
-      .usdt-form-container h2 {
-        color: #052820;
-        margin-bottom: 20px;
-      }
-
-      .terms-link {
-        color: #00775e;
-        text-decoration: underline;
-        cursor: pointer;
-      }
-
-      .terms-container {
-        position: relative;
-        text-align: left;
-      }
-
-      .close-icon {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: #052820;
-      }
-        
-      container {
-        padding: 20px;
-        max-width: 400px;
-        width: 100%;
-      }
+      
+      .container { padding: 20px; }
       input {
         padding: 10px;
         margin: 5px;
         border-radius: 5px;
-        width: 100%;
-        box-sizing: border-box;
       }
 
       button {
@@ -195,22 +148,18 @@
         margin: 5px;
         border-radius: 5px;
         background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
-        color: white;
+        color: #052820;
+        font-weight: bold;
         border: none;
-        width: 100%;
         cursor: pointer;
       }
-      
-      .hidden {
-        display: none;
-      }
+      .hidden { display: none; }
       .card {
         background: #f0ffff;
-        padding: 15px;
+        padding: 10px;
         border-radius: 10px;
         margin-top: 10px;
       }
-    
       .share-section {
         margin: 10px 0;
         padding: 10px;
@@ -239,33 +188,28 @@
 
   <div class="container">
     <div id="home" class="page hidden">
-      <h1>Welcome to USDT mining!</h1>
-      <p>This is a USDT app with mining and a referral system.</p>
+      <h1>Welcome to NHCoin!</h1>
+      <p>This is a demo app with mining and a referral system.</p>
     </div>
 
     <div id="login" class="page">
-        <div class="usdt-form-container">
-        <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
       <h2>Login</h2>
       <input type="text" id="loginUsername" placeholder="Enter your username">
       <input type="password" id="loginPassword" placeholder="Enter your password">
       <button onclick="loginUser()">Login</button>
       <p>Don't have an account? <a href="index.html" onclick="showPage('register')">Register here</a></p>
     </div>
-    </div>
 
     <div id="register" class="page hidden">
-        <div class="usdt-form-container">
-        <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
       <h2>Register</h2>
       <input type="text" id="username" placeholder="Enter your username">
       <input type="email" id="email" placeholder="Enter your email" required>
       <input type="password" id="password" placeholder="Enter your password">
       <input type="text" id="inviterCode" placeholder="Referral code (optional)">
       <button onclick="registerUser()">Register</button>
-          <p>Already have an account? <a href="login.html" onclick="showPage('login.html')">'Login'</a></p>
+    <p>Already have an account? <a href="login.html" onclick="showPage('login')">Register here</a></p>
     </div>
-    </div>
+
 
     <div id="referral" class="page hidden">
       <h2>Your Referral Details</h2>
@@ -654,4 +598,4 @@ window.onload = () => {
 </script>
   <script type="module" src="referrals.js" defer></script>
 </body>
-</html> 
+</html>
