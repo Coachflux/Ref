@@ -9,7 +9,6 @@
 <meta property="og:description" content="Start mining and earn USDT rewards by inviting friends.">
 <meta property="og:image" content="https://coachflux.github.io/Ref/img/usdt.webp">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="withdraw.css"/>
 <link rel="manifest" href="manifest.json">
 <style>
   :root{ --bg:#041d18; --card:#f6fff8; --accent1:#00d996; --accent2:#008f63; --muted:#6b8a81; --danger:#7a1f1f; }
@@ -47,6 +46,94 @@
   #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700;display:none;margin-left:8px}
   /* small responsive tweaks */
   @media (max-width:560px){ header{flex-direction:column;gap:8px} .grid{flex-direction:column} }
+
+  .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: #031e1e;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 999;
+    }
+
+    .nav-item {
+      text-align: center;
+      color: #aaa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-item svg {
+      width: 25px;
+      height: 25px;
+      fill: #888;
+      transition: transform 0.3s ease, fill 0.3s ease;
+    }
+
+    .nav-item span {
+      font-size: 0.7rem;
+      margin-top: 2px;
+      display: none;
+    }
+
+    .nav-item.active svg,
+    .nav-item:hover svg {
+      fill: #00ff99;
+      transform: scale(1.2) rotate(360deg);
+    }
+
+    .nav-item.active span {
+      display: block;
+      color: #00ff99;
+    }
+
+    .mine-icon {
+      position: relative;
+      top: -15px;
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
+      border-radius: 50%;
+      box-shadow: 0 0 15px #00ffcc, inset 5px 5px 10px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 4px solid #031e1e;
+      transition: transform 0.3s ease;
+    }
+
+    .mine-icon svg {
+      width: 30px;
+      height: 30px;
+      fill: #ffffff;
+      filter: drop-shadow(0 0 4px #00ffcc);
+    }
+
+    .mine-label {
+      position: absolute;
+      top: 76px;
+      font-size: 0.7rem;
+      color: #00ffcc;
+      font-weight: bold;
+    }
+
+    a.mine-link {
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
 </style>
 </head>
 <body>
