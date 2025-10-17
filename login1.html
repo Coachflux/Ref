@@ -93,23 +93,23 @@
         </div>
 
         <div class="kpi-row">
-          <div class="kpi"><h4>Invited</h4><p id="d_invited">0</p></div>
-          <div class="kpi"><h4>Earnings</h4><p id="d_earnings">$0.00</p></div>
+          <div class="kpi"><h4>Invited</h4><p id="referralCount">0</p></div>
+          <div class="kpi"><h4>Earnings</h4><p id="referralEarnings">$0.00</p></div>
           <div class="kpi"><h4>Balance</h4><p id="d_balance">$0.00</p></div>
         </div>
 
         <div style="margin-top:12px;">
-          <div class="field"><label>Username</label><div class="value" id="d_username"></div></div>
-          <div class="field"><label>Email</label><div class="value" id="d_email"></div></div>
-          <div class="field"><label>Referral Code</label><div class="value" id="d_refcode"></div></div>
-          <div class="field"><label>Your Referral Link</label><div class="value" id="d_link"></div></div>
-
+          <div class="field"><label>Username</label><div class="value" id="displayUsername"></div></div>
+          <div class="field"><label>Email</label><div class="value" id="displayEmail"></div></div>
+          <div class="field"><label>Referral Code</label><div class="value" id="referralCode"></div></div>
+          <div class="field"><label>Your Referral Link</label><div class="value" id="referralLink"></div></div>
+        <!-- Position will be appended here by JS -->
+      
           <div class="share-row">
-            <button id="copyReferralBtn">Copy</button>
-            <button class="small" id="shareReferralBtn">Share</button>
-            <button id="installBtn" class="small">Install App</button>
-            <button style="margin-left:auto;background:#ffdede;color:var(--danger)" id="logoutBtn" class="small">Logout</button>
-          </div>
+          <button class="share-btn" onclick="copyText('referralLink')"><i class="fa fa-copy"></i>Copy Link</button>
+          <button class="share-btn" onclick="copyCode()"><i class="fa fa-copy"></i>Copy Code</button>
+          <button class="share-btn" onclick="shareReferral()"><i class="fa fa-share-alt"></i>Share</button>
+        </div>
         </div>
       </div>
     </div>
