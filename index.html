@@ -177,11 +177,17 @@
         color: #052820;
       }
         
-      .container { padding: 20px; }
+      container {
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+      }
       input {
         padding: 10px;
         margin: 5px;
         border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       button {
@@ -189,18 +195,22 @@
         margin: 5px;
         border-radius: 5px;
         background: radial-gradient(circle at 30% 30%, #00ffcc, #00775e);
-        color: #052820;
-        font-weight: bold;
+        color: white;
         border: none;
+        width: 100%;
         cursor: pointer;
       }
-      .hidden { display: none; }
+      
+      .hidden {
+        display: none;
+      }
       .card {
         background: #f0ffff;
-        padding: 10px;
+        padding: 15px;
         border-radius: 10px;
         margin-top: 10px;
       }
+    
       .share-section {
         margin: 10px 0;
         padding: 10px;
@@ -233,7 +243,7 @@
       <p>This is a demo app with mining and a referral system.</p>
     </div>
 
-    <div id="login" class="page">
+    <div id="login" class="page hidden">
         <div class="usdt-form-container">
         <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
       <h2>Login</h2>
@@ -244,7 +254,7 @@
     </div>
     </div>
 
-    <div id="register" class="page hidden">
+    <div id="register" class="page">
         <div class="usdt-form-container">
         <img src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT" class="usdt-image">
       <h2>Register</h2>
