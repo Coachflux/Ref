@@ -60,7 +60,7 @@
 
     <div class="grid">
       <!-- REGISTER CARD -->
-      <div class="card" id="registerCard">
+      <div class="card hidden" id="registerCard">
         <h3>Create account</h3>
         <div class="field"><label for="username">Username</label><input id="username" type="text" autocomplete="username" /></div>
         <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" /></div>
@@ -174,7 +174,6 @@
     appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
   };
 
-  // Initialize
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
@@ -229,7 +228,7 @@
     return Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join('');
   }
 
-  // referral code
+  // referral code generator
   function generateReferralCode(username){ return username + Math.floor(Math.random()*10000); }
 
   // Firestore helpers
@@ -262,115 +261,138 @@
     }
   }
 
-  // Registration: saves local + Firestore, uses incomingRefCode priority, then redirects to login view
+  // registration logic
   async function registerUser(){
-    const username = document.getElementById('username').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const inviterCodeInput = document.getElementById('inviterCode').value.trim();
-    const agree = document.getElementById('agreeTC').checked;
-
-    if(!username || !email || !password) return alert('Please fill all required fields.');
-    if(!agree) return alert('You must agree to the Terms & Conditions before registering.');
-
-    // check existing
-    const localExists = localStorage.getItem(`user_${username}`);
-    const remoteSnap = await getDoc(doc(db, 'users', username));
-    if(localExists || remoteSnap.exists()){
-      return alert('Username already exists. Choose a different username.');
-    }
-
-    const passwordHash = await sha256hex(password);
-    const user = {
-      username,
-      email,
-      passwordHash,
-      referralCode: generateReferralCode(username),
-      invited: 0,
-      referralEarnings: 0,
-      balance: 0
-    };
-
-    // incoming ref: field > URL stored
-    const incomingRefCode = inviterCodeInput || localStorage.getItem('incomingRefCode') || '';
-
-    let newBalance = 0;
-    if(incomingRefCode){
-      const inviterDoc = await findUserByReferralCode(incomingRefCode);
-      if(inviterDoc){
-        const inviterData = inviterDoc.data();
-        const inviterRef = inviterDoc.ref;
-        const inviterInvited = (inviterData.invited || 0) + 1;
-        const inviterEarnings = (inviterData.referralEarnings || 0) + 0.3;
-        const inviterBalance = (inviterData.balance || 0) + 0.3;
-        try {
-          await updateDoc(inviterRef, {
-            invited: inviterInvited,
-            referralEarnings: inviterEarnings,
-            balance: inviterBalance,
-            updatedAt: serverTimestamp()
-          });
-        } catch(e){
-          await setDoc(inviterRef, { invited: inviterInvited, referralEarnings: inviterEarnings, balance: inviterBalance, updatedAt: serverTimestamp() }, { merge: true });
-        }
-        newBalance = 0.3;
-      }
-    }
-
-    // Save locally & remotely
-    localStorage.setItem(`user_${username}`, JSON.stringify(user));
-    localStorage.setItem(`${username}_balance`, newBalance.toFixed(6));
-    const userForFirestore = { ...user, balance: newBalance };
-    await saveUserToFirestore(userForFirestore);
-
-    localStorage.removeItem('incomingRefCode');
-
-    alert('Registration successful! Redirecting to login...');
-    // show login UI and clear fields
-    showLogin();
-    document.getElementById('username').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('inviterCode').value = '';
-    document.getElementById('agreeTC').checked = false;
-  }
-
-  // Login: prefer Firestore, fall back to local
-  async function loginUser(){
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if(!username || !password) return alert('Please enter your credentials.');
-
+    registerBtn.disabled = true;
     try {
-      const userSnap = await getDoc(doc(db, 'users', username));
-      if(userSnap.exists()){
-        const userDoc = userSnap.data();
-        const enteredHash = await sha256hex(password);
-        if(userDoc.passwordHash !== enteredHash) return alert('Invalid username or password.');
-        localStorage.setItem('currentUser', username);
-        localStorage.setItem(`${username}_balance`, (userDoc.balance || 0).toFixed(6));
-        alert('Login successful! Redirecting to mine...');
-        window.location.href = 'mine.html';
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const inviterCodeInput = document.getElementById('inviterCode').value.trim();
+      const agree = document.getElementById('agreeTC').checked;
+
+      if(!username || !email || !password) { alert('Please fill all required fields.'); return; }
+      if(!agree) { alert('You must agree to the Terms & Conditions before registering.'); return; }
+
+      // check existing username in local + remote
+      const localExists = !!localStorage.getItem(`user_${username}`);
+      const remoteSnap = await getDoc(doc(db, 'users', username));
+      if(localExists || remoteSnap.exists()){
+        alert('Username already exists. Choose a different username.');
         return;
       }
-    } catch(e){
-      console.warn('Firestore read error', e);
-    }
 
-    const localRaw = localStorage.getItem(`user_${username}`);
-    if(!localRaw) return alert('Invalid username or password.');
-    const localUser = JSON.parse(localRaw);
-    const enteredHash = await sha256hex(password);
-    if(localUser.passwordHash !== enteredHash) return alert('Invalid username or password.');
-    localStorage.setItem('currentUser', username);
-    alert('Login successful! Redirecting to mine...');
-    window.location.href = 'mine.html';
+      const passwordHash = await sha256hex(password);
+      const user = {
+        username,
+        email,
+        passwordHash,
+        referralCode: generateReferralCode(username),
+        invited: 0,
+        referralEarnings: 0,
+        balance: 0
+      };
+
+      // incoming ref priority: field > URL
+      const incomingRefCode = inviterCodeInput || localStorage.getItem('incomingRefCode') || '';
+
+      let newBalance = 0;
+      if(incomingRefCode){
+        const inviterDoc = await findUserByReferralCode(incomingRefCode);
+        if(inviterDoc){
+          const inviterData = inviterDoc.data();
+          const inviterRef = inviterDoc.ref;
+          const inviterInvited = (inviterData.invited || 0) + 1;
+          const inviterEarnings = (inviterData.referralEarnings || 0) + 0.3;
+          const inviterBalance = (inviterData.balance || 0) + 0.3;
+          try {
+            await updateDoc(inviterRef, {
+              invited: inviterInvited,
+              referralEarnings: inviterEarnings,
+              balance: inviterBalance,
+              updatedAt: serverTimestamp()
+            });
+          } catch(e){
+            // fallback to setDoc merge if updateDoc fails
+            await setDoc(inviterRef, { invited: inviterInvited, referralEarnings: inviterEarnings, balance: inviterBalance, updatedAt: serverTimestamp() }, { merge: true });
+          }
+          newBalance = 0.3;
+        }
+      }
+
+      // Save local + remote
+      localStorage.setItem(`user_${username}`, JSON.stringify(user));
+      localStorage.setItem(`${username}_balance`, newBalance.toFixed(6));
+      const userForFirestore = { ...user, balance: newBalance };
+      await saveUserToFirestore(userForFirestore);
+
+      // clear stored incomingRef to avoid reuse
+      localStorage.removeItem('incomingRefCode');
+
+      // show login view (this is the fix) and clear form fields
+      alert('Registration successful! You may now login.');
+      document.getElementById('username').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('inviterCode').value = '';
+      document.getElementById('agreeTC').checked = false;
+
+      showLogin();
+    } catch(err){
+      console.error('registerUser error', err);
+      alert('Registration failed — please try again.');
+    } finally {
+      registerBtn.disabled = false;
+    }
   }
 
-  // display referral info (prefers Firestore)
+  // login logic
+  async function loginUser(){
+    loginBtn.disabled = true;
+    try {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if(!username || !password) { alert('Please enter your credentials.'); return; }
+
+      // prefer Firestore
+      try {
+        const userSnap = await getDoc(doc(db, 'users', username));
+        if(userSnap.exists()){
+          const userDoc = userSnap.data();
+          const enteredHash = await sha256hex(password);
+          if(userDoc.passwordHash !== enteredHash) { alert('Invalid username or password.'); return; }
+          localStorage.setItem('currentUser', username);
+          localStorage.setItem(`${username}_balance`, (userDoc.balance || 0).toFixed(6));
+          // redirect to mine.html
+          alert('Login successful! Redirecting to mine...');
+          window.location.href = 'mine.html';
+          return;
+        }
+      } catch(e){
+        console.warn('Firestore read error', e);
+      }
+
+      // fallback to localStorage
+      const localRaw = localStorage.getItem(`user_${username}`);
+      if(!localRaw) { alert('Invalid username or password.'); return; }
+      const localUser = JSON.parse(localRaw);
+      const enteredHash = await sha256hex(password);
+      if(localUser.passwordHash !== enteredHash) { alert('Invalid username or password.'); return; }
+      localStorage.setItem('currentUser', username);
+      alert('Login successful! Redirecting to mine...');
+      window.location.href = 'mine.html';
+    } catch(err){
+      console.error('loginUser error', err);
+      alert('Login failed — try again.');
+    } finally {
+      loginBtn.disabled = false;
+    }
+  }
+
+  // display referral info
   async function displayReferralInfo(){
     const username = localStorage.getItem('currentUser');
-    if(!username) { showLogin(); return; }
+    if(!username){ showLogin(); return; }
 
     try {
       const userSnap = await getDoc(doc(db, 'users', username));
@@ -395,70 +417,70 @@
     document.getElementById('displayUsername').innerText = user.username;
     document.getElementById('displayEmail').innerText = user.email || 'N/A';
     document.getElementById('referralCode').innerText = user.referralCode;
-    // Build referral link to index.html in the same directory
-    const baseDir = (() => {
-      const path = window.location.pathname;
-      const idx = path.lastIndexOf('/');
-      return idx >= 0 ? path.substring(0, idx) : '';
-    })();
+
+    // Build absolute referral link pointing to index.html in same directory
+    const path = window.location.pathname;
+    const idx = path.lastIndexOf('/');
+    const baseDir = idx >= 0 ? path.substring(0, idx) : '';
     const link = `${location.origin}${baseDir}/index.html?ref=${encodeURIComponent(user.referralCode)}`;
     document.getElementById('referralLink').innerText = link;
+
     document.getElementById('referralCount').innerText = (user.invited || 0) > 0 ? (user.invited || 0) : 'No invitee yet';
     document.getElementById('referralEarnings').innerText = '$' + ((user.referralEarnings||0).toFixed(2));
     document.getElementById('d_balance').innerText = '$' + ((user.balance||0).toFixed(2));
-    // compute position asynchronously
-    getUserPosition(user.username).then(posStr => {
-      document.getElementById('userPosition').innerHTML = `<strong>Your Position:</strong> ${posStr}`;
+    getUserPosition(user.username).then(pos => {
+      document.getElementById('userPosition').innerHTML = `<strong>Your Position:</strong> ${pos}`;
     });
   }
 
-  // Leaderboard position (Firestore preferred)
+  // leaderboard position
   async function getUserPosition(username){
     try {
       const usersCol = collection(db, 'users');
       const snap = await getDocs(usersCol);
       const arr = [];
-      snap.forEach(d=> arr.push({ username: d.id, invited: d.data().invited || 0 }));
-      arr.sort((a,b)=> b.invited - a.invited || a.username.localeCompare(b.username));
-      const pos = arr.findIndex(u=>u.username === username);
+      snap.forEach(d => arr.push({ username: d.id, invited: d.data().invited || 0 }));
+      arr.sort((a,b) => b.invited - a.invited || a.username.localeCompare(b.username));
+      const pos = arr.findIndex(u => u.username === username);
       if(pos === -1) return 'N/A';
       return (5135 + pos) + 'th';
     } catch(e){
-      // fallback localStorage
       let users = [];
-      Object.keys(localStorage).forEach(k=>{
+      Object.keys(localStorage).forEach(k => {
         if(k.startsWith('user_')){
-          try { const u = JSON.parse(localStorage.getItem(k)); users.push({ username: u.username, invited: u.invited || 0 }); } catch{}
+          try { const u = JSON.parse(localStorage.getItem(k)); users.push({ username: u.username, invited: u.invited || 0 }); } catch {}
         }
       });
-      users.sort((a,b)=> b.invited - a.invited || a.username.localeCompare(b.username));
+      users.sort((a,b) => b.invited - a.invited || a.username.localeCompare(b.username));
       const pos = users.findIndex(u => u.username === username);
       if(pos === -1) return 'N/A';
       return (5135 + pos) + 'th';
     }
   }
 
-  // Copy & share helpers
+  // copy & share helpers
   function copyTextToClipboard(text, successMsg='Copied!'){ navigator.clipboard.writeText(text).then(()=>alert(successMsg)).catch(()=>alert('Copy failed')); }
   function copyText(id){ const text = document.getElementById(id).innerText; copyTextToClipboard(text, 'Referral link copied!'); }
   function copyCode(){ const text = document.getElementById('referralCode').innerText; copyTextToClipboard(text, 'Referral code copied!'); }
   function shareReferral(){
     const code = document.getElementById('referralCode').innerText;
-    const baseDir = (() => {
-      const path = window.location.pathname;
-      const idx = path.lastIndexOf('/');
-      return idx >= 0 ? path.substring(0, idx) : '';
-    })();
+    const path = window.location.pathname;
+    const idx = path.lastIndexOf('/');
+    const baseDir = idx >= 0 ? path.substring(0, idx) : '';
     const link = `${location.origin}${baseDir}/index.html?ref=${encodeURIComponent(code)}`;
     const message = `Earn free USDT with USDT Miner! Register with my referral code ${code} and you both get $0.30 instantly.\n\n${link}`;
-    if(navigator.share){ navigator.share({ title: 'USDT Miner', text: message, url: link }).catch(()=>{ navigator.clipboard.writeText(message); alert('Share failed, message copied instead.'); }); }
-    else { navigator.clipboard.writeText(message).then(()=>alert('Referral message copied!')).catch(()=>alert('Copy failed')); }
+    if(navigator.share){
+      navigator.share({ title: 'USDT Miner', text: message, url: link })
+        .catch(()=>{ navigator.clipboard.writeText(message); alert('Share failed, message copied instead.'); });
+    } else {
+      navigator.clipboard.writeText(message).then(()=>alert('Referral message copied!')).catch(()=>alert('Copy failed'));
+    }
   }
 
-  // Logout
+  // logout
   function logout(){ localStorage.removeItem('currentUser'); alert('Logged out.'); showLogin(); }
 
-  // Notifications listener with 30s re-show
+  // notifications listener (real-time with 30s re-show)
   function startNotificationListener(){
     try {
       const notificationsCol = collection(db, 'notifications');
@@ -476,7 +498,7 @@
         }
       });
     } catch(e){
-      console.warn('Real-time listener failed, falling back to polling', e);
+      console.warn('Realtime notifications failed, falling back to polling', e);
       pollNotifications();
       if(!notifInterval) notifInterval = setInterval(pollNotifications, 30000);
     }
@@ -513,29 +535,26 @@
     notifModal.style.display = 'flex';
   }
 
-  // On load: handle ?ref=, decide view, start notifications
+  // load handling: store ?ref, show appropriate view, start notifications
   window.addEventListener('load', async ()=>{
     const urlParams = new URLSearchParams(location.search);
     const ref = urlParams.get('ref');
-    const view = urlParams.get('view'); // if ?view=referral show referral
-    if(ref) {
-      // store one-time incoming ref
-      localStorage.setItem('incomingRefCode', ref);
-    }
+    const view = urlParams.get('view'); // optional ?view=referral
+    if(ref) localStorage.setItem('incomingRefCode', ref);
 
     const currentUser = localStorage.getItem('currentUser');
     if(view === 'referral' && currentUser){
-      await showLogin();
+      await showReferral();
     } else if(currentUser){
-      await showLogin();
+      await showReferral();
     } else {
-      showLogin();
+      showLogin(); // default when not logged in
     }
 
     startNotificationListener();
   });
 
-  // wire up button events
+  // Wire up UI events
   registerBtn.addEventListener('click', registerUser);
   loginBtn.addEventListener('click', loginUser);
   createAccountBtn.addEventListener('click', (e)=>{ e.preventDefault(); showRegister(); });
@@ -545,7 +564,7 @@
   shareBtn.addEventListener('click', shareReferral);
   logoutBtn.addEventListener('click', logout);
 
-  // expose some functions for console/testing if needed
+  // expose for console/debugging
   window.registerUser = registerUser;
   window.loginUser = loginUser;
   window.showReferral = showReferral;
