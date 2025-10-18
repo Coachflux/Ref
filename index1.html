@@ -7,12 +7,13 @@
 <meta name="description" content="Start mining and earn USDT rewards by inviting friends.">
 <meta property="og:title" content="Earn USDT Daily with USDT Miner">
 <meta property="og:description" content="Start mining and earn USDT rewards by inviting friends.">
-<meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder">
+<meta property="og:image" content="https://coachflux.github.io/Ref/img/usdt.webp">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="manifest" href="manifest.json">
 <style>
   :root{ --bg:#041d18; --card:#f6fff8; --accent1:#00d996; --accent2:#008f63; --muted:#6b8a81; --danger:#7a1f1f; }
   *{box-sizing:border-box}
-  body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#01312b);display:flex;align-items:center;justify-content:center;padding:24px;color:#052828}
+  body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#01312b);display:flex;align-items:center;justify-content:center;padding:20px}
   .app{width:100%;max-width:980px;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,0.45)}
   header{display:flex;gap:14px;align-items:center;justify-content:center;margin-bottom:12px}
   header img{width:64px;height:64px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
@@ -22,8 +23,8 @@
   .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);flex:1 1 360px;min-width:320px}
   h3{margin-top:0;color:#006b57}
   label{display:block;font-size:13px;color:#006b57;margin-bottom:6px}
-  input[type=text],input[type=email],input[type=password]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3ee;background:#fbfffd;outline:none}
-  input:focus{border-color:#00b87a;box-shadow:0 0 4px rgba(0,184,122,0.12)}
+  input[type=text],input[type=email],input[type=password],input[type=url],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3ee;background:#fbfffd;outline:none}
+  input:focus,textarea:focus{border-color:#00b87a;box-shadow:0 0 4px rgba(0,184,122,0.12)}
   button{background:linear-gradient(180deg,var(--accent1),var(--accent2));color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
   .small{font-size:13px;padding:8px;background:#eef7f1;border-radius:8px;border:none;color:#006b57;cursor:pointer}
   .muted{color:var(--muted);font-size:13px}
@@ -35,7 +36,6 @@
   .kpi p{margin:0;font-weight:700}
   .share-row{display:flex;gap:8px;margin-top:8px;align-items:center}
   .terms-link{color:#00b87a;cursor:pointer;text-decoration:underline}
-  /* Modal */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:9999}
   .modal{width:94%;max-width:720px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,0.25);position:relative}
   .modal .close{position:absolute;right:12px;top:12px;border:none;background:transparent;font-size:20px;cursor:pointer}
@@ -43,13 +43,20 @@
   .tc-row{display:flex;align-items:center;gap:8px;margin-top:8px}
   footer{margin-top:14px;text-align:center;color:#064f40;font-size:13px}
   .error{color:var(--danger);font-weight:700}
-  #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700;display:none}
+  #installBtn{background:#fff;color:#006b57;border-radius:8px;padding:8px 12px;border:1px solid #e6f3ee;cursor:pointer;font-weight:700;display:none;margin-left:8px}
+  /* notification modal */
+  .notif-box{display:flex;gap:12px;align-items:flex-start}
+  .notif-box img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+  .notif-body h4{margin:0 0 6px 0;color:#04312a}
+  .notif-body p{margin:0;color:#234;}
+  /* small responsive tweaks */
+  @media (max-width:560px){ header{flex-direction:column;gap:8px} .grid{flex-direction:column} }
 </style>
 </head>
 <body>
   <div class="app" role="main" aria-live="polite">
     <header>
-      <img id="appImage" src="https://via.placeholder.com/128.png?text=USDT" alt="USDT Miner logo"/>
+      <img id="appImage" src="https://coachflux.github.io/Ref/img/usdt.webp" alt="USDT Miner logo"/>
       <div>
         <h1>USDT Miner</h1>
         <p class="muted">Invite friends, mine USDT, and earn rewards — <strong>0.30 USDT per referral</strong>.</p>
@@ -57,69 +64,71 @@
     </header>
 
     <div class="grid">
-      <!-- AUTH CARD -->
-      <div class="card" id="authCard">
-        <div id="registerBox">
-          <h3>Create account</h3>
-          <div class="field"><label for="regUsername">Username</label><input id="regUsername" type="text" autocomplete="username" /></div>
-          <div class="field"><label for="regEmail">Email</label><input id="regEmail" type="email" autocomplete="email" /></div>
-          <div class="field"><label for="regPassword">Password</label><input id="regPassword" type="password" autocomplete="new-password" /></div>
-          <div class="field"><label for="regRef">Referral Code (optional)</label><input id="regRef" type="text" /></div>
+      <!-- REGISTER CARD -->
+      <div class="card" id="registerCard">
+        <h3>Create account</h3>
+        <div class="field"><label for="username">Username</label><input id="username" type="text" autocomplete="username" /></div>
+        <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" /></div>
+        <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="new-password" /></div>
+        <div class="field"><label for="inviterCode">Referral Code (optional)</label><input id="inviterCode" type="text" /></div>
 
-          <div class="tc-row">
-            <input id="agreeTC" type="checkbox" />
-            <div><label for="agreeTC" id="tcLabel">I agree to the <span class="terms-link" id="openTC">Terms &amp; Conditions</span></label></div>
-          </div>
-
-          <div style="display:flex;gap:10px;margin-top:12px;">
-            <button id="btnRegister">Create account</button>
-            <button class="small" id="showLoginBtn">Have an account? Login</button>
-          </div>
-          <div id="regStatus" class="muted" style="margin-top:10px"></div>
+        <div class="tc-row">
+          <input id="agreeTC" type="checkbox" />
+          <div><label for="agreeTC" id="tcLabel">I agree to the <span class="terms-link" id="openTC">Terms &amp; Conditions</span></label></div>
         </div>
 
-        <div id="loginBox" class="hidden">
-          <h3>Login</h3>
-          <div class="field"><label for="loginIdentifier">Username or Email</label><input id="loginIdentifier" type="text" autocomplete="username" /></div>
-          <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" /></div>
-          <div style="display:flex;gap:10px">
-            <button id="btnLogin">Login</button>
-            <button class="small" id="showRegisterBtn">Register</button>
-          </div>
-          <div id="loginStatus" class="muted" style="margin-top:10px"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button onclick="registerUser()">Register</button>
+          <button id="installBtn">Install App</button>
         </div>
+
+        <p style="margin-top:10px">Already have an account? <a href="#" onclick="showLogin();return false;">Login here</a></p>
       </div>
 
-      <!-- DASHBOARD -->
-      <div class="card hidden" id="dashboard">
+      <!-- LOGIN CARD -->
+      <div class="card hidden" id="loginCard">
+        <h3>Login</h3>
+        <div class="field"><label for="loginUsername">Username</label><input id="loginUsername" type="text" autocomplete="username" /></div>
+        <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" /></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button onclick="loginUser()">Login</button>
+          <button onclick="showRegister()">Create account</button>
+        </div>
+        <p style="margin-top:10px">Forgot password? (client demo) — just register again with same username to reset.</p>
+      </div>
+
+      <!-- REFERRAL DASHBOARD -->
+      <div class="card hidden" id="referralCard">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <h3>Your Referral Dashboard</h3>
           <div class="muted">Welcome, <span id="d_username_small"></span></div>
         </div>
 
         <div class="kpi-row">
-          <div class="kpi"><h4>Invited</h4><p id="d_invited">0</p></div>
-          <div class="kpi"><h4>Earnings</h4><p id="d_earnings">$0.00</p></div>
+          <div class="kpi"><h4>Invited</h4><p id="referralCount">0</p></div>
+          <div class="kpi"><h4>Earnings</h4><p id="referralEarnings">$0.00</p></div>
           <div class="kpi"><h4>Balance</h4><p id="d_balance">$0.00</p></div>
         </div>
 
         <div style="margin-top:12px;">
-          <div class="field"><label>Username</label><div class="value" id="d_username"></div></div>
-          <div class="field"><label>Email</label><div class="value" id="d_email"></div></div>
-          <div class="field"><label>Referral Code</label><div class="value" id="d_refcode"></div></div>
-          <div class="field"><label>Your Referral Link</label><div class="value" id="d_link"></div></div>
+          <div class="field"><label>Username</label><div class="value" id="displayUsername"></div></div>
+          <div class="field"><label>Email</label><div class="value" id="displayEmail"></div></div>
+          <div class="field"><label>Referral Code</label><div class="value" id="referralCode"></div></div>
+          <div class="field"><label>Your Referral Link</label><div class="value" id="referralLink"></div></div>
 
           <div class="share-row">
-            <button id="copyReferralBtn">Copy</button>
-            <button class="small" id="shareReferralBtn">Share</button>
-            <button id="installBtn" class="small">Install App</button>
-            <button style="margin-left:auto;background:#ffdede;color:var(--danger)" id="logoutBtn" class="small">Logout</button>
+            <button class="small" onclick="copyText('referralLink')">Copy Link</button>
+            <button class="small" onclick="copyCode()">Copy Code</button>
+            <button class="small" onclick="shareReferral()">Share</button>
+            <button class="small" onclick="logout()">Logout</button>
           </div>
         </div>
+
+        <p id="userPosition" style="margin-top:12px;color:var(--muted)"></p>
       </div>
     </div>
 
-    <footer>USDT Miner — demo (Firebase Auth + Realtime DB)</footer>
+    <footer>USDT Miner — $ (LocalStorage + Firestore)</footer>
   </div>
 
   <!-- Terms modal -->
@@ -128,230 +137,407 @@
       <button class="close" id="closeTC" aria-label="Close">✕</button>
       <div class="terms-content" id="tcContent" tabindex="0">
         <h3 id="tcTitle">Terms & Conditions — USDT Miner</h3>
-        <p><strong>Last updated:</strong> October 14, 2025</p>
-        <p>By registering and using USDT Miner you agree to the following terms...</p>
+        <p><strong>Last updated:</strong> October 17, 2025</p>
+        <p>By registering and using USDT Miner you agree to the following terms. This demo stores data locally and in Firestore.</p>
         <h4>1. Eligibility</h4><p>Users must be 18+.</p>
         <h4>2. Referral Bonuses</h4><p>Valid referrals earn 0.30 USDT; abuse prohibited.</p>
-        <h4>3. Account Security</h4><p>Protect your credentials.</p>
+        <h4>3. Account Security</h4><p>Protect your credentials. Passwords are hashed in this demo before storing.</p>
         <h4>4. Changes</h4><p>We may update these terms; continued use is acceptance.</p>
       </div>
     </div>
   </div>
 
-  <!-- Firebase compat SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
+  <!-- Notification modal -->
+  <div id="notificationModal" class="modal-backdrop" style="display:none;">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="close" id="closeNotif">✕</button>
+      <div class="notif-box">
+        <img id="notifImage" src="" alt="notification image" onerror="this.style.display='none'"/>
+        <div class="notif-body">
+          <h4 id="notifTitle"></h4>
+          <p id="notifMessage"></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <script>
-  (function(){
-    // ---------- CONFIG ----------
-    const firebaseConfig = {
-      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
-      authDomain: "usdt-login.firebaseapp.com",
-      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
-      projectId: "usdt-login",
-      storageBucket: "usdt-login.firebasestorage.app",
-      messagingSenderId: "807602854227",
-      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+<!-- Firebase v9 modular (type=module) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+  import {
+    getFirestore, doc, setDoc, getDoc, query, collection, where,
+    getDocs, updateDoc, addDoc, serverTimestamp, orderBy, limit, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+
+  // ---------- Firebase config (from you) ----------
+  const firebaseConfig = {
+    apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+    authDomain: "usdt-login.firebaseapp.com",
+    databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
+    projectId: "usdt-login",
+    storageBucket: "usdt-login.firebasestorage.app",
+    messagingSenderId: "807602854227",
+    appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+  };
+
+  // Initialize
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ---------- UI helpers & PWA install prompt ----------
+  const installBtn = document.getElementById('installBtn');
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredInstallPrompt = e; installBtn.style.display='inline-block'; });
+  installBtn.addEventListener('click', async ()=>{
+    if(!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installBtn.style.display='none';
+  });
+
+  // Page show/hide
+  function showLogin(){ document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('registerCard').classList.add('hidden'); document.getElementById('referralCard').classList.add('hidden'); }
+  function showRegister(){ document.getElementById('registerCard').classList.remove('hidden'); document.getElementById('loginCard').classList.add('hidden'); document.getElementById('referralCard').classList.add('hidden'); }
+  async function showReferral(){ document.getElementById('referralCard').classList.remove('hidden'); document.getElementById('loginCard').classList.add('hidden'); document.getElementById('registerCard').classList.add('hidden'); await displayReferralInfo(); }
+
+  // Terms modal
+  document.getElementById('openTC').onclick = ()=>{ document.getElementById('termsModal').style.display='flex'; };
+  document.getElementById('closeTC').onclick = ()=>{ document.getElementById('termsModal').style.display='none'; };
+
+  // Notification modal logic (re-show every 30s even if user closed)
+  let latestNotificationDoc = null;
+  const notifModal = document.getElementById('notificationModal');
+  const notifImage = document.getElementById('notifImage');
+  const notifTitle = document.getElementById('notifTitle');
+  const notifMessage = document.getElementById('notifMessage');
+  const closeNotifBtn = document.getElementById('closeNotif');
+
+  // When user closes, record timestamp to allow re-show after 30s
+  let userDismissedAt = 0;
+  closeNotifBtn.onclick = ()=>{ notifModal.style.display='none'; userDismissedAt = Date.now(); };
+
+  // ---------- Crypto: SHA-256 hashing (hex) ----------
+  async function sha256hex(message){
+    const enc = new TextEncoder();
+    const data = enc.encode(message);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    const bytes = new Uint8Array(hash);
+    return Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  // ---------- referral code gen ----------
+  function generateReferralCode(username){ return username + Math.floor(Math.random()*10000); }
+
+  // ---------- Firestore helpers ----------
+  async function saveUserToFirestore(userObj){
+    try {
+      const userRef = doc(db, 'users', userObj.username);
+      const snap = await getDoc(userRef);
+      const payload = { ...userObj, updatedAt: serverTimestamp() };
+      if(!snap.exists()){
+        payload.createdAt = serverTimestamp();
+      }
+      await setDoc(userRef, payload, { merge: true });
+      return true;
+    } catch(err){
+      console.error('Failed to save user to Firestore', err);
+      return false;
+    }
+  }
+
+  async function findUserByReferralCode(code){
+    try {
+      const usersCol = collection(db, 'users');
+      const q = query(usersCol, where('referralCode', '==', code), limit(1));
+      const snap = await getDocs(q);
+      if(snap.empty) return null;
+      return snap.docs[0]; // return first match doc
+    } catch(e){
+      console.warn('findUserByReferralCode error', e);
+      return null;
+    }
+  }
+
+  // ---------- Registration (local + Firestore) ----------
+  async function registerUser(){
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const inviterCodeInput = document.getElementById('inviterCode').value.trim();
+    const agree = document.getElementById('agreeTC').checked;
+
+    if(!username || !email || !password) return alert('Please fill all required fields.');
+    if(!agree) return alert('You must agree to the Terms & Conditions before registering.');
+
+    // check both localStorage and Firestore for existing username
+    const localExists = localStorage.getItem(`user_${username}`);
+    const remoteSnap = await getDoc(doc(db, 'users', username));
+    if(localExists || remoteSnap.exists()){
+      return alert('Username already exists. Choose a different username.');
+    }
+
+    const passwordHash = await sha256hex(password);
+
+    // Build user object
+    const user = {
+      username,
+      email,
+      passwordHash,
+      referralCode: generateReferralCode(username),
+      invited: 0,
+      referralEarnings: 0,
+      balance: 0
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const functions = firebase.functions();
 
-    // Force auth persistence NONE (user must login again after leaving)
-    auth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(err => console.warn('setPersistence error', err));
+    // Determine incoming ref code: priority - input field > URL incomingRefCode
+    const incomingRefCode = inviterCodeInput || localStorage.getItem('incomingRefCode') || '';
 
-    // ---------- Helpers ----------
-    const $ = id => document.getElementById(id);
-    function show(el){ el.classList.remove('hidden'); el.style.display=''; el.setAttribute('aria-hidden','false'); }
-    function hide(el){ el.classList.add('hidden'); el.style.display='none'; el.setAttribute('aria-hidden','true'); }
-    function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-    function generateRefCode(username){ return username.trim().replace(/\s+/g,'').toUpperCase() + '-' + Math.floor(100 + Math.random()*900); }
-
-    // ---------- Modal wiring (only when clicked) ----------
-    const termsModal = $('termsModal'), openTC = $('openTC'), closeTC = $('closeTC');
-    openTC.addEventListener('click', e => { e.preventDefault(); termsModal.style.display='flex'; termsModal.setAttribute('aria-hidden','false'); $('tcContent').focus(); });
-    closeTC.addEventListener('click', ()=> { termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); });
-    termsModal.addEventListener('click', e => { if(e.target === termsModal){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
-    document.addEventListener('keydown', e => { if(e.key === 'Escape' && termsModal.style.display === 'flex'){ termsModal.style.display='none'; termsModal.setAttribute('aria-hidden','true'); } });
-
-    // ---------- UI toggles for login/register ----------
-    $('showLoginBtn').addEventListener('click', ()=>{ $('registerBox').classList.add('hidden'); $('loginBox').classList.remove('hidden'); });
-    $('showRegisterBtn').addEventListener('click', ()=>{ $('loginBox').classList.add('hidden'); $('registerBox').classList.remove('hidden'); });
-
-    // sign out on leaving so user must re-login when coming back
-    window.addEventListener('beforeunload', ()=> { try{ auth.signOut(); } catch(e){} });
-
-    // ---------- PWA install prompt handling ----------
-    let deferredPrompt = null;
-    const installBtn = $('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display=''; });
-    installBtn.addEventListener('click', async () => { if(!deferredPrompt) return alert('Install not available'); deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt = null; installBtn.style.display='none'; }); });
-
-    // ---------- Registration ----------
-    $('btnRegister').addEventListener('click', async () => {
-      const username = $('regUsername').value.trim();
-      const email = $('regEmail').value.trim().toLowerCase();
-      const password = $('regPassword').value;
-      const inviterCode = $('regRef').value.trim();
-      const agreed = $('agreeTC').checked;
-      $('regStatus').innerText = '';
-
-      if(!username || !email || !password){ alert('Please fill username, email and password'); return; }
-      if(!isValidEmail(email)){ alert('Please enter a valid email'); return; }
-      if(!agreed){ alert('You must accept Terms & Conditions'); return; }
-
-      try{
-        $('regStatus').innerText = 'Creating account...';
-        const uc = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = uc.user.uid;
-        const refCode = generateRefCode(username);
-        const profile = { username, email, referralCode: refCode, balance: 0.30, referralEarnings: 0, referrals: {}, createdAt: Date.now() };
-        await db.ref('users/' + uid).set(profile);
-
-        // Try Cloud Function processReferral
-        let functionSuccess = false;
-        if(inviterCode){
-          try{
-            const processReferral = functions.httpsCallable('processReferral');
-            const res = await processReferral({ inviterCode, newUserUid: uid });
-            if(res && res.data && (res.data.status === 'ok' || res.data.status === 'no_inviter')) functionSuccess = true;
-          }catch(fnErr){
-            console.warn('processReferral failed — client fallback will run', fnErr);
-          }
+    let newBalance = 0;
+    if(incomingRefCode){
+      // Update inviter in Firestore (if found)
+      const inviterDoc = await findUserByReferralCode(incomingRefCode);
+      if(inviterDoc){
+        const inviterData = inviterDoc.data();
+        const inviterRef = inviterDoc.ref;
+        const inviterInvited = (inviterData.invited || 0) + 1;
+        const inviterEarnings = (inviterData.referralEarnings || 0) + 0.3;
+        const inviterBalance = (inviterData.balance || 0) + 0.3;
+        try {
+          await updateDoc(inviterRef, {
+            invited: inviterInvited,
+            referralEarnings: inviterEarnings,
+            balance: inviterBalance,
+            updatedAt: serverTimestamp()
+          });
+        } catch(e){
+          // fallback to setDoc merge
+          await setDoc(inviterRef, { invited: inviterInvited, referralEarnings: inviterEarnings, balance: inviterBalance, updatedAt: serverTimestamp() }, { merge: true });
         }
-
-        // Fallback if function not available or failed
-        if(inviterCode && !functionSuccess){
-          await clientReferralFallback(inviterCode, uid, username);
-        }
-
-        localStorage.setItem('currentUserUid', uid);
-        $('regStatus').innerText = '';
-        setTimeout(()=>{$('registerBox').classList.add('hidden');$('loginBox').classList.remove('hidden');},2000);
-      } catch(err){
-        console.error(err);
-        $('regStatus').innerText = '';
-        alert('Registration error: ' + (err.message || err));
+        newBalance = 0.3; // invitee gets $0.3
       }
-    });
-
-    async function clientReferralFallback(inviterCode, newUserUid, newUsername){
-      const usersSnap = await db.ref('users').once('value');
-      const users = usersSnap.val() || {};
-      let inviterKey = null, inviter = null;
-      for(const k of Object.keys(users)){
-        const u = users[k];
-        if(u && u.referralCode === inviterCode){ inviterKey = k; inviter = u; break; }
-      }
-      if(!inviterKey) return;
-      if(inviterKey === newUserUid) return;
-      if(inviter.referrals && Object.values(inviter.referrals).includes(newUsername)) return;
-      const updates = {};
-      updates[`/users/${inviterKey}/referrals/${newUserUid}`] = newUsername;
-      updates[`/users/${inviterKey}/referralEarnings`] = (inviter.referralEarnings || 0) + 0.30;
-      updates[`/users/${inviterKey}/balance`] = (inviter.balance || 0) + 0.30;
-      updates[`/users/${newUserUid}/balance`] = Math.max((users[newUserUid] && users[newUserUid].balance) || 0, 0.30);
-      await db.ref().update(updates);
     }
 
-    // ---------- Login ----------
-    $('btnLogin').addEventListener('click', async () => {
-      const identifier = $('loginIdentifier').value.trim();
-      const pass = $('loginPass').value;
-      $('loginStatus').innerText = '';
+    // Save locally
+    localStorage.setItem(`user_${username}`, JSON.stringify(user));
+    localStorage.setItem(`${username}_balance`, newBalance.toFixed(6));
+    // Save to Firestore (document id = username)
+    const userForFirestore = { ...user, balance: newBalance };
+    await saveUserToFirestore(userForFirestore);
 
-      if(!identifier || !pass){ alert('Please enter username/email and password'); return; }
+    // Clear one-time incoming ref
+    localStorage.removeItem('incomingRefCode');
 
-      try{
-        let emailToUse = identifier;
-        if(!identifier.includes('@')){
-          const snap = await db.ref('users').once('value');
-          const users = snap.val() || {};
-          let foundEmail = null;
-          for(const k of Object.keys(users)){
-            if(users[k].username && users[k].username.toLowerCase() === identifier.toLowerCase()){
-              foundEmail = users[k].email; break;
-            }
-          }
-          if(!foundEmail){ alert('Username not found'); return; }
-          emailToUse = foundEmail;
-        }
+    alert('Registration successful! Redirecting to login...');
+    showLogin();
+  }
 
-        if(!isValidEmail(emailToUse)){ alert('Resolved email is invalid'); return; }
-        $('loginStatus').innerText = 'Signing in...';
-        const uc = await auth.signInWithEmailAndPassword(emailToUse, pass);
-        localStorage.setItem('currentUserUid', uc.user.uid);
-        $('loginStatus').innerText = '';
-        setTimeout(()=>location.href="mine.html",1500);
-      }catch(err){
-        console.error(err);
-        $('loginStatus').innerText = '';
-        if(err.code === 'auth/invalid-email') alert('Invalid email format. Please check your email.');
-        else if(err.code === 'auth/wrong-password') alert('Incorrect password.');
-        else if(err.code === 'auth/user-not-found') alert('No account found with that email.');
-        else alert('Login error: ' + (err.message || err));
+  // ---------- Login (remote preferred) ----------
+  async function loginUser(){
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if(!username || !password) return alert('Please enter your credentials.');
+
+    try {
+      const userSnap = await getDoc(doc(db, 'users', username));
+      if(userSnap.exists()){
+        const userDoc = userSnap.data();
+        const enteredHash = await sha256hex(password);
+        if(userDoc.passwordHash !== enteredHash) return alert('Invalid username or password.');
+        // store locally and redirect to mine
+        localStorage.setItem('currentUser', username);
+        localStorage.setItem(`${username}_balance`, (userDoc.balance || 0).toFixed(6));
+        alert('Login successful! Redirecting to mine...');
+        window.location.href = 'mine.html';
+        return;
       }
-    });
+    } catch(e){
+      console.warn('Error reading Firestore user', e);
+      // continue to local fallback
+    }
 
-    // ---------- Auth state ----------
-    auth.onAuthStateChanged(async user => {
-      if(user){
-    setTimeout(()=>{$('registerBox').classList.add('hidden');$('loginBox').classList.remove('hidden');},2000);
+    // fallback to localStorage check
+    const localRaw = localStorage.getItem(`user_${username}`);
+    if(!localRaw) return alert('Invalid username or password.');
+    const localUser = JSON.parse(localRaw);
+    const enteredHash = await sha256hex(password);
+    if(localUser.passwordHash !== enteredHash) return alert('Invalid username or password.');
+    localStorage.setItem('currentUser', username);
+    alert('Login successful! Redirecting to mine...');
+    window.location.href = 'mine.html';
+  }
+
+  // ---------- Display Referral Info (prefers Firestore) ----------
+  async function displayReferralInfo(){
+    const username = localStorage.getItem('currentUser');
+    if(!username) { showLogin(); return; }
+
+    try {
+      const userSnap = await getDoc(doc(db, 'users', username));
+      if(userSnap.exists()){
+        const user = userSnap.data();
+        await applyUserToUI(user);
+        return;
+      }
+    } catch(e){
+      console.warn('Firestore read error', e);
+    }
+
+    // fallback to localStorage
+    const raw = localStorage.getItem(`user_${username}`);
+    if(!raw){ showLogin(); return; }
+    const user = JSON.parse(raw);
+    user.balance = parseFloat(localStorage.getItem(`${username}_balance`) || 0);
+    await applyUserToUI(user);
+  }
+
+  async function applyUserToUI(user){
+    document.getElementById('d_username_small').innerText = user.username;
+    document.getElementById('displayUsername').innerText = user.username;
+    document.getElementById('displayEmail').innerText = user.email || 'N/A';
+    document.getElementById('referralCode').innerText = user.referralCode;
+    const link = `${location.origin}${location.pathname.replace(/index\.html$/,'index.html')}?ref=${user.referralCode}`;
+    document.getElementById('referralLink').innerText = link;
+    document.getElementById('referralCount').innerText = (user.invited || 0) > 0 ? (user.invited || 0) : 'No invitee yet';
+    document.getElementById('referralEarnings').innerText = '$' + ((user.referralEarnings||0).toFixed(2));
+    document.getElementById('d_balance').innerText = '$' + ((user.balance||0).toFixed(2));
+    document.getElementById('userPosition').innerHTML = `<strong>Your Position:</strong> ${await getUserPosition(user.username)}`;
+  }
+
+  // ---------- Leaderboard position (reads Firestore) ----------
+  async function getUserPosition(username){
+    try {
+      const usersCol = collection(db, 'users');
+      const snap = await getDocs(usersCol);
+      const arr = [];
+      snap.forEach(d=> arr.push({ username: d.id, invited: d.data().invited || 0 }));
+      arr.sort((a,b)=> b.invited - a.invited || a.username.localeCompare(b.username));
+      const pos = arr.findIndex(u=>u.username === username);
+      if(pos === -1) return 'N/A';
+      return (5135 + pos) + 'th';
+    } catch(e){
+      // fallback localStorage
+      let users = [];
+      Object.keys(localStorage).forEach(k=>{
+        if(k.startsWith('user_')){
+          try { const u = JSON.parse(localStorage.getItem(k)); users.push({ username: u.username, invited: u.invited || 0 }); } catch{}
+        }
+      });
+      users.sort((a,b)=> b.invited - a.invited || a.username.localeCompare(b.username));
+      const pos = users.findIndex(u => u.username === username);
+      if(pos === -1) return 'N/A';
+      return (5135 + pos) + 'th';
+    }
+  }
+
+  // ---------- Copy & Share ----------
+  function copyText(id){ const text = document.getElementById(id).innerText; navigator.clipboard.writeText(text).then(()=>alert('Referral link copied!')).catch(()=>alert('Copy failed')); }
+  function copyCode(){ const text = document.getElementById('referralCode').innerText; navigator.clipboard.writeText(text).then(()=>alert('Referral code copied!')).catch(()=>alert('Copy failed')); }
+  function shareReferral(){
+    const username = localStorage.getItem('currentUser');
+    if(!username) return alert('Please login to share your referral.');
+    const code = document.getElementById('referralCode').innerText;
+    const link = `${location.origin}${location.pathname.replace(/index\.html$/,'index.html')}?ref=${code}`;
+    const message = `Earn free USDT with USDT Miner! Register with my referral code ${code} and you both get $0.30 instantly.\n\n${link}`;
+    if(navigator.share){ navigator.share({ title: 'USDT Miner', text: message, url: link }).catch(()=>{ navigator.clipboard.writeText(message); alert('Share failed, message copied instead.'); }); }
+    else { navigator.clipboard.writeText(message).then(()=>alert('Referral message copied!')).catch(()=>alert('Copy failed')); }
+  }
+
+  // ---------- Logout ----------
+  function logout(){ localStorage.removeItem('currentUser'); alert('Logged out.'); showLogin(); }
+
+  // ---------- Notifications: real-time listener with 30s re-show behavior ----------
+  let notifInterval = null;
+  function startNotificationListener(){
+    try {
+      const notificationsCol = collection(db, 'notifications');
+      const q = query(notificationsCol, orderBy('createdAt','desc'), limit(1));
+      onSnapshot(q, (snapshot) => {
+        if(!snapshot.empty){
+          const docSnap = snapshot.docs[0];
+          latestNotificationDoc = { id: docSnap.id, ...docSnap.data() };
+          // show immediately (unless recently dismissed within last 30s)
+          showNotificationOnce();
+          // start interval if not running
+          if(!notifInterval) {
+            notifInterval = setInterval(()=>{ showNotificationOnce(); }, 30000);
+          }
+        } else {
+          latestNotificationDoc = null;
+          notifModal.style.display='none';
+          if(notifInterval){ clearInterval(notifInterval); notifInterval = null; }
+        }
+      });
+    } catch(e){
+      console.warn('Real-time listener failed, falling back to polling', e);
+      pollNotifications();
+      if(!notifInterval) notifInterval = setInterval(pollNotifications, 30000);
+    }
+  }
+
+  async function pollNotifications(){
+    try {
+      const notificationsCol = collection(db, 'notifications');
+      const q = query(notificationsCol, orderBy('createdAt','desc'), limit(1));
+      const snap = await getDocs(q);
+      if(!snap.empty){
+        const docSnap = snap.docs[0];
+        latestNotificationDoc = { id: docSnap.id, ...docSnap.data() };
+        showNotificationOnce();
       } else {
-        $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden');
+        latestNotificationDoc = null;
+        notifModal.style.display='none';
       }
-    });
+    } catch(e){ console.warn('pollNotifications error', e); }
+  }
 
-    // ---------- Dashboard loader ----------
-    async function loadDashboard(uid){
-      try{
-        const snap = await db.ref('users/' + uid).once('value');
-        const me = snap.val();
-        if(!me){ alert('Profile not found'); return; }
+  function showNotificationOnce(){
+    if(!latestNotificationDoc) return;
+    // If user dismissed less than 30s ago, skip until 30s passes
+    const now = Date.now();
+    if(userDismissedAt && (now - userDismissedAt) < 30000) return;
+    notifTitle.innerText = latestNotificationDoc.title || 'Notification';
+    notifMessage.innerText = latestNotificationDoc.message || '';
+    if(latestNotificationDoc.imageURL){
+      notifImage.style.display = 'block';
+      notifImage.src = latestNotificationDoc.imageURL;
+    } else {
+      notifImage.style.display = 'none';
+    }
+    notifModal.style.display = 'flex';
+  }
 
-        $('authCard').classList.add('hidden'); $('dashboard').classList.remove('hidden');
+  // ---------- On load: handle URL params and start notification listener ----------
+  window.onload = async () => {
+    const urlParams = new URLSearchParams(location.search);
+    const ref = urlParams.get('ref');
+    const view = urlParams.get('view'); // if ?view=referral show referral
+    if(ref) localStorage.setItem('incomingRefCode', ref);
 
-        $('d_username').innerText = me.username || '';
-        $('d_username_small').innerText = me.username || '';
-        $('d_email').innerText = me.email || '';
-        $('d_refcode').innerText = me.referralCode || '';
-        $('d_invited').innerText = me.referrals ? Object.keys(me.referrals).length : 0;
-        $('d_earnings').innerText = '$' + Number(me.referralEarnings || 0).toFixed(2);
-        $('d_balance').innerText = '$' + Number(me.balance || 0).toFixed(2);
-
-        const link = `${location.origin}${location.pathname}?ref=${encodeURIComponent(me.referralCode)}`;
-        $('d_link').innerText = link;
-        localStorage.setItem('myReferralLink', link);
-
-        // copy/share wiring
-        $('copyReferralBtn').onclick = async () => { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\nJoin: ${link}`); alert('Referral message copied'); };
-        $('shareReferralBtn').onclick = async () => {
-          const shareData = { title: APP_META.title, text: APP_META.description, url: link };
-          if(navigator.share) navigator.share(shareData).catch(()=>alert('Share cancelled'));
-          else { await navigator.clipboard.writeText(`${APP_META.title}\n\n${APP_META.description}\n\n${link}`); alert('Share not supported — message copied'); }
-        };
-
-        // logout
-        $('logoutBtn').onclick = async () => { await auth.signOut(); localStorage.removeItem('currentUserUid'); $('authCard').classList.remove('hidden'); $('dashboard').classList.add('hidden'); };
-      }catch(err){
-        console.error(err); alert('Could not load dashboard: ' + (err.message||err));
-      }
+    const currentUser = localStorage.getItem('currentUser');
+    if(view === 'referral' && currentUser){
+      await showReferral();
+    } else if(currentUser){
+      // if logged in, show referral by default
+      await showLogin();
+    } else {
+      showLogin();
     }
 
-    // ---------- App meta & service worker ----------
-    const APP_META = { title:'Earn USDT Daily with USDT Miner', description:'Start mining and earn USDT rewards by inviting friends.', image:'https://via.placeholder.com/1200x630.png?text=USDT+Miner+Placeholder' };
-    if('serviceWorker' in navigator){
-      const swCode = `const CACHE='usdt-miner-cache-v1';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])))});self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-      try { const blob=new Blob([swCode],{type:'application/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>console.warn('sw register failed')); } catch(e){ console.warn('sw blob failed', e); }
-    }
+    // start notifications
+    startNotificationListener();
+  };
 
-    // beforeinstallprompt handled above: reveal install button
-    window.addEventListener('load', ()=>{ const params=new URLSearchParams(location.search); const ref=params.get('ref'); if(ref) $('regRef').value = ref; });
-  })();
-  </script>
+  // expose functions used by inline onclicks
+  window.registerUser = registerUser;
+  window.loginUser = loginUser;
+  window.showLogin = showLogin;
+  window.showRegister = showRegister;
+  window.showReferral = showReferral;
+  window.copyText = copyText;
+  window.copyCode = copyCode;
+  window.shareReferral = shareReferral;
+  window.logout = logout;
+</script>
 </body>
 </html>
