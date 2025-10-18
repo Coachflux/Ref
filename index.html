@@ -525,9 +525,9 @@
 
     const currentUser = localStorage.getItem('currentUser');
     if(view === 'referral' && currentUser){
-      await showReferral();
+      await showLogin();
     } else if(currentUser){
-      await showReferral();
+      await showLogin();
     } else {
       showLogin();
     }
