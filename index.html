@@ -261,19 +261,23 @@
     }
   }
 
-  // registration logic
+  // registration logic (validated BEFORE disabling the button)
   async function registerUser(){
+    // Preliminary checks (don't disable button yet)
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const inviterCodeInput = document.getElementById('inviterCode').value.trim();
+    const agree = document.getElementById('agreeTC').checked;
+
+    if(!username || !email || !password){ alert('Please fill all required fields.'); return; }
+    if(!agree){ alert('You must agree to the Terms & Conditions before registering.'); return; }
+
+    // Disable button while processing
     registerBtn.disabled = true;
+    registerBtn.innerText = 'Registering...';
+
     try {
-      const username = document.getElementById('username').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const inviterCodeInput = document.getElementById('inviterCode').value.trim();
-      const agree = document.getElementById('agreeTC').checked;
-
-      if(!username || !email || !password) { alert('Please fill all required fields.'); return; }
-      if(!agree) { alert('You must agree to the Terms & Conditions before registering.'); return; }
-
       // check existing username in local + remote
       const localExists = !!localStorage.getItem(`user_${username}`);
       const remoteSnap = await getDoc(doc(db, 'users', username));
@@ -320,16 +324,23 @@
         }
       }
 
-      // Save local + remote
+      // Save locally & remotely. If Firestore save fails, we still keep local copy and inform user
       localStorage.setItem(`user_${username}`, JSON.stringify(user));
       localStorage.setItem(`${username}_balance`, newBalance.toFixed(6));
       const userForFirestore = { ...user, balance: newBalance };
-      await saveUserToFirestore(userForFirestore);
+      const saved = await saveUserToFirestore(userForFirestore);
+      if(!saved){
+        // Firestore failed; but we kept local copy. Inform user.
+        alert('Registration saved locally but failed to sync to backend (network issue). You can still login locally.');
+      } else {
+        // success
+        // nothing extra
+      }
 
       // clear stored incomingRef to avoid reuse
       localStorage.removeItem('incomingRefCode');
 
-      // show login view (this is the fix) and clear form fields
+      // show login UI and clear form fields
       alert('Registration successful! You may now login.');
       document.getElementById('username').value = '';
       document.getElementById('email').value = '';
@@ -340,19 +351,21 @@
       showLogin();
     } catch(err){
       console.error('registerUser error', err);
-      alert('Registration failed — please try again.');
+      alert('Registration failed — please try again. (See console for details)');
     } finally {
       registerBtn.disabled = false;
+      registerBtn.innerText = 'Register';
     }
   }
 
   // login logic
   async function loginUser(){
     loginBtn.disabled = true;
+    loginBtn.innerText = 'Checking...';
     try {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
-      if(!username || !password) { alert('Please enter your credentials.'); return; }
+      if(!username || !password){ alert('Please enter your credentials.'); return; }
 
       // prefer Firestore
       try {
@@ -360,10 +373,9 @@
         if(userSnap.exists()){
           const userDoc = userSnap.data();
           const enteredHash = await sha256hex(password);
-          if(userDoc.passwordHash !== enteredHash) { alert('Invalid username or password.'); return; }
+          if(userDoc.passwordHash !== enteredHash){ alert('Invalid username or password.'); return; }
           localStorage.setItem('currentUser', username);
           localStorage.setItem(`${username}_balance`, (userDoc.balance || 0).toFixed(6));
-          // redirect to mine.html
           alert('Login successful! Redirecting to mine...');
           window.location.href = 'mine.html';
           return;
@@ -374,10 +386,10 @@
 
       // fallback to localStorage
       const localRaw = localStorage.getItem(`user_${username}`);
-      if(!localRaw) { alert('Invalid username or password.'); return; }
+      if(!localRaw){ alert('Invalid username or password.'); return; }
       const localUser = JSON.parse(localRaw);
       const enteredHash = await sha256hex(password);
-      if(localUser.passwordHash !== enteredHash) { alert('Invalid username or password.'); return; }
+      if(localUser.passwordHash !== enteredHash){ alert('Invalid username or password.'); return; }
       localStorage.setItem('currentUser', username);
       alert('Login successful! Redirecting to mine...');
       window.location.href = 'mine.html';
@@ -386,6 +398,7 @@
       alert('Login failed — try again.');
     } finally {
       loginBtn.disabled = false;
+      loginBtn.innerText = 'Login';
     }
   }
 
@@ -535,23 +548,28 @@
     notifModal.style.display = 'flex';
   }
 
-  // load handling: store ?ref, show appropriate view, start notifications
+  // On load: store ?ref, show view, start notifications
   window.addEventListener('load', async ()=>{
-    const urlParams = new URLSearchParams(location.search);
-    const ref = urlParams.get('ref');
-    const view = urlParams.get('view'); // optional ?view=referral
-    if(ref) localStorage.setItem('incomingRefCode', ref);
+    try {
+      const urlParams = new URLSearchParams(location.search);
+      const ref = urlParams.get('ref');
+      const view = urlParams.get('view'); // optional ?view=referral
+      if(ref) localStorage.setItem('incomingRefCode', ref);
 
-    const currentUser = localStorage.getItem('currentUser');
-    if(view === 'referral' && currentUser){
-      await showReferral();
-    } else if(currentUser){
-      await showReferral();
-    } else {
-      showLogin(); // default when not logged in
+      const currentUser = localStorage.getItem('currentUser');
+      if(view === 'referral' && currentUser){
+        await showReferral();
+      } else if(currentUser){
+        await showReferral();
+      } else {
+        showLogin(); // default when not logged in
+      }
+
+      startNotificationListener();
+    } catch(e){
+      console.error('Onload error', e);
+      showLogin();
     }
-
-    startNotificationListener();
   });
 
   // Wire up UI events
