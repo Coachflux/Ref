@@ -156,14 +156,11 @@
     </div>
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-  import {
-    getFirestore, doc, setDoc, getDoc, query, collection, where,
-    getDocs, updateDoc, addDoc, serverTimestamp, orderBy, limit, onSnapshot
-  } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+  import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-  // ---------- Firebase config ----------
   const firebaseConfig = {
     apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
     authDomain: "usdt-login.firebaseapp.com",
@@ -175,423 +172,191 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
 
-  // UI elements
-  const registerBtn = document.getElementById('registerBtn');
-  const loginBtn = document.getElementById('loginBtn');
-  const createAccountBtn = document.getElementById('createAccountBtn');
-  const gotoLogin = document.getElementById('gotoLogin');
-  const copyLinkBtn = document.getElementById('copyLinkBtn');
-  const copyCodeBtn = document.getElementById('copyCodeBtn');
-  const shareBtn = document.getElementById('shareBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const installBtn = document.getElementById('installBtn');
-
-  // PWA install prompt handler
-  let deferredInstallPrompt = null;
-  window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredInstallPrompt = e; installBtn.style.display='inline-block'; });
-  installBtn.addEventListener('click', async ()=>{
-    if(!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    const choice = await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    installBtn.style.display='none';
-  });
-
-  // Page show/hide helpers
-  function showLogin(){ document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('registerCard').classList.add('hidden'); document.getElementById('referralCard').classList.add('hidden'); }
-  function showRegister(){ document.getElementById('registerCard').classList.remove('hidden'); document.getElementById('loginCard').classList.add('hidden'); document.getElementById('referralCard').classList.add('hidden'); }
-  async function showReferral(){ document.getElementById('referralCard').classList.remove('hidden'); document.getElementById('loginCard').classList.add('hidden'); document.getElementById('registerCard').classList.add('hidden'); await displayReferralInfo(); }
-
-  // Terms modal
-  document.getElementById('openTC').onclick = ()=>{ document.getElementById('termsModal').style.display='flex'; };
-  document.getElementById('closeTC').onclick = ()=>{ document.getElementById('termsModal').style.display='none'; };
-
-  // Notification modal logic
-  const notifModal = document.getElementById('notificationModal');
-  const notifImage = document.getElementById('notifImage');
-  const notifTitle = document.getElementById('notifTitle');
-  const notifMessage = document.getElementById('notifMessage');
-  const closeNotifBtn = document.getElementById('closeNotif');
-  let latestNotificationDoc = null;
-  let notifInterval = null;
-  let userDismissedAt = 0;
-  closeNotifBtn.onclick = ()=>{ notifModal.style.display='none'; userDismissedAt = Date.now(); };
-
-  // SHA-256 helper
-  async function sha256hex(message){
-    const enc = new TextEncoder();
-    const data = enc.encode(message);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    const bytes = new Uint8Array(hash);
-    return Array.from(bytes).map(b=>b.toString(16).padStart(2,'0')).join('');
+  // --- Referral Handling from URL ---
+  const urlRefCode = new URLSearchParams(window.location.search).get("ref");
+  if (urlRefCode) {
+    localStorage.setItem("incomingRefCode", urlRefCode);
   }
 
-  // referral code generator
-  function generateReferralCode(username){ return username + Math.floor(Math.random()*10000); }
+  // --- Registration Function ---
+  async function registerUser() {
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const agreeTC = document.getElementById("agreeTC").checked;
+    let inviterCode = document.getElementById("inviterCode").value.trim();
 
-  // Firestore helpers
-  async function saveUserToFirestore(userObj){
-    try {
-      const userRef = doc(db, 'users', userObj.username);
-      const snap = await getDoc(userRef);
-      const payload = { ...userObj, updatedAt: serverTimestamp() };
-      if(!snap.exists()){
-        payload.createdAt = serverTimestamp();
-      }
-      await setDoc(userRef, payload, { merge: true });
-      return true;
-    } catch(err){
-      console.error('Failed to save user to Firestore', err);
-      return false;
+    if (!username || !email || !password) {
+      alert("Please fill in all fields.");
+      return;
     }
-  }
 
-  async function findUserByReferralCode(code){
-    try {
-      const usersCol = collection(db, 'users');
-      const q = query(usersCol, where('referralCode', '==', code), limit(1));
-      const snap = await getDocs(q);
-      if(snap.empty) return null;
-      return snap.docs[0];
-    } catch(e){
-      console.warn('findUserByReferralCode error', e);
-      return null;
+    if (!agreeTC) {
+      alert("Please agree to the Terms & Conditions.");
+      return;
     }
-  }
 
-  // registration logic (validated BEFORE disabling the button)
-  async function registerUser(){
-    // Preliminary checks (don't disable button yet)
-    const username = document.getElementById('username').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const inviterCodeInput = document.getElementById('inviterCode').value.trim();
-    const agree = document.getElementById('agreeTC').checked;
-
-    if(!username || !email || !password){ alert('Please fill all required fields.'); return; }
-    if(!agree){ alert('You must agree to the Terms & Conditions before registering.'); return; }
-
-    // Disable button while processing
-    registerBtn.disabled = true;
-    registerBtn.innerText = 'Registering...';
+    if (!inviterCode) inviterCode = localStorage.getItem("incomingRefCode") || "";
 
     try {
-      // check existing username in local + remote
-      const localExists = !!localStorage.getItem(`user_${username}`);
-      const remoteSnap = await getDoc(doc(db, 'users', username));
-      if(localExists || remoteSnap.exists()){
-        alert('Username already exists. Choose a different username.');
-        return;
-      }
+      // Create Firebase Auth account
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-      const passwordHash = await sha256hex(password);
-      const user = {
+      const userRef = ref(db, "users/" + username);
+      const newUser = {
         username,
         email,
-        passwordHash,
-        referralCode: generateReferralCode(username),
+        referralCode: username + Math.floor(Math.random() * 10000),
         invited: 0,
         referralEarnings: 0,
-        balance: 0
+        inviterCode: inviterCode || "",
+        balance: inviterCode ? 0.3 : 0
       };
 
-      // incoming ref priority: field > URL
-      const incomingRefCode = inviterCodeInput || localStorage.getItem('incomingRefCode') || '';
+      await set(userRef, newUser);
 
-      let newBalance = 0;
-      if(incomingRefCode){
-        const inviterDoc = await findUserByReferralCode(incomingRefCode);
-        if(inviterDoc){
-          const inviterData = inviterDoc.data();
-          const inviterRef = inviterDoc.ref;
-          const inviterInvited = (inviterData.invited || 0) + 1;
-          const inviterEarnings = (inviterData.referralEarnings || 0) + 0.3;
-          const inviterBalance = (inviterData.balance || 0) + 0.3;
-          try {
-            await updateDoc(inviterRef, {
-              invited: inviterInvited,
-              referralEarnings: inviterEarnings,
-              balance: inviterBalance,
-              updatedAt: serverTimestamp()
+      // If invited, reward inviter
+      if (inviterCode) {
+        const usersSnap = await get(ref(db, "users"));
+        usersSnap.forEach(childSnap => {
+          const inviter = childSnap.val();
+          if (inviter.referralCode === inviterCode) {
+            const inviterRef = ref(db, "users/" + inviter.username);
+            update(inviterRef, {
+              invited: (inviter.invited || 0) + 1,
+              referralEarnings: (inviter.referralEarnings || 0) + 0.3,
+              balance: (inviter.balance || 0) + 0.3
             });
-          } catch(e){
-            // fallback to setDoc merge if updateDoc fails
-            await setDoc(inviterRef, { invited: inviterInvited, referralEarnings: inviterEarnings, balance: inviterBalance, updatedAt: serverTimestamp() }, { merge: true });
           }
-          newBalance = 0.3;
-        }
+        });
       }
 
-      // Save locally & remotely. If Firestore save fails, we still keep local copy and inform user
-      localStorage.setItem(`user_${username}`, JSON.stringify(user));
-      localStorage.setItem(`${username}_balance`, newBalance.toFixed(6));
-      const userForFirestore = { ...user, balance: newBalance };
-      const saved = await saveUserToFirestore(userForFirestore);
-      if(!saved){
-        // Firestore failed; but we kept local copy. Inform user.
-        alert('Registration saved locally but failed to sync to backend (network issue). You can still login locally.');
-      } else {
-        // success
-        // nothing extra
-      }
-
-      // clear stored incomingRef to avoid reuse
-      localStorage.removeItem('incomingRefCode');
-
-      // show login UI and clear form fields
-      alert('Registration successful! You may now login.');
-      document.getElementById('username').value = '';
-      document.getElementById('email').value = '';
-      document.getElementById('password').value = '';
-      document.getElementById('inviterCode').value = '';
-      document.getElementById('agreeTC').checked = false;
-
-      showLogin();
-    } catch(err){
-      console.error('registerUser error', err);
-      alert('Registration failed — please try again. (See console for details)');
-    } finally {
-      registerBtn.disabled = false;
-      registerBtn.innerText = 'Register';
+      alert("✅ Registration successful! Redirecting to login...");
+      setTimeout(() => (window.location.href = "login.html"), 1200);
+    } catch (error) {
+      console.error("Registration Error:", error);
+      alert("Registration failed. Please try again.");
     }
   }
 
-  // login logic
-  async function loginUser(){
-    loginBtn.disabled = true;
-    loginBtn.innerText = 'Checking...';
-    try {
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      if(!username || !password){ alert('Please enter your credentials.'); return; }
+  // --- Login Function ---
+  async function loginUser() {
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
 
-      // prefer Firestore
-      try {
-        const userSnap = await getDoc(doc(db, 'users', username));
-        if(userSnap.exists()){
-          const userDoc = userSnap.data();
-          const enteredHash = await sha256hex(password);
-          if(userDoc.passwordHash !== enteredHash){ alert('Invalid username or password.'); return; }
-          localStorage.setItem('currentUser', username);
-          localStorage.setItem(`${username}_balance`, (userDoc.balance || 0).toFixed(6));
-          alert('Login successful! Redirecting to mine...');
-          window.location.href = 'mine.html';
-          return;
-        }
-      } catch(e){
-        console.warn('Firestore read error', e);
-      }
-
-      // fallback to localStorage
-      const localRaw = localStorage.getItem(`user_${username}`);
-      if(!localRaw){ alert('Invalid username or password.'); return; }
-      const localUser = JSON.parse(localRaw);
-      const enteredHash = await sha256hex(password);
-      if(localUser.passwordHash !== enteredHash){ alert('Invalid username or password.'); return; }
-      localStorage.setItem('currentUser', username);
-      alert('Login successful! Redirecting to mine...');
-      window.location.href = 'mine.html';
-    } catch(err){
-      console.error('loginUser error', err);
-      alert('Login failed — try again.');
-    } finally {
-      loginBtn.disabled = false;
-      loginBtn.innerText = 'Login';
+    if (!username || !password) {
+      alert("Please fill in both fields.");
+      return;
     }
-  }
 
-  // display referral info
-  async function displayReferralInfo(){
-    const username = localStorage.getItem('currentUser');
-    if(!username){ showLogin(); return; }
+    // Get user data by username
+    const userRef = ref(db, "users/" + username);
+    const userSnap = await get(userRef);
+    if (!userSnap.exists()) {
+      alert("User not found!");
+      return;
+    }
+    const userData = userSnap.val();
 
     try {
-      const userSnap = await getDoc(doc(db, 'users', username));
-      if(userSnap.exists()){
-        const user = userSnap.data();
-        applyUserToUI(user);
-        return;
-      }
-    } catch(e){
-      console.warn('Firestore read error', e);
-    }
-
-    const raw = localStorage.getItem(`user_${username}`);
-    if(!raw){ showLogin(); return; }
-    const user = JSON.parse(raw);
-    user.balance = parseFloat(localStorage.getItem(`${username}_balance`) || 0);
-    applyUserToUI(user);
-  }
-
-  function applyUserToUI(user){
-    document.getElementById('d_username_small').innerText = user.username;
-    document.getElementById('displayUsername').innerText = user.username;
-    document.getElementById('displayEmail').innerText = user.email || 'N/A';
-    document.getElementById('referralCode').innerText = user.referralCode;
-
-    // Build absolute referral link pointing to index.html in same directory
-    const path = window.location.pathname;
-    const idx = path.lastIndexOf('/');
-    const baseDir = idx >= 0 ? path.substring(0, idx) : '';
-    const link = `${location.origin}${baseDir}/index.html?ref=${encodeURIComponent(user.referralCode)}`;
-    document.getElementById('referralLink').innerText = link;
-
-    document.getElementById('referralCount').innerText = (user.invited || 0) > 0 ? (user.invited || 0) : 'No invitee yet';
-    document.getElementById('referralEarnings').innerText = '$' + ((user.referralEarnings||0).toFixed(2));
-    document.getElementById('d_balance').innerText = '$' + ((user.balance||0).toFixed(2));
-    getUserPosition(user.username).then(pos => {
-      document.getElementById('userPosition').innerHTML = `<strong>Your Position:</strong> ${pos}`;
-    });
-  }
-
-  // leaderboard position
-  async function getUserPosition(username){
-    try {
-      const usersCol = collection(db, 'users');
-      const snap = await getDocs(usersCol);
-      const arr = [];
-      snap.forEach(d => arr.push({ username: d.id, invited: d.data().invited || 0 }));
-      arr.sort((a,b) => b.invited - a.invited || a.username.localeCompare(b.username));
-      const pos = arr.findIndex(u => u.username === username);
-      if(pos === -1) return 'N/A';
-      return (5135 + pos) + 'th';
-    } catch(e){
-      let users = [];
-      Object.keys(localStorage).forEach(k => {
-        if(k.startsWith('user_')){
-          try { const u = JSON.parse(localStorage.getItem(k)); users.push({ username: u.username, invited: u.invited || 0 }); } catch {}
-        }
-      });
-      users.sort((a,b) => b.invited - a.invited || a.username.localeCompare(b.username));
-      const pos = users.findIndex(u => u.username === username);
-      if(pos === -1) return 'N/A';
-      return (5135 + pos) + 'th';
+      await signInWithEmailAndPassword(auth, userData.email, password);
+      localStorage.setItem("currentUser", username);
+      alert("✅ Login successful! Redirecting to mining page...");
+      window.location.href = "mine.html";
+    } catch (err) {
+      console.error("Login Error:", err);
+      alert("Invalid email or password.");
     }
   }
 
-  // copy & share helpers
-  function copyTextToClipboard(text, successMsg='Copied!'){ navigator.clipboard.writeText(text).then(()=>alert(successMsg)).catch(()=>alert('Copy failed')); }
-  function copyText(id){ const text = document.getElementById(id).innerText; copyTextToClipboard(text, 'Referral link copied!'); }
-  function copyCode(){ const text = document.getElementById('referralCode').innerText; copyTextToClipboard(text, 'Referral code copied!'); }
-  function shareReferral(){
-    const code = document.getElementById('referralCode').innerText;
-    const path = window.location.pathname;
-    const idx = path.lastIndexOf('/');
-    const baseDir = idx >= 0 ? path.substring(0, idx) : '';
-    const link = `${location.origin}${baseDir}/index.html?ref=${encodeURIComponent(code)}`;
-    const message = `Earn free USDT with USDT Miner! Register with my referral code ${code} and you both get $0.30 instantly.\n\n${link}`;
-    if(navigator.share){
-      navigator.share({ title: 'USDT Miner', text: message, url: link })
-        .catch(()=>{ navigator.clipboard.writeText(message); alert('Share failed, message copied instead.'); });
-    } else {
-      navigator.clipboard.writeText(message).then(()=>alert('Referral message copied!')).catch(()=>alert('Copy failed'));
-    }
+  // --- Helper to Copy Referral Link ---
+  function copyText(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => alert("Referral link copied!"));
   }
 
-  // logout
-  function logout(){ localStorage.removeItem('currentUser'); alert('Logged out.'); showLogin(); }
+  // --- Display Referral Info ---
+  async function displayReferralInfo() {
+    const username = localStorage.getItem("currentUser");
+    if (!username) return;
 
-  // notifications listener (real-time with 30s re-show)
-  function startNotificationListener(){
-    try {
-      const notificationsCol = collection(db, 'notifications');
-      const q = query(notificationsCol, orderBy('createdAt','desc'), limit(1));
-      onSnapshot(q, (snapshot) => {
-        if(!snapshot.empty){
-          const docSnap = snapshot.docs[0];
-          latestNotificationDoc = { id: docSnap.id, ...docSnap.data() };
-          showNotificationIfAllowed();
-          if(!notifInterval) notifInterval = setInterval(showNotificationIfAllowed, 30000);
-        } else {
-          latestNotificationDoc = null;
-          notifModal.style.display='none';
-          if(notifInterval){ clearInterval(notifInterval); notifInterval = null; }
-        }
-      });
-    } catch(e){
-      console.warn('Realtime notifications failed, falling back to polling', e);
-      pollNotifications();
-      if(!notifInterval) notifInterval = setInterval(pollNotifications, 30000);
-    }
+    const snap = await get(ref(db, "users/" + username));
+    if (!snap.exists()) return;
+
+    const data = snap.val();
+    document.getElementById("displayUsername").innerText = data.username;
+    document.getElementById("displayEmail").innerText = data.email || "N/A";
+    document.getElementById("referralCode").innerText = data.referralCode;
+    document.getElementById("referralLink").innerText =
+      `https://coachflux.github.io/Ref/index.html?ref=${data.referralCode}`;
   }
 
-  async function pollNotifications(){
-    try {
-      const notificationsCol = collection(db, 'notifications');
-      const q = query(notificationsCol, orderBy('createdAt','desc'), limit(1));
-      const snap = await getDocs(q);
-      if(!snap.empty){
-        const docSnap = snap.docs[0];
-        latestNotificationDoc = { id: docSnap.id, ...docSnap.data() };
-        showNotificationIfAllowed();
-      } else {
-        latestNotificationDoc = null;
-        notifModal.style.display='none';
-      }
-    } catch(e){ console.warn('pollNotifications error', e); }
+  // --- Notification Polling (every 30s) ---
+  async function pollNotifications() {
+    const notifRef = ref(db, "notifications/latest");
+    const notifSnap = await get(notifRef);
+    if (notifSnap.exists()) {
+      const notif = notifSnap.val();
+      showNotification(notif);
+    }
+    setTimeout(pollNotifications, 30000);
   }
 
-  function showNotificationIfAllowed(){
-    if(!latestNotificationDoc) return;
-    const now = Date.now();
-    if(userDismissedAt && (now - userDismissedAt) < 30000) return;
-    notifTitle.innerText = latestNotificationDoc.title || 'Notification';
-    notifMessage.innerText = latestNotificationDoc.message || '';
-    if(latestNotificationDoc.imageURL){
-      notifImage.style.display = 'block';
-      notifImage.src = latestNotificationDoc.imageURL;
-    } else {
-      notifImage.style.display = 'none';
-    }
-    notifModal.style.display = 'flex';
+  function showNotification(notif) {
+    const old = document.getElementById("popupNotif");
+    if (old) old.remove();
+
+    const box = document.createElement("div");
+    box.id = "popupNotif";
+    box.style.position = "fixed";
+    box.style.bottom = "20px";
+    box.style.right = "20px";
+    box.style.background = "#fff";
+    box.style.border = "2px solid #00b87a";
+    box.style.padding = "10px";
+    box.style.borderRadius = "10px";
+    box.style.display = "flex";
+    box.style.alignItems = "center";
+    box.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+    box.style.zIndex = "9999";
+
+    const img = document.createElement("img");
+    img.src = notif.image || "https://coachflux.github.io/Ref/img/usdt.webp";
+    img.style.width = "50px";
+    img.style.height = "50px";
+    img.style.marginRight = "10px";
+    img.style.borderRadius = "6px";
+
+    const content = document.createElement("div");
+    content.innerHTML = `<strong>${notif.title}</strong><br>${notif.content}`;
+
+    const close = document.createElement("button");
+    close.innerText = "✕";
+    close.style.marginLeft = "10px";
+    close.style.border = "none";
+    close.style.background = "transparent";
+    close.style.cursor = "pointer";
+    close.onclick = () => box.remove();
+
+    box.appendChild(img);
+    box.appendChild(content);
+    box.appendChild(close);
+    document.body.appendChild(box);
   }
 
-  // On load: store ?ref, show view, start notifications
-  window.addEventListener('load', async ()=>{
-    try {
-      const urlParams = new URLSearchParams(location.search);
-      const ref = urlParams.get('ref');
-      const view = urlParams.get('view'); // optional ?view=referral
-      if(ref) localStorage.setItem('incomingRefCode', ref);
+  // Start notifications polling for logged-in users
+  if (localStorage.getItem("currentUser")) pollNotifications();
 
-      const currentUser = localStorage.getItem('currentUser');
-      if(view === 'referral' && currentUser){
-        await showReferral();
-      } else if(currentUser){
-        await showReferral();
-      } else {
-        showLogin(); // default when not logged in
-      }
-
-      startNotificationListener();
-    } catch(e){
-      console.error('Onload error', e);
-      showLogin();
-    }
-  });
-
-  // Wire up UI events
-  registerBtn.addEventListener('click', registerUser);
-  loginBtn.addEventListener('click', loginUser);
-  createAccountBtn.addEventListener('click', (e)=>{ e.preventDefault(); showRegister(); });
-  gotoLogin.addEventListener('click', (e)=>{ e.preventDefault(); showLogin(); });
-  copyLinkBtn.addEventListener('click', ()=>{ copyText('referralLink'); });
-  copyCodeBtn.addEventListener('click', copyCode);
-  shareBtn.addEventListener('click', shareReferral);
-  logoutBtn.addEventListener('click', logout);
-
-  // expose for console/debugging
+  // Expose to window for buttons
   window.registerUser = registerUser;
   window.loginUser = loginUser;
-  window.showReferral = showReferral;
-  window.showLogin = showLogin;
-  window.showRegister = showRegister;
-  window.copyCode = copyCode;
   window.copyText = copyText;
-  window.shareReferral = shareReferral;
-  window.logout = logout;
+  window.displayReferralInfo = displayReferralInfo;
 </script>
+
 </body>
 </html>
