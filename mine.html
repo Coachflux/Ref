@@ -172,23 +172,30 @@
       align-items: center;
     }
 
-    /* Toast Notification Styles */
+    /* Toast Styles */
     .toast {
       position: fixed;
       top: 20px;
       left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background: #00bcd4;
+      transform: translateX(-50%) translateY(-200%);
+      background: #1e293b;
       color: white;
-      padding: 15px 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 12px 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
       opacity: 0;
-      transition: opacity 0.5s ease, transform 0.3s ease;
-      z-index: 1000;
-      cursor: pointer;
+      transition: all 0.4s ease;
+      z-index: 10000;
       max-width: 90%;
-      text-align: center;
+    }
+
+    .toast img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin-right: 12px;
     }
 
     .toast.show {
@@ -198,7 +205,32 @@
 
     .toast.hide {
       opacity: 0;
-      transform: translateX(-50%) translateY(-30px);
+      transform: translateX(-50%) translateY(-200%);
+    }
+
+    .toast strong {
+      color: #38bdf8;
+      font-size: 1rem;
+    }
+
+    .toast button {
+      margin-left: 10px;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
 /* Icon animation on click */
@@ -317,7 +349,81 @@
   </div>
 </div>
 </a>
+  
+<!-- Firebase + Notification Toast -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+    // 🔥 Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+      authDomain: "usdt-login.firebaseapp.com",
+      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
+      projectId: "usdt-login",
+      storageBucket: "usdt-login.firebasestorage.app",
+      messagingSenderId: "807602854227",
+      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let notifications = [];
+    let currentIndex = 0;
+
+    // Listen for new notifications
+    function loadNotifications() {
+      const notifRef = ref(db, "notifications");
+      onValue(notifRef, snapshot => {
+        notifications = [];
+        snapshot.forEach(child => notifications.push(child.val()));
+        if (notifications.length > 0) startToastCycle();
+      });
+    }
+
+    // Cycle every 30 seconds
+    function startToastCycle() {
+      showToast(notifications[currentIndex]);
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % notifications.length;
+        showToast(notifications[currentIndex]);
+      }, 30000);
+    }
+
+    // Show toast popup
+    function showToast(note) {
+      const toast = document.createElement("div");
+      toast.classList.add("toast");
+
+      const img = document.createElement("img");
+      img.src = note.image || "https://coachflux.github.io/Ref/img/usdt.webp";
+
+      const textDiv = document.createElement("div");
+      textDiv.innerHTML = `<strong>${note.title || "Announcement"}</strong><br>${note.message || ""}`;
+
+      const closeBtn = document.createElement("button");
+      closeBtn.innerHTML = "×";
+      closeBtn.onclick = () => hideToast(toast);
+
+      toast.appendChild(img);
+      toast.appendChild(textDiv);
+      toast.appendChild(closeBtn);
+      document.body.appendChild(toast);
+
+      setTimeout(() => toast.classList.add("show"), 100);
+      setTimeout(() => hideToast(toast), 6000);
+    }
+
+    function hideToast(toast) {
+      toast.classList.remove("show");
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 400);
+    }
+
+    // Initialize
+    loadNotifications();
+  </script>
   <script src="usdt.js"></script>
 </body>
 </html>
