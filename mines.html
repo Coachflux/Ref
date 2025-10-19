@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Mining Dashboard</title>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #e6f7f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      margin: 0;
+      padding-top: 70px;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #00bcd4;
+      color: #fff;
+      text-align: center;
+      padding: 15px 0;
+      font-size: 20px;
+      font-weight: 600;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .card {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .balance {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .balance span {
+      display: block;
+      font-size: 30px;
+      font-weight: bold;
+      color: #00bcd4;
+      margin-top: 8px;
+    }
+
+    .referral {
+      font-size: 16px;
+      margin-top: 20px;
+      color: #333;
+    }
+
+    .share-btn {
+      background: #00bcd4;
+      color: #fff;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 50px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    .share-btn:hover {
+      background: #0097a7;
+    }
+
+    .logout {
+      background: #ff5252;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      margin-top: 30px;
+      cursor: pointer;
+    }
+
+    /* Toast Notification Styles */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #00bcd4;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.3s ease;
+      z-index: 1000;
+      cursor: pointer;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.hide {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-30px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">Mining Dashboard</div>
+
+  <div class="card">
+    <div class="balance">Your Balance<span id="balance">$0.00</span></div>
+    <div class="referral">
+      <div><strong>Total Invited:</strong> <span id="invited">0</span></div>
+      <div><strong>Referral Earnings:</strong> <span id="earnings">$0.00</span></div>
+      <div><strong>Position:</strong> <span id="position">6538</span></div>
+    </div>
+
+    <button class="share-btn" id="shareBtn">Share Referral Link</button>
+  </div>
+
+  <button class="logout" id="logoutBtn">Logout</button>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+      authDomain: "usdt-login.firebaseapp.com",
+      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
+      projectId: "usdt-login",
+      storageBucket: "usdt-login.appspot.com",
+      messagingSenderId: "807602854227",
+      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const balanceEl = document.getElementById("balance");
+    const invitedEl = document.getElementById("invited");
+    const earningsEl = document.getElementById("earnings");
+    const positionEl = document.getElementById("position");
+
+    // Listen for Auth user
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      const userRef = ref(db, "users/" + user.uid);
+      onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const invited = data.invited || 0;
+          const earnings = (invited * 0.3).toFixed(2);
+          balanceEl.textContent = `$${(data.balance || 0).toFixed(2)}`;
+          invitedEl.textContent = invited;
+          earningsEl.textContent = `$${earnings}`;
+        }
+      });
+
+      // Calculate position
+      const usersSnap = await get(ref(db, "users"));
+      if (usersSnap.exists()) {
+        const usersData = [];
+        usersSnap.forEach(child => {
+          const val = child.val();
+          usersData.push({ invited: val.invited || 0 });
+        });
+        usersData.sort((a,b) => b.invited - a.invited);
+        const position = usersData.findIndex(u => u.invited === (data?.invited || 0)) + 6538;
+        positionEl.textContent = position || 6538;
+      }
+
+      loadNotifications();
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    });
+
+    // Share button
+    document.getElementById("shareBtn").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const link = `https://coachflux.github.io/Ref/index.html?ref=${user.uid}`;
+      const shareData = {
+        title: "Earn $0.3 USDT instantly!",
+        text: "Join me on Mining Savi and earn $0.3 for signing up!",
+        url: link
+      };
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        navigator.clipboard.writeText(link);
+        alert("Referral link copied to clipboard!");
+      }
+    });
+
+    // ----------- Notifications ----------
+    let allNotifications = [];
+    let currentNotifIndex = 0;
+
+    function loadNotifications() {
+      const notifRef = ref(db, "notifications");
+      onValue(notifRef, snapshot => {
+        allNotifications = [];
+        snapshot.forEach(child => {
+          const note = child.val();
+          allNotifications.push(note.message);
+        });
+        startNotificationCycle();
+      });
+    }
+
+    function startNotificationCycle() {
+      if (allNotifications.length === 0) return;
+      showNotification(allNotifications[currentNotifIndex]);
+
+      setInterval(() => {
+        currentNotifIndex = (currentNotifIndex + 1) % allNotifications.length;
+        showNotification(allNotifications[currentNotifIndex]);
+      }, 30000);
+    }
+
+    function showNotification(message) {
+      const toast = document.createElement("div");
+      toast.classList.add("toast");
+      toast.textContent = message;
+
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add("show"), 100);
+
+      // Close manually
+      toast.addEventListener("click", () => hideToast(toast));
+
+      // Auto-hide
+      setTimeout(() => hideToast(toast), 6000);
+    }
+
+    function hideToast(toast) {
+      toast.classList.remove("show");
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 500);
+    }
+  </script>
+</body>
+</html>
