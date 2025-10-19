@@ -235,3 +235,51 @@ function showPage(page) {
         }
       };
     })();
+
+
+ // ----------- Notifications ----------
+    let allNotifications = [];
+    let currentNotifIndex = 0;
+
+    function loadNotifications() {
+      const notifRef = ref(db, "notifications");
+      onValue(notifRef, snapshot => {
+        allNotifications = [];
+        snapshot.forEach(child => {
+          const note = child.val();
+          allNotifications.push(note.message);
+        });
+        startNotificationCycle();
+      });
+    }
+
+    function startNotificationCycle() {
+      if (allNotifications.length === 0) return;
+      showNotification(allNotifications[currentNotifIndex]);
+
+      setInterval(() => {
+        currentNotifIndex = (currentNotifIndex + 1) % allNotifications.length;
+        showNotification(allNotifications[currentNotifIndex]);
+      }, 30000);
+    }
+
+    function showNotification(message) {
+      const toast = document.createElement("div");
+      toast.classList.add("toast");
+      toast.textContent = message;
+
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add("show"), 100);
+
+      // Close manually
+      toast.addEventListener("click", () => hideToast(toast));
+
+      // Auto-hide
+      setTimeout(() => hideToast(toast), 6000);
+    }
+
+    function hideToast(toast) {
+      toast.classList.remove("show");
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 500);
+    }
