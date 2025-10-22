@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mining Savi Notifications</title>
+  <link rel="icon" href="icon.png" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f2f7fa;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      color: black;
+      border-radius: 10px;
+      padding: 15px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: fadeIn 0.3s ease-in;
+      z-index: 9999;
+    }
+    .toast img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h2>Mining Savi Notifications</h2>
+  <p>You will receive notifications directly on your phone home screen.</p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+      authDomain: "usdt-login.firebaseapp.com",
+      projectId: "usdt-login",
+      storageBucket: "usdt-login.firebasestorage.app",
+      messagingSenderId: "807602854227",
+      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const messaging = getMessaging(app);
+
+    // ✅ Register Service Worker
+    navigator.serviceWorker.register("firebase-messaging-sw.js")
+      .then(() => console.log("Service Worker Registered"));
+
+    // ✅ Request permission and get token
+    async function requestPermission() {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const token = await getToken(messaging, {
+          vapidKey: "BOL_q9yn151IXymDdYd7e06m1vZjjlCAZf91wtAJa8S4IsfcaoW_4Pu54z74qwzhUzfy81rmDO-Is-pTVDTUYNY"
+        });
+        console.log("FCM Token:", token);
+      } else {
+        alert("Please allow notifications to receive updates.");
+      }
+    }
+
+    requestPermission();
+
+    // ✅ Handle foreground notifications
+    onMessage(messaging, (payload) => {
+      console.log("Message received: ", payload);
+
+      const notification = document.createElement("div");
+      notification.className = "toast";
+      notification.innerHTML = `
+        <img src="${payload.notification.image || 'icon.png'}">
+        <div>
+          <strong>${payload.notification.title}</strong><br>
+          <small>${payload.notification.body}</small>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 10000);
+    });
+  </script>
+</body>
+</html>
