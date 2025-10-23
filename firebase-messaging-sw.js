@@ -1,36 +1,24 @@
-// firebase-messaging-sw.js
-importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js");
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
-// ✅ Your Firebase Config
 firebase.initializeApp({
-  apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
-  authDomain: "usdt-login.firebaseapp.com",
-  projectId: "usdt-login",
-  storageBucket: "usdt-login.firebasestorage.app",
-  messagingSenderId: "807602854227",
-  appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_FIREBASE_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 });
 
-// ✅ Initialize messaging
 const messaging = firebase.messaging();
 
-// ✅ Handle background notifications
+// Background push notification display
 messaging.onBackgroundMessage((payload) => {
-  console.log("Received background message: ", payload);
-
-  const notificationTitle = payload.notification.title || "Mining Savi";
+  console.log('Background message received ', payload);
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: payload.notification.image || "/icon.png", // notification image
-    badge: "/icon.png"
+    icon: payload.notification.image || '/icon-192.png',
   };
-
   self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
-// ✅ Open app when user taps the notification
-self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  event.waitUntil(clients.openWindow("/mine.html"));
 });
