@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>USDT Miner — Mine</title>
+<link rel="icon" href="https://coachflux.github.io/Ref/img/usdt.webp">
+<style>
+  :root{
+    --bg:#041d18;
+    --card:#f6fff8;
+    --accent:#00d996;
+    --muted:#6b8a81;
+    --danger:#c33;
+    --gain:#0a8f4a;
+    --loss:#b12e2e;
+  }
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;
+    min-height:100vh;
+    background: linear-gradient(180deg,var(--bg),#01312b);
+    color:#fff;
+  }
+
+  /* --- Top fixed ticker --- */
+  .ticker-wrap{
+    position:fixed;
+    left:0;
+    right:0;
+    top:0;
+    height:56px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
+    backdrop-filter: blur(6px);
+    display:flex;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,0.03);
+    z-index:9999;
+    padding: 6px 12px;
+  }
+  .ticker {
+    display:flex;
+    align-items:center;
+    height:44px;
+    overflow:hidden;
+    width:100%;
+    position:relative;
+  }
+  .ticker-track{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    white-space:nowrap;
+    will-change:transform;
+    padding-left:100%;
+    animation: scrollLeft linear infinite;
+    animation-duration: 28s;
+  }
+  .ticker-item{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    background: rgba(255,255,255,0.03);
+    padding:8px 12px;
+    border-radius:999px;
+    min-width:180px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    color:#e9fff7;
+    font-weight:600;
+    font-size:14px;
+  }
+  .ticker-item .icon{
+    width:28px;height:28px;border-radius:6px;background:#fff;overflow:hidden;flex:0 0 28px;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .ticker-item img{width:100%;height:100%;object-fit:cover;display:block}
+  .ticker-item .sym{opacity:0.95;font-weight:800;margin-right:6px;color:#e6fff4}
+  .ticker-item .price{font-weight:700}
+  .ticker-item .change{margin-left:6px;font-weight:700}
+  .ticker-item .change.gain{color:var(--gain)}
+  .ticker-item .change.loss{color:var(--loss)}
+
+  .ticker-wrap:hover .ticker-track{
+    animation-play-state:paused;
+  }
+
+  @keyframes scrollLeft {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); } /* we duplicate items for continuous scroll */
+  }
+
+  /* --- page content, pushed below ticker --- */
+  .page{
+    padding: 88px 20px 40px; /* top padding to avoid ticker overlap */
+    max-width:980px;
+    margin:0 auto;
+    color:#eaf6f0;
+  }
+
+  .center{
+    text-align:center;
+  }
+
+  /* responsive tweak: slower scroll on small screens */
+  @media (max-width:600px){
+    .ticker-track{ animation-duration: 40s; }
+    .ticker-item{ min-width:150px; font-size:13px }
+  }
+</style>
+</head>
+<body>
+  <!-- Fixed Ticker Bar -->
+  <div class="ticker-wrap" role="region" aria-label="Cryptocurrency prices">
+    <div class="ticker" id="ticker">
+      <div class="ticker-track" id="tickerTrack">
+        <!-- JS will inject .ticker-item entries here and duplicate for seamless scroll -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <main class="page">
+    <h1 class="center">Welcome to USDT Miner</h1>
+    <p class="center muted" style="color:rgba(255,255,255,0.7)">This page displays real-time notifications and a live crypto ticker. Notifications use Firebase Cloud Messaging if enabled.</p>
+
+    <!-- You can place the rest of your mine content here. The ticker sits fixed at the top. -->
+  </main>
+
+<script>
+/*
+  Crypto ticker
+  - uses CoinGecko public API to fetch simple price and 24h change
+  - coins: bitcoin, ripple (xrp), binancecoin (bnb), solana (sol), ethereum (eth), sui (sui), tron (tron)
+  - the track duplicates the items for a continuous loop (so we scroll -50%).
+*/
+
+const COINS = [
+  { id: 'bitcoin', symbol: 'BTC', icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
+  { id: 'ripple', symbol: 'XRP', icon: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png' },
+  { id: 'binancecoin', symbol: 'BNB', icon: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png' },
+  { id: 'solana', symbol: 'SOL', icon: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
+  { id: 'ethereum', symbol: 'ETH', icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
+  { id: 'sui', symbol: 'SUI', icon: 'https://assets.coingecko.com/coins/images/28685/large/sui.png' },
+  { id: 'tron', symbol: 'TRON', icon: 'https://assets.coingecko.com/coins/images/1094/large/tron-logo.png' }
+];
+
+const COINGECKO_SIMPLE_PRICE = 'https://api.coingecko.com/api/v3/simple/price';
+const tickerTrack = document.getElementById('tickerTrack');
+
+function formatPrice(val){
+  if(val >= 1) return '$' + Number(val).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  // small values (eg XRP)
+  return '$' + Number(val).toPrecision(4);
+}
+
+function createTickerItem(coin, price, change){
+  const item = document.createElement('div');
+  item.className = 'ticker-item';
+  item.innerHTML = `
+    <div class="icon"><img src="${coin.icon}" alt="${coin.symbol}"/></div>
+    <div>
+      <span class="sym">${coin.symbol}</span>
+      <span class="price">${formatPrice(price)}</span>
+      <span class="change ${change >= 0 ? 'gain' : 'loss'}">${change >= 0 ? '+' : ''}${(change).toFixed(2)}%</span>
+    </div>
+  `;
+  return item;
+}
+
+async function fetchPrices(){
+  try {
+    const ids = COINS.map(c=>c.id).join(',');
+    const vs = 'usd';
+    const url = `${COINGECKO_SIMPLE_PRICE}?ids=${encodeURIComponent(ids)}&vs_currencies=${vs}&include_24hr_change=true`;
+    const res = await fetch(url, {cache: 'no-cache'});
+    if(!res.ok) throw new Error('Price fetch failed: ' + res.status);
+    const data = await res.json();
+    // rebuild ticker
+    tickerTrack.innerHTML = '';
+    const items = [];
+    for(const coin of COINS){
+      const d = data[coin.id];
+      if(!d) continue;
+      const price = d.usd;
+      const change = d.usd_24h_change || 0;
+      const node = createTickerItem(coin, price, change);
+      tickerTrack.appendChild(node);
+      // keep an array so we can duplicate items for seamless scroll
+      items.push(node);
+    }
+    // duplicate items to allow continuous scroll (we scroll -50% so duplication gives smooth loop)
+    for(const node of items){
+      tickerTrack.appendChild(node.cloneNode(true));
+    }
+    // adjust animation duration slightly based on number of items (more items = longer duration)
+    const baseDuration = 28; // seconds
+    const duration = Math.max(18, baseDuration + (items.length - 7) * 3);
+    tickerTrack.style.animationDuration = duration + 's';
+  } catch(err){
+    console.error('Ticker fetch error', err);
+    // show fallback
+    tickerTrack.innerHTML = '';
+    const msg = document.createElement('div');
+    msg.className = 'ticker-item';
+    msg.style.minWidth = '320px';
+    msg.innerHTML = `<div style="font-weight:700">Price feed unavailable</div>`;
+    tickerTrack.appendChild(msg);
+    tickerTrack.appendChild(msg.cloneNode(true));
+  }
+}
+
+// initial load
+fetchPrices();
+
+// refresh periodically
+setInterval(fetchPrices, 15000); // every 15s
+
+/* -------------------------------
+  OPTIONAL: If you want to save the user's FCM token to your DB (Realtime/Firestore),
+  you can insert your token-storage logic here after your own FCM setup code.
+  Example (pseudocode):
+    // after obtaining token:
+    fetch('/save-token', {method:'POST', body: JSON.stringfy({token})})
+    // or use firebase.database().ref('tokens/...' ).set(token)
+   ------------------------------- */
+
+</script>
+</body>
+</html>
