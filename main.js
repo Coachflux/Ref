@@ -1,14 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
-const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+   // 🔥 Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR_rkTfGLWWX4NRWOVer9wwGlUFiRMRO4",
+      authDomain: "usdt-login.firebaseapp.com",
+      databaseURL: "https://usdt-login-default-rtdb.firebaseio.com",
+      projectId: "usdt-login",
+      storageBucket: "usdt-login.firebasestorage.app",
+      messagingSenderId: "807602854227",
+      appId: "1:807602854227:web:309ae73f572e48dbc7a9a6"
+    };
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
