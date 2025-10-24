@@ -109,121 +109,121 @@
 </style>
 </head>
 <body>
-  <!-- Fixed Ticker Bar -->
-  <div class="ticker-wrap" role="region" aria-label="Cryptocurrency prices">
-    <div class="ticker" id="ticker">
-      <div class="ticker-track" id="tickerTrack">
-        <!-- JS will inject .ticker-item entries here and duplicate for seamless scroll -->
-      </div>
-    </div>
+  <!-- 💧 Mining Savi — Water Drop Crypto Ticker -->
+<div class="crypto-ticker">
+  <div class="crypto-track" id="cryptoTrack">
+    <!-- Dynamic crypto prices will appear here -->
   </div>
+</div>
 
-  <!-- Page content -->
-  <main class="page">
-    <h1 class="center">Welcome to USDT Miner</h1>
-    <p class="center muted" style="color:rgba(255,255,255,0.7)">This page displays real-time notifications and a live crypto ticker. Notifications use Firebase Cloud Messaging if enabled.</p>
+<style>
+  /* 💠 Fixed Neumorphism Crypto Ticker */
+  .crypto-ticker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 9999;
+    background: linear-gradient(145deg, #0a1224, #0e1730);
+    box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.4),
+                inset -5px -5px 10px rgba(255, 255, 255, 0.08),
+                0 0 10px rgba(0, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 0;
+    font-family: "Poppins", sans-serif;
+  }
 
-    <!-- You can place the rest of your mine content here. The ticker sits fixed at the top. -->
-  </main>
+  /* 🌀 Continuous moving track */
+  .crypto-track {
+    display: inline-block;
+    white-space: nowrap;
+    animation: tickerScroll 45s linear infinite;
+  }
+
+  @keyframes tickerScroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* 💧 Each crypto item bubble */
+  .crypto-item {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(145deg, #101b3a, #0c142c);
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.6),
+                -5px -5px 10px rgba(255, 255, 255, 0.05),
+                0 0 10px rgba(0, 255, 255, 0.3);
+    color: #e6faff;
+    border-radius: 25px;
+    padding: 5px 14px;
+    margin: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: transform 0.3s ease;
+  }
+
+  .crypto-item:hover {
+    transform: scale(1.1);
+  }
+
+  .crypto-item span {
+    margin-left: 6px;
+    font-weight: 600;
+    color: #00ffd1;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.7);
+  }
+
+  /* Ensure content below is visible */
+  body {
+    padding-top: 60px;
+  }
+</style>
 
 <script>
-/*
-  Crypto ticker
-  - uses CoinGecko public API to fetch simple price and 24h change
-  - coins: bitcoin, ripple (xrp), binancecoin (bnb), solana (sol), ethereum (eth), sui (sui), tron (tron)
-  - the track duplicates the items for a continuous loop (so we scroll -50%).
-*/
+  // ⚡ Live Crypto Price Tracker
+  const cryptoSymbols = ['bitcoin', 'ethereum', 'binancecoin', 'solana', 'ripple', 'sui', 'tron'];
+  const track = document.getElementById('cryptoTrack');
 
-const COINS = [
-  { id: 'bitcoin', symbol: 'BTC', icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
-  { id: 'ripple', symbol: 'XRP', icon: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png' },
-  { id: 'binancecoin', symbol: 'BNB', icon: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png' },
-  { id: 'solana', symbol: 'SOL', icon: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
-  { id: 'ethereum', symbol: 'ETH', icon: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
-  { id: 'sui', symbol: 'SUI', icon: 'https://assets.coingecko.com/coins/images/28685/large/sui.png' },
-  { id: 'tron', symbol: 'TRON', icon: 'https://assets.coingecko.com/coins/images/1094/large/tron-logo.png' }
-];
+  async function loadPrices() {
+    try {
+      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cryptoSymbols.join(',')}&vs_currencies=usd`);
+      const data = await res.json();
 
-const COINGECKO_SIMPLE_PRICE = 'https://api.coingecko.com/api/v3/simple/price';
-const tickerTrack = document.getElementById('tickerTrack');
+      let tickerHTML = '';
+      cryptoSymbols.forEach(symbol => {
+        const name = symbol.charAt(0).toUpperCase() + symbol.slice(1);
+        const price = data[symbol]?.usd?.toLocaleString() || 'N/A';
+        const logo = {
+          bitcoin: '₿',
+          ethereum: 'Ξ',
+          binancecoin: '🟡',
+          solana: '💠',
+          ripple: '💧',
+          sui: '🌊',
+          tron: '🔺'
+        }[symbol] || '💎';
 
-function formatPrice(val){
-  if(val >= 1) return '$' + Number(val).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-  // small values (eg XRP)
-  return '$' + Number(val).toPrecision(4);
-}
+        tickerHTML += `
+          <div class="crypto-item">
+            ${logo} ${name}: <span>$${price}</span>
+          </div>`;
+      });
 
-function createTickerItem(coin, price, change){
-  const item = document.createElement('div');
-  item.className = 'ticker-item';
-  item.innerHTML = `
-    <div class="icon"><img src="${coin.icon}" alt="${coin.symbol}"/></div>
-    <div>
-      <span class="sym">${coin.symbol}</span>
-      <span class="price">${formatPrice(price)}</span>
-      <span class="change ${change >= 0 ? 'gain' : 'loss'}">${change >= 0 ? '+' : ''}${(change).toFixed(2)}%</span>
-    </div>
-  `;
-  return item;
-}
-
-async function fetchPrices(){
-  try {
-    const ids = COINS.map(c=>c.id).join(',');
-    const vs = 'usd';
-    const url = `${COINGECKO_SIMPLE_PRICE}?ids=${encodeURIComponent(ids)}&vs_currencies=${vs}&include_24hr_change=true`;
-    const res = await fetch(url, {cache: 'no-cache'});
-    if(!res.ok) throw new Error('Price fetch failed: ' + res.status);
-    const data = await res.json();
-    // rebuild ticker
-    tickerTrack.innerHTML = '';
-    const items = [];
-    for(const coin of COINS){
-      const d = data[coin.id];
-      if(!d) continue;
-      const price = d.usd;
-      const change = d.usd_24h_change || 0;
-      const node = createTickerItem(coin, price, change);
-      tickerTrack.appendChild(node);
-      // keep an array so we can duplicate items for seamless scroll
-      items.push(node);
+      // Duplicate for infinite smooth scrolling
+      track.innerHTML = tickerHTML + tickerHTML;
+    } catch (err) {
+      console.error('Error loading crypto data:', err);
     }
-    // duplicate items to allow continuous scroll (we scroll -50% so duplication gives smooth loop)
-    for(const node of items){
-      tickerTrack.appendChild(node.cloneNode(true));
-    }
-    // adjust animation duration slightly based on number of items (more items = longer duration)
-    const baseDuration = 28; // seconds
-    const duration = Math.max(18, baseDuration + (items.length - 7) * 3);
-    tickerTrack.style.animationDuration = duration + 's';
-  } catch(err){
-    console.error('Ticker fetch error', err);
-    // show fallback
-    tickerTrack.innerHTML = '';
-    const msg = document.createElement('div');
-    msg.className = 'ticker-item';
-    msg.style.minWidth = '320px';
-    msg.innerHTML = `<div style="font-weight:700">Price feed unavailable</div>`;
-    tickerTrack.appendChild(msg);
-    tickerTrack.appendChild(msg.cloneNode(true));
   }
-}
 
-// initial load
-fetchPrices();
-
-// refresh periodically
-setInterval(fetchPrices, 15000); // every 15s
-
-/* -------------------------------
-  OPTIONAL: If you want to save the user's FCM token to your DB (Realtime/Firestore),
-  you can insert your token-storage logic here after your own FCM setup code.
-  Example (pseudocode):
-    // after obtaining token:
-    fetch('/save-token', {method:'POST', body: JSON.stringfy({token})})
-    // or use firebase.database().ref('tokens/...' ).set(token)
-   ------------------------------- */
-
+  loadPrices();
+  setInterval(loadPrices, 60000); // update every minute
 </script>
 </body>
 </html>
