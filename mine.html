@@ -109,15 +109,15 @@
 </style>
 </head>
 <body>
-  <!-- 💧 Mining Savi — Water Drop Crypto Ticker -->
+  <!-- 💧 Mining Savi — Real Logo Crypto Ticker -->
 <div class="crypto-ticker">
   <div class="crypto-track" id="cryptoTrack">
-    <!-- Dynamic crypto prices will appear here -->
+    <!-- Dynamic crypto prices with logos -->
   </div>
 </div>
 
 <style>
-  /* 💠 Fixed Neumorphism Crypto Ticker */
+  /* 🌊 Fixed Neumorphism Crypto Ticker */
   .crypto-ticker {
     position: fixed;
     top: 0;
@@ -128,13 +128,13 @@
     background: linear-gradient(145deg, #0a1224, #0e1730);
     box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.4),
                 inset -5px -5px 10px rgba(255, 255, 255, 0.08),
-                0 0 10px rgba(0, 255, 255, 0.2);
+                0 0 15px rgba(0, 255, 255, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 10px 0;
     font-family: "Poppins", sans-serif;
   }
 
-  /* 🌀 Continuous moving track */
+  /* Infinite scrolling animation */
   .crypto-track {
     display: inline-block;
     white-space: nowrap;
@@ -150,7 +150,7 @@
     }
   }
 
-  /* 💧 Each crypto item bubble */
+  /* 💠 Each crypto item bubble */
   .crypto-item {
     display: inline-flex;
     align-items: center;
@@ -161,7 +161,7 @@
     color: #e6faff;
     border-radius: 25px;
     padding: 5px 14px;
-    margin: 0 16px;
+    margin: 0 18px;
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.3px;
@@ -172,6 +172,14 @@
     transform: scale(1.1);
   }
 
+  .crypto-item img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+  }
+
   .crypto-item span {
     margin-left: 6px;
     font-weight: 600;
@@ -179,51 +187,51 @@
     text-shadow: 0 0 8px rgba(0, 255, 255, 0.7);
   }
 
-  /* Ensure content below is visible */
+  /* Prevent overlap with top content */
   body {
-    padding-top: 60px;
+    padding-top: 70px;
   }
 </style>
 
 <script>
-  // ⚡ Live Crypto Price Tracker
-  const cryptoSymbols = ['bitcoin', 'ethereum', 'binancecoin', 'solana', 'ripple', 'sui', 'tron'];
+  // ⚡ Live Crypto Tracker with Logos
+  const cryptoData = [
+    { id: 'bitcoin', name: 'Bitcoin', logo: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
+    { id: 'ethereum', name: 'Ethereum', logo: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
+    { id: 'binancecoin', name: 'BNB', logo: 'https://assets.coingecko.com/coins/images/825/large/binance-coin-logo.png' },
+    { id: 'solana', name: 'Solana', logo: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
+    { id: 'ripple', name: 'XRP', logo: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png' },
+    { id: 'sui', name: 'SUI', logo: 'https://assets.coingecko.com/coins/images/26375/large/sui_icon.png' },
+    { id: 'tron', name: 'TRON', logo: 'https://assets.coingecko.com/coins/images/1094/large/tron-logo.png' }
+  ];
+
   const track = document.getElementById('cryptoTrack');
 
   async function loadPrices() {
     try {
-      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cryptoSymbols.join(',')}&vs_currencies=usd`);
-      const data = await res.json();
+      const ids = cryptoData.map(c => c.id).join(',');
+      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
+      const prices = await res.json();
 
-      let tickerHTML = '';
-      cryptoSymbols.forEach(symbol => {
-        const name = symbol.charAt(0).toUpperCase() + symbol.slice(1);
-        const price = data[symbol]?.usd?.toLocaleString() || 'N/A';
-        const logo = {
-          bitcoin: '₿',
-          ethereum: 'Ξ',
-          binancecoin: '🟡',
-          solana: '💠',
-          ripple: '💧',
-          sui: '🌊',
-          tron: '🔺'
-        }[symbol] || '💎';
-
-        tickerHTML += `
+      let html = '';
+      cryptoData.forEach(c => {
+        const price = prices[c.id]?.usd?.toLocaleString() || 'N/A';
+        html += `
           <div class="crypto-item">
-            ${logo} ${name}: <span>$${price}</span>
+            <img src="${c.logo}" alt="${c.name} logo">
+            ${c.name}: <span>$${price}</span>
           </div>`;
       });
 
-      // Duplicate for infinite smooth scrolling
-      track.innerHTML = tickerHTML + tickerHTML;
-    } catch (err) {
-      console.error('Error loading crypto data:', err);
+      // Duplicate for infinite continuous loop
+      track.innerHTML = html + html;
+    } catch (error) {
+      console.error('Error fetching prices:', error);
     }
   }
 
   loadPrices();
-  setInterval(loadPrices, 60000); // update every minute
+  setInterval(loadPrices, 60000); // refresh every 60 seconds
 </script>
 </body>
 </html>
